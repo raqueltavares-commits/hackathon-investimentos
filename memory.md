@@ -7,6 +7,8 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 2026-05-26 --- Fase 1 do projeto = skill `tabela-tipologias`: puxa o anteprojeto LANÇAMENTOS do Drive, avalia cada unidade em todos os pavimentos, classifica (Terraço + Tipo + Capacidade) e agrupa em tipologias. Reusa a logica do projeto antigo `mapeamento-completo-de-mobilirio--unidade-spot`. Fase 2 (depois) = orcamento preliminar do decor puxando do catalogo (Google Sheets).
 
+2026-05-26 --- DECISAO de arquitetura (geracao da tabela): a planilha ANALISE/ÁREA UNDS e feita por OUTRA equipe (analise de arquitetura) e NAO e confiavel pros proximos lancamentos — a Raquel nem a produz. Logo: NAO depender dela; o **PDF do anteprojeto e a fonte principal** (sempre existe). Ler PDF precisa da inteligencia do Claude, entao a geracao FICA com o Claude (skill), NAO vira ferramenta so-navegador. Dashboard = VITRINE (todo mundo ve as tabelas + link do Drive). Self-service no navegador (backend + API Claude lendo PDF) = evolucao futura (opcao 3), fora do escopo agora. Ordem de fonte da skill: 1) planilha ÁREA UNDS se existir (exato); 2) quadro de areas em texto no PDF (exato); 3) leitura visual das plantas (estimativa, marcar pra conferir).
+
 2026-05-26 --- Saida TEM que ser tabela EDITAVEL (xlsx / Google Sheet), porque a Raquel altera a coluna Capacidade depois que o layout final fica pronto.
 
 2026-05-26 --- Agrupamento de tipologias: unidades com o MESMO layout/desenho + Terraco + Tipo + Capacidade sao a mesma tipologia, MESMO que o m2 difira por pouco (variacao pequena tolerada). Diferenca grande de m2 (layout distinto) separa. A tabela tem 2 colunas de area: ÁREA ÚTIL (m²) e ÁREA DA UNIDADE (m², privativa total). Casos de fronteira -> sinalizar no resumo.
