@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padrão Spot — Lógica & Regras · Seazone</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#">
+      <svg class="casinha" viewBox="0 0 48 48" aria-hidden="true">
+        <path class="casinha-body" d="M24 4 6 17v25a3 3 0 0 0 3 3h30a3 3 0 0 0 3-3V17L24 4Z"/>
+        <rect class="casinha-chimney" x="32" y="9" width="6" height="9" rx="2"/>
+        <circle class="casinha-hole" cx="24" cy="29" r="9.5"/>
+      </svg>
+      <span class="brand-name">seazone</span>
+      <span class="brand-sub">Padrão Spot</span>
+    </a>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="logica" role="tab">Lógica &amp; Regras</button>
+      <button class="tab is-soon" disabled>Tipologias por Spot <em>em breve</em></button>
+      <button class="tab is-soon" disabled>Orçamento <em>em breve</em></button>
+    </nav>
+  </header>
+
+  <main id="panel-logica" class="panel">
+    <section class="hero reveal">
+      <p class="eyebrow">Guia de Interiores · Lançamentos</p>
+      <h1>A lógica das tipologias e o<br><span class="hl">programa de mobiliário</span> Spot.</h1>
+      <p class="lede">Tudo que define como uma unidade é classificada e mobiliada — antes só na cabeça de quem faz, agora num lugar só, pra todo o time.</p>
+    </section>
+
+    <section class="block reveal" id="sec-classificacao">
+      <div class="block-head"><span class="num">01</span><h2>Como nasce uma tipologia</h2></div>
+      <p class="block-intro" data-intro="classificacao"></p>
+      <div class="eixos" id="eixos"></div>
+    </section>
+
+    <section class="block reveal" id="sec-matriz">
+      <div class="block-head"><span class="num">02</span><h2>Matriz de capacidade</h2></div>
+      <p class="block-intro" data-intro="matriz"></p>
+      <div class="table-wrap"><table class="matriz" id="matriz"></table></div>
+    </section>
+
+    <section class="block reveal" id="sec-programa">
+      <div class="block-head"><span class="num">03</span><h2>Programa de mobiliário</h2></div>
+      <p class="block-intro" data-intro="programa"></p>
+      <div id="programa"></div>
+    </section>
+
+    <section class="block reveal" id="sec-regras">
+      <div class="block-head"><span class="num">04</span><h2>Regras de posicionamento</h2></div>
+      <p class="block-intro" data-intro="regras"></p>
+      <div class="regras-grid" id="regras"></div>
+    </section>
+
+    <section class="block reveal" id="sec-passos">
+      <div class="block-head"><span class="num">05</span><h2>Passo a passo: montar o layout</h2></div>
+      <p class="block-intro" data-intro="passos"></p>
+      <p class="passos-nota" id="passos-nota"></p>
+      <ol class="passos" id="passos"></ol>
+    </section>
+
+    <footer class="foot">
+      <span>Seazone Investimentos · Padrão Spot</span>
+      <span>Seu lugar fora de casa</span>
+    </footer>
+  </main>
+
+  <script src="data/padrao-spot.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
