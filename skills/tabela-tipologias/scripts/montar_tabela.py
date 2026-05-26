@@ -132,8 +132,10 @@ def to_csv(tipologias, total_unidades):
             _fmt_area(t["area_unidade_min"], t["area_unidade_max"]),
         ])
     w.writerow([])
-    w.writerow(["Total de Tipologias", len(tipologias)])
-    w.writerow(["Total de Unidades", total_unidades])
+    w.writerow([
+        "Total de Tipologias", len(tipologias), "", "",
+        "Total de Unidades", total_unidades, "", "",
+    ])
     return buf.getvalue()
 
 

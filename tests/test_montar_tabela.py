@@ -116,8 +116,10 @@ def test_to_csv_tem_cabecalho_e_rodape(unidades_natal):
         "TIPOLOGIA,N DAS UNIDADES,TERRAÇO,TIPO,QUANTIDADE,"
         "CAPACIDADE (previsão),ÁREA ÚTIL (m²),ÁREA DA UNIDADE (m²)"
     )
-    assert "Total de Tipologias,5" in csv_txt
-    assert "Total de Unidades,96" in csv_txt
+    linhas = [l for l in csv_txt.strip().splitlines() if l.strip(",").strip()]
+    rodape = linhas[-1]
+    assert "Total de Tipologias" in rodape and "Total de Unidades" in rodape
+    assert "5" in rodape and "96" in rodape
 
 
 def test_to_csv_capacidade_marcada_como_previsao(unidades_natal):
