@@ -55,3 +55,22 @@ def test_agrupar_avisa_quando_area_diverge_alem_da_tolerancia():
     tipologias, avisos = agrupar(unidades, tolerancia_m2=1.0)
     assert len(tipologias) == 1
     assert any("área" in a.lower() or "area" in a.lower() for a in avisos)
+
+
+from montar_tabela import validar
+
+
+def test_validar_ok_quando_soma_bate(unidades_natal):
+    tipologias, _ = agrupar(unidades_natal)
+    v = validar(tipologias, total_declarado=96)
+    assert v["ok"] is True
+    assert v["soma"] == 96
+    assert v["diff"] == 0
+
+
+def test_validar_falha_quando_soma_nao_bate(unidades_natal):
+    tipologias, _ = agrupar(unidades_natal)
+    v = validar(tipologias, total_declarado=100)
+    assert v["ok"] is False
+    assert v["soma"] == 96
+    assert v["diff"] == -4

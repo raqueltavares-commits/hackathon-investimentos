@@ -59,3 +59,15 @@ def agrupar(unidades, tolerancia_m2=1.0):
                 f"(> {tolerancia_m2} m²) — conferir se são o mesmo layout."
             )
     return itens, avisos
+
+
+def validar(tipologias, total_declarado):
+    """Confere se a soma das quantidades bate com o total declarado no anteprojeto."""
+    soma = sum(t["quantidade"] for t in tipologias)
+    diff = soma - total_declarado
+    return {
+        "ok": diff == 0,
+        "soma": soma,
+        "total_declarado": total_declarado,
+        "diff": diff,
+    }
