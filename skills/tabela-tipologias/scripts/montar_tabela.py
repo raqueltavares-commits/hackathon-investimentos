@@ -71,3 +71,59 @@ def validar(tipologias, total_declarado):
         "total_declarado": total_declarado,
         "diff": diff,
     }
+
+
+def _fmt_area(mn, mx):
+    return f"{mn:.2f}" if abs(mx - mn) < 0.01 else f"{mn:.2f}–{mx:.2f}"
+
+
+def to_csv(tipologias, total_unidades):
+    """Gera o CSV da tabela de tipologias (cabeçalho + linhas + rodapé)."""
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow([
+        "TIPOLOGIA", "N DAS UNIDADES", "TERRAÇO", "TIPO", "QUANTIDADE",
+        "CAPACIDADE (previsão)", "ÁREA ÚTIL (m²)", "ÁREA DA UNIDADE (m²)",
+    ])
+    for t in tipologias:
+        w.writerow([
+            t["tipologia"],
+            ", ".join(t["unidades"]),
+            t["terraco"],
+            t["tipo"],
+            t["quantidade"],
+            t["capacidade"],
+            _fmt_area(t["area_util_min"], t["area_util_max"]),
+            _fmt_area(t["area_unidade_min"], t["area_unidade_max"]),
+        ])
+    w.writerow([])
+    w.writerow(["Total de Tipologias", len(tipologias)])
+    w.writerow(["Total de Unidades", total_unidades])
+    return buf.getvalue()
+
+
+def main(argv=None):
+    import argparse
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    p = argparse.ArgumentParser(description="Monta a tabela de tipologias.")
+    p.add_argument("--total", type=int, required=True,
+                   help="Total de unidades declarado no anteprojeto.")
+    p.add_argument("--tolerancia", type=float, default=1.0,
+                   help="Tolerância de variação de área útil (m²) dentro de uma tipologia.")
+    args = p.parse_args(argv)
+
+    unidades = json.load(sys.stdin)
+    tipologias, avisos = agrupar(unidades, tolerancia_m2=args.tolerancia)
+    validacao = validar(tipologias, total_declarado=args.total)
+    csv_txt = to_csv(tipologias, total_unidades=args.total)
+    json.dump(
+        {"tipologias": tipologias, "validacao": validacao,
+         "avisos": avisos, "csv": csv_txt},
+        sys.stdout, ensure_ascii=False, indent=2,
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

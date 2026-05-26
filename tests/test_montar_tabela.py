@@ -74,3 +74,24 @@ def test_validar_falha_quando_soma_nao_bate(unidades_natal):
     assert v["ok"] is False
     assert v["soma"] == 96
     assert v["diff"] == -4
+
+
+from montar_tabela import to_csv
+
+
+def test_to_csv_tem_cabecalho_e_rodape(unidades_natal):
+    tipologias, _ = agrupar(unidades_natal)
+    csv_txt = to_csv(tipologias, total_unidades=96)
+    linhas = csv_txt.strip().splitlines()
+    assert linhas[0] == (
+        "TIPOLOGIA,N DAS UNIDADES,TERRAÇO,TIPO,QUANTIDADE,"
+        "CAPACIDADE (previsão),ÁREA ÚTIL (m²),ÁREA DA UNIDADE (m²)"
+    )
+    assert "Total de Tipologias,5" in csv_txt
+    assert "Total de Unidades,96" in csv_txt
+
+
+def test_to_csv_capacidade_marcada_como_previsao(unidades_natal):
+    tipologias, _ = agrupar(unidades_natal)
+    csv_txt = to_csv(tipologias, total_unidades=96)
+    assert "previsão" in csv_txt.lower()
