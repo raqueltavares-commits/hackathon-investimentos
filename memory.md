@@ -19,3 +19,12 @@ Caminho ate o anteprojeto de qualquer Spot:
 - Pasta raiz dos projetos: https://drive.google.com/drive/folders/1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF
 - Na pasta da versao LANCAMENTOS costuma ter tambem `ANALISE_LANCAMENTO_..._V0X.xlsx` (dados estruturados, fonte secundaria mais confiavel que o PDF de 33 MB).
 - Validacao Natal Spot: 5 tipologias / 96 unidades (bate com o CSV do projeto antigo).
+
+### Destino da tabela gerada no Drive (confirmado 2026-05-26)
+O Google Sheet da tabela e criado DENTRO do proprio Spot, em:
+`05 - Projeto Arquitetonico / 10 - Projeto de Interiores / 02 - Imagens`.
+- Exemplo Natal `02 - Imagens`: https://drive.google.com/drive/folders/1Afu8ZGleIT7EdiaYAISInqApi0BSpEjt
+- Nunca sobrescrever o que ja existe la.
+
+### Dashboard (branch feat/dashboard-padrao-spot)
+Site estatico em `dashboard/`, identidade Seazone (Helvetica, azul #0054FC, navy #000C3C, coral #F06054). Aba "Logica & Regras" pronta. Dev server: `python -m http.server 5500 --directory hackathon-investimentos/dashboard` (em .claude/launch.json na raiz do workspace).

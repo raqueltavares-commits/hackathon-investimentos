@@ -19,6 +19,15 @@ Dentro de `03 - Anteprojeto`, escolher a última pasta/arquivo que contém
 Número de versão maior NÃO implica correta — filtrar por LANÇAMENTOS primeiro,
 depois pegar a mais recente.
 
+## Destino da tabela gerada (onde criar o Google Sheet)
+Mesma lógica de navegação do anteprojeto, terminando em Interiores:
+```
+[Spot] / 02 - Projetos / 05 - Projeto Arquitetônico / 10 - Projeto de Interiores / 02 - Imagens
+```
+Criar o Google Sheet da tabela de tipologias **dentro de "02 - Imagens"**. Não
+sobrescrever nada que já existe lá. Exemplo Natal: pasta `02 - Imagens` =
+`1Afu8ZGleIT7EdiaYAISInqApi0BSpEjt`.
+
 ## Fontes de dados (ordem de preferência)
 1. `ANÁLISE_LANÇAMENTO_..._V0X.xlsx` — dados estruturados (unidade → área → terraço).
 2. Página de QUADRO DE ÁREAS / QUADRO DE UNIDADES dentro do PDF.

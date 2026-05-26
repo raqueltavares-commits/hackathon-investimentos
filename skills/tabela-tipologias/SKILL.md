@@ -44,7 +44,9 @@ Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`.
 ### 5. Entregar
 1. Salve o CSV em `docs/tipologias_<spot>.csv` (snapshot versionável, encoding UTF-8).
 2. Crie um **novo** Google Sheet no Drive (`GOOGLESHEETS_CREATE_GOOGLE_SHEET1` + escrita
-   de valores). NÃO sobrescreva planilhas existentes. Devolva o link.
+   de valores) **dentro de `05 - Projeto Arquitetônico / 10 - Projeto de Interiores / 02 - Imagens`**
+   do próprio Spot (ver `references/drive-navegacao.md`). NÃO sobrescreva planilhas
+   existentes. Devolva o link.
 3. Coloque na planilha a nota fixa de capacidade:
    "⚠️ Capacidade é previsão baseada em área útil + programa — confirmar/editar
    quando o layout final estiver pronto."
