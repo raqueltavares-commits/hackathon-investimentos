@@ -32,3 +32,10 @@ O Google Sheet da tabela e criado DENTRO do proprio Spot, em:
 
 ### Dashboard (branch feat/dashboard-padrao-spot)
 Site estatico em `dashboard/`, identidade Seazone (Helvetica, azul #0054FC, navy #000C3C, coral #F06054). Aba "Logica & Regras" pronta. Dev server: `python -m http.server 5500 --directory hackathon-investimentos/dashboard` (em .claude/launch.json na raiz do workspace).
+
+## Estado atual / feitos (2026-05-26)
+- **Skill `tabela-tipologias`** (branch `feat/tabela-tipologias`): helper Python testado (13/13), referencias, SKILL.md. Roda de ponta a ponta com dado real.
+- **Dry-run Natal**: 5 tipologias / 96 unidades, validacao OK; Google Sheet criado em `Projeto de Interiores / 02 - Imagens`. Snapshot em `docs/tipologias_natal-spot.csv`.
+- **Dashboard "Padrao Spot"** (branch `feat/dashboard-padrao-spot`): aba "Logica & Regras" pronta e revisada pela Raquel (correcoes: vassoureiro flexivel; jacuzzi = ponto obrigatorio, instalacao do proprietario; banheiro com marcenaria+espelho; PCD porta de correr ou giro p/ fora; copa nao precisa estar em sequencia mas SEMPRE em parede que divide tubulacao com outra unidade espelhada ou com o banheiro).
+- **Branches abertas**: `feat/tabela-tipologias` e `feat/dashboard-padrao-spot` (ainda nao mergeadas em master). `master` so tem spec+plano.
+- **Pendente**: aba "Tipologias por Spot" e "Orcamento" no dashboard (Fase 2); rodar a skill em outros Spots; conectar Google Sheets pra formatar a planilha.
