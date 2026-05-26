@@ -45,16 +45,45 @@ def test_agrupar_lista_unidades(unidades_natal):
     assert "101" in t_a["unidades"]
 
 
-def test_agrupar_avisa_quando_area_diverge_alem_da_tolerancia():
+def test_agrupar_unidades_em_ordem_numerica():
+    unidades = [
+        {"unidade": "1001", "pavimento": 10, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
+        {"unidade": "101", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
+        {"unidade": "102", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
+    ]
+    tipologias, _ = agrupar(unidades)
+    assert tipologias[0]["unidades"] == ["101", "102", "1001"]
+
+
+def test_agrupar_separa_quando_area_diverge_alem_da_tolerancia():
+    # Mesma capacidade/terraço, mas áreas muito diferentes = layouts distintos = tipologias separadas.
     unidades = [
         {"unidade": "1", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
          "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
         {"unidade": "2", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.4, "area_unidade": 18.3},
+        {"unidade": "3", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
          "capacidade": 2, "area_util": 20.0, "area_unidade": 24.0},
     ]
     tipologias, avisos = agrupar(unidades, tolerancia_m2=1.0)
+    assert len(tipologias) == 2
+    assert sorted(t["quantidade"] for t in tipologias) == [1, 2]
+    assert any("layout" in a.lower() for a in avisos)
+
+
+def test_agrupar_mantem_junto_quando_area_varia_pouco():
+    unidades = [
+        {"unidade": "1", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
+        {"unidade": "2", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.6, "area_unidade": 18.4},
+    ]
+    tipologias, avisos = agrupar(unidades, tolerancia_m2=1.0)
     assert len(tipologias) == 1
-    assert any("área" in a.lower() or "area" in a.lower() for a in avisos)
+    assert tipologias[0]["quantidade"] == 2
 
 
 from montar_tabela import validar
