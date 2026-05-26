@@ -11,3 +11,51 @@ import io
 import json
 import sys
 from collections import defaultdict
+
+
+_TERRACO_ORDEM = {"Sem": 0, "Sacada": 1, "Varanda": 2, "Garden": 3, "Terraço": 4}
+
+
+def agrupar(unidades, tolerancia_m2=1.0):
+    """Agrupa unidades por (terraco, tipo, capacidade) em tipologias A, B, C...
+
+    Ordena por quantidade desc, depois terraco, depois capacidade asc.
+    Sinaliza em `avisos` grupos cuja área útil varia além de `tolerancia_m2`.
+    Retorna (lista_de_tipologias, lista_de_avisos).
+    """
+    grupos = defaultdict(list)
+    for u in unidades:
+        grupos[(u["terraco"], u["tipo"], u["capacidade"])].append(u)
+
+    itens = []
+    for (terraco, tipo, capacidade), us in grupos.items():
+        areas_uteis = [u["area_util"] for u in us]
+        areas_unid = [u["area_unidade"] for u in us]
+        itens.append({
+            "terraco": terraco,
+            "tipo": tipo,
+            "capacidade": capacidade,
+            "quantidade": len(us),
+            "unidades": [u["unidade"] for u in us],
+            "area_util_min": min(areas_uteis),
+            "area_util_max": max(areas_uteis),
+            "area_unidade_min": min(areas_unid),
+            "area_unidade_max": max(areas_unid),
+        })
+
+    itens.sort(key=lambda t: (
+        -t["quantidade"],
+        _TERRACO_ORDEM.get(t["terraco"], 99),
+        t["capacidade"],
+    ))
+
+    avisos = []
+    for i, t in enumerate(itens):
+        t["tipologia"] = chr(ord("A") + i)
+        if t["area_util_max"] - t["area_util_min"] > tolerancia_m2:
+            avisos.append(
+                f"Tipologia {t['tipologia']}: área útil varia de "
+                f"{t['area_util_min']:.2f} a {t['area_util_max']:.2f} m² "
+                f"(> {tolerancia_m2} m²) — conferir se são o mesmo layout."
+            )
+    return itens, avisos
