@@ -22,11 +22,16 @@ Leia `references/drive-navegacao.md`. A partir do nome do Spot:
 ### 2. Levantar as unidades (todos os pavimentos)
 Preferir o `ANÁLISE.xlsx` (baixar via `GOOGLEDRIVE_DOWNLOAD_FILE` → curl → ler).
 Senão, achar a página de QUADRO DE ÁREAS no PDF (varrer texto antes de ler imagem).
-Enumere TODAS as unidades com: número, pavimento, área útil, área da unidade, terraço.
+Enumere TODAS as unidades com: número, pavimento, **área interna (privativa coberta)**,
+área da unidade (privativa total), terraço. Use o ANÁLISE só para as **áreas**.
 
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:
 `terraco`, `tipo`, `capacidade` (PREVISÃO), `area_util`, `area_unidade`.
+**Capacidade:** deduza SEMPRE pela **área interna** (privativa coberta), aplicando a
+Matriz — **nunca** conte a área de sacada/varanda/terraço, e **não** use a coluna
+CAPACIDADE do ANÁLISE (vem errada). Unidades com mesma área interna têm a mesma
+capacidade, com ou sem sacada. `area_util` = privativa coberta; `area_unidade` = total.
 Monte uma lista JSON no contrato do helper:
 ```json
 [{"unidade":"101","pavimento":1,"terraco":"Sem","tipo":"Padrão",

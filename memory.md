@@ -11,7 +11,7 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 2026-05-26 --- Agrupamento de tipologias: unidades com o MESMO layout/desenho + Terraco + Tipo + Capacidade sao a mesma tipologia, MESMO que o m2 difira por pouco (variacao pequena tolerada). Diferenca grande de m2 (layout distinto) separa. A tabela tem 2 colunas de area: ÁREA ÚTIL (m²) e ÁREA DA UNIDADE (m², privativa total). Casos de fronteira -> sinalizar no resumo.
 
-2026-05-26 --- Coluna Capacidade = PREVISAO (nao definitiva). Logica vem da Matriz Capacidade do projeto antigo: derivada de area util + terraco/programa (cama auxiliar cabe ao lado da queen -> cap 3 e 5; sofa-cama aberto = leito -> cap 4 e 5; mesa/jacuzzi se garden/terraco). A tabela DEVE trazer um aviso explicito de que a capacidade e previsao ate o layout final confirmar.
+2026-05-26 --- Coluna Capacidade = PREVISAO (nao definitiva). Deduzida SEMPRE pela area INTERNA da unidade (privativa coberta) via Matriz: cama auxiliar ao lado da queen -> cap 3 e 5; sofa-cama aberto = leito -> cap 4 e 5. NUNCA contar area de sacada/varanda/terraco pra capacidade. NUNCA confiar na coluna CAPACIDADE do ANALISE.xlsx (veio errada no Natal: 408 estava 5, o certo e 3). Unidades com mesma area interna = mesma capacidade, com ou sem sacada. A tabela traz aviso de que capacidade e previsao ate o layout final confirmar.
 
 ### Mapa do Drive (validado 2026-05-26)
 Caminho ate o anteprojeto de qualquer Spot:
