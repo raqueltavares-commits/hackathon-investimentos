@@ -23,6 +23,11 @@ Caminho ate o anteprojeto de qualquer Spot:
 - Validacao Natal Spot: 5 tipologias / 96 unidades (bate com o CSV do projeto antigo).
 - Bonito Spot: a FONTE DE VERDADE e o PROJETO (anteprojeto V03 PDF) = 53 unidades (401-408, NAO existe 409). A tabela manual da Raquel (https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit) tinha 2 erros: inventou a unidade 409 (total 54) e marcou 104/105 como PADRAO (sao PCD - tem W.C PCD na planta). Eixo terraco = GARDEN (terreo) / SEM SACADA (demais; rooftop nao tem terraco privativo, a cobertura/piscina e comum). Unidades maiores (~19-23m2) = cap 4. REGRA: sempre seguir o projeto, nao tratar tabela manual como verdade.
 
+### FONTE IDEAL da tabela = DWG + PDF (decisao Raquel 2026-05-26)
+Cruzar os dois: do **PDF** vem a metragem por unidade, o nº/total de unidades e os textos
+relevantes; do **DWG** vem a geometria pro agrupamento (esquadrias no layer A-GLAZ, layout,
+banheiro, espelhamento). Nenhum sozinho basta — PDF dá numeros/texto, DWG dá agrupamento.
+
 ### DWG como fonte mais precisa (testado 2026-05-26)
 Teste de viabilidade no DWG do Bonito (pavimento tipo): POSITIVO. O DWG (export Revit)
 tem as esquadrias como blocos no layer `A-GLAZ` + tags em `A-GLAZ-IDEN` (marcas V14..V52),

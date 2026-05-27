@@ -1,8 +1,19 @@
 # Leitura de DWG (fonte mais precisa pro agrupamento)
 
-O DWG/DXF do projeto é a fonte **mais precisa** pra tipologia: tem as esquadrias como
-blocos discretos, com marcas de tipo, mais áreas e rótulos. Permite **contar esquadrias
-por unidade** — exatamente o que a regra de agrupamento exige (ver `classificacao-spot.md`).
+## FONTE IDEAL = DWG + PDF (usar os DOIS)
+Nenhuma fonte sozinha basta — o ideal é **cruzar DWG + PDF**:
+- **PDF** (anteprojeto): **metragem por unidade**, **nº e total de unidades**, quadro de
+  áreas e demais **textos relevantes** (rótulos, totais, observações). É a fonte dos
+  NÚMEROS e do texto.
+- **DWG**: a **geometria exata** — esquadrias (layer `A-GLAZ`), portas, layout, posição
+  do banheiro, espelhamento. É a fonte do **AGRUPAMENTO** (contar esquadrias por unidade,
+  comparar layouts).
+Fluxo: PDF dá metragem + contagem + textos; DWG confirma/define o agrupamento por layout
+e esquadrias. Validar um contra o outro (ex.: total de unidades do PDF vs do DWG).
+
+O DWG/DXF tem as esquadrias como blocos discretos, com marcas de tipo, mais áreas e
+rótulos. Permite **contar esquadrias por unidade** — exatamente o que a regra de
+agrupamento exige (ver `classificacao-spot.md`).
 
 ## Ferramenta (instalada 2026-05-26)
 - **ODA File Converter** (grátis, via winget `ODA.ODAFileConverter`):

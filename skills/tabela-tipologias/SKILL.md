@@ -20,17 +20,17 @@ Leia `references/drive-navegacao.md`. A partir do nome do Spot:
 4. Pegue o `ANÁLISE_..._V0X.xlsx` (preferência) e/ou o `LANÇAMENTO_AP_..._V0X.pdf`.
 
 ### 2. Levantar as unidades (todos os pavimentos)
-Preferir o `ANÁLISE.xlsx` (baixar via `GOOGLEDRIVE_DOWNLOAD_FILE` → curl → ler).
-Senão, achar a página de QUADRO DE ÁREAS no PDF (varrer texto antes de ler imagem).
-Enumere TODAS as unidades com: número, pavimento, **área interna (privativa coberta)**,
-área da unidade (privativa total), terraço. Use o ANÁLISE só para as **áreas**.
+**FONTE IDEAL = DWG + PDF (cruzar os dois).** Cada um dá uma parte:
+- **PDF** (ou `ANÁLISE.xlsx`): **metragem por unidade**, **nº/total de unidades**, quadro
+  de áreas e textos relevantes. → os NÚMEROS e o texto.
+- **DWG**: **esquadrias** (layer `A-GLAZ`), portas, layout, banheiro, espelhamento. → o
+  AGRUPAMENTO (ver `references/dwg-leitura.md`; ODA File Converter + `ezdxf`).
 
-**SEMPRE renderize e olhe as PLANTAS** (mesmo quando há `ANÁLISE.xlsx`). A planilha dá
-áreas/unidades exatas mas **NÃO** dá a identidade de **layout** — duas unidades de metragem
-parecida podem ser tipologias diferentes (posição/orientação/espelhamento). Sem a planta o
-agrupamento sai errado. Renderize as páginas (`fitz`, dpi ~170), recorte e leia os blocos
-de unidades, identificando: garden/sacada/terraço de verdade, PCD (W.C PCD no desenho),
-e quais unidades compartilham o MESMO desenho.
+Passos: do PDF/planilha tire área interna (privativa coberta), área da unidade (total),
+terraço e o total de unidades. Do DWG (quando houver) conte as esquadrias por unidade pro
+agrupamento. Sem DWG, **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a planilha
+sozinha NÃO dá o layout: metragem parecida pode ser tipologia diferente. Sempre validar o
+total de unidades entre as fontes.
 
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:
