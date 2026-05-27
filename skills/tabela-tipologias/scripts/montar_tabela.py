@@ -176,7 +176,12 @@ def main(argv=None):
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from ler_dwg import ler_dwg
         extraidos = ler_dwg(args.dwg)
-        esquadrias = {k: int(v) for k, v in extraidos.contagem_por_unidade().items()}
+        # Labels do DWG podem ser pareados (ex.: "201-301" = mesma planta nos 2 pisos).
+        # Expande pra cada numero de unidade individual.
+        esquadrias = {}
+        for label, v in extraidos.contagem_por_unidade().items():
+            for num in label.split("-"):
+                esquadrias[num] = int(v)
 
     tipologias, avisos = agrupar(unidades, tolerancia_m2=args.tolerancia,
                                   esquadrias_por_unidade=esquadrias)

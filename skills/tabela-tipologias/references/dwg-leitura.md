@@ -37,13 +37,19 @@ msp = doc.modelspace()
 - **`A-AREA`**, `A-AREA-BNDY`, `A-AREA-IDEN` = polígonos e rótulos de área/cômodo.
 - `A-WALL`, `I-FURN` (mobiliário), `P-SANR-FIXT` (louças), `S-STRS` (escada).
 
-## Como contar esquadrias por unidade (abordagem)
-1. Pegar os polígonos de unidade (boundaries em `A-AREA-BNDY` ou cômodos).
-2. Para cada janela (INSERT em `A-GLAZ-IDEN`, ou bloco de janela em `A-GLAZ`), ver
-   dentro de qual polígono de unidade o ponto de inserção cai.
-3. Contar esquadrias por unidade → unidades com nº/tipo de esquadrias diferentes são
-   tipologias diferentes (a de esquina costuma ter 1 a mais).
-4. Espelhamento NÃO separa; só o nº/tipo de esquadrias (e banheiro/desenho) separa.
+## Como contar esquadrias por unidade (abordagem NEAREST-LABEL)
+Point-in-polygon NÃO funciona no export Revit real: `A-AREA-BNDY` vem como segmentos
+`LINE` soltos (não polilinhas) e o arquivo pode ter 2 plantas lado a lado. Abordagem
+implementada em `ler_dwg.py` (ver `arquitetura-dwg.md`):
+1. Coletar os **números de unidade** em `A-AREA-IDEN` (TEXT/MTEXT, padrão `\d{3}(-\d{3})?`).
+2. Coletar os blocos de esquadria (INSERT em `A-GLAZ`/`A-GLAZ-IDEN`) **dentro da bbox
+   dos números** + margem (exclui 2ª planta/legendas distantes).
+3. **Nearest-label**: cada bloco conta pra unidade cujo número está mais perto.
+4. **Normalizar**: dividir a contagem crua pela contagem-base do piso (= nº de blocos
+   por janela) → nº de janelas por unidade. Unidades com nº diferente = tipologias
+   diferentes (a de esquina costuma ter 1 a mais).
+5. Espelhamento NÃO separa; só o nº de esquadrias (e banheiro/desenho) separa.
+6. Térreo costuma abrir por porta (não janela) → contagem ~0; lá agrupa pela área (PDF).
 
 ## Cuidados
 - Blocos vêm do Revit com nomes longos ("...-02 - SEGUNDO PAVIMENTO PROPOSTA"); agrupar

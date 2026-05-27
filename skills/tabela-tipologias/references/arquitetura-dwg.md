@@ -1,59 +1,58 @@
 # Arquitetura -- ler_dwg.py
 
 ## Responsabilidade
-Le DWG via ezdxf+ODA, extrai esquadrias (A-GLAZ-IDEN) por unidade via Point-in-Polygon.
+Le DWG via ezdxf+ODA e conta esquadrias por unidade pra AGRUPAR tipologias
+(diferenciar o DESENHO das unidades). NAO monta tabela de esquadrias — o objetivo
+e separar unidades de mesma area que diferem pela janela de esquina.
 
 ## Dependencias
 - `ezdxf` — leitura de DXF/DWG
-- `shapely` — geometria (Point-in-Polygon)
-- ODA File Converter — conversao DWG->DXF em tempo de execucao
+- ODA File Converter — conversao DWG->DXF em tempo de execucao (so no `ler_dwg`)
+- (shapely NAO e mais necessario — abandonamos point-in-polygon)
+
+## Por que nearest-label (e nao point-in-polygon)
+Validado no DWG real do Bonito (export Revit): os limites de area em `A-AREA-BNDY`
+vem como segmentos `LINE` soltos, NAO polilinhas fechadas — `.points()` estoura e
+nao da pra reconstruir poligono confiavel. Alem disso o arquivo pode ter DUAS plantas
+lado a lado (arquitetonica com tags de janela; de areas com numeros+blocos). Por isso:
+contamos o bloco `A-GLAZ` mais proximo de cada NUMERO de unidade, restritos a regiao
+dos numeros.
 
 ## Fluxo
 ```
-ler_dwg(path)
-1. ODA converte DWG->DXF
-2. ezdxf abre o DXF (modelspace)
-3. _coletar_poligonos:
-   - A-AREA-BNDY → poligonos de area (Polyline)
-   - A-AREA-IDEN → textos (numero da unidade)
-   - Para cada poligono, encontra o texto mais proximo → nome da unidade
-4. _coletar_janelas:
-   - A-GLAZ-IDEN → INSERT com atributo MARK/TAG → marca + posicao
-5. _associar_janelas_a_unidades:
-   - shapely Point-in-Polygon: cada janela eassociada a unidade que a contem
+ler_dwg(path)  -> extrair(msp)
+1. ODA converte DWG->DXF, ezdxf abre o modelspace
+2. _coletar_labels_unidade: A-AREA-IDEN (TEXT/MTEXT) casando \d{3}(-\d{3})? -> (nome,x,y)
+3. _coletar_janelas: blocos INSERT em A-GLAZ / A-GLAZ-IDEN, DENTRO da bbox dos
+   numeros + margem (exclui 2a planta / legendas distantes)
+4. _contar_por_unidade: nearest-label (cada bloco conta pra unidade mais proxima)
+5. ExtraidosDWG.janelas_por_unidade(): normaliza a contagem CRUA de blocos dividindo
+   pela contagem-base do piso (= nº de blocos por janela, a contagem mais comum),
+   limpando ruido do nearest-label.
 ```
 
-## Camadas do DWG referenciadas
-| Layer | Conteudo |
-|---|---|
-| `A-AREA-BNDY` | Poligonos das areas das unidades (Polyline fechada) |
-| `A-AREA-IDEN` | Textos com numero da unidade (101, 201...) |
-| `A-GLAZ-IDEN` | Blocos de esquadria com atributo MARK |
+## Contrato
+- `ExtraidosDWG.contagem_blocos` — dict label -> nº cru de blocos A-GLAZ.
+- `ExtraidosDWG.janelas_por_unidade()` / `contagem_por_unidade()` — dict label -> nº
+  estimado de janelas (normalizado). E o que o agrupamento usa.
+- Labels pareados ("201-301") sao expandidos pra cada unidade na integracao do
+  `montar_tabela` (`label.split("-")`).
 
 ## Limitacoes
-- Exige ODA File Converter instalado em `C:\Program Files\ODA\ODAFileConverter 27.1.0\ODAFileConverter.exe`
-- Nome da unidade vem do texto mais proximo ao poligono (heuristica) — pode falhar se layer nao existir
-- Se todos os layers_existirem mas o texto nao for numerico, retorna string vazia
-- Se layer nao existir, retorna dict vazio
+- Exige ODA File Converter (so no `ler_dwg`; `extrair(msp)` e testavel sem ODA).
+- TERREO: unidades costumam abrir por porta de correr, nao janela -> contagem ~0.
+  Nao e bug: la o agrupamento sai da AREA (PDF) + layout, nao do DWG. NUNCA excluir
+  o terreo do agrupamento — pode ter unidades diferentes (PCD, garden).
+- Portas (A-DOOR) NAO entram na assinatura (area comum contamina o nearest-label).
 
-## Validacao real (usuario faz depois)
+## Validacao real (Bonito, 2026-05-27)
+DWGs baixados do Drive (pasta DWG do anteprojeto LANCAMENTOS). Resultado (janelas/unid):
+- **Pavimento tipo** (201-216): 12 unidades = 1 janela, 4 = 2 janelas (203,204,212,213).
+- **Rooftop** (401-408): 6 = 1 janela, 2 = 2 janelas (403,404).
+- **Terreo** (101-113): ~0 janela (abre por porta) -> agrupa pela area do PDF.
+Bate com a tabela de janelas do PDF (J02: tipo 20 = 12x1+4x2; rooftop 10 = 6x1+2x2).
 
-Para validar contra arquivo real (Bonito ou outro Spot):
-
-1. Baixar o DWG do Drive (pasta do anteprojeto LANCAMENTOS)
-2. Rodar:
-   ```bash
-   python skills/tabela-tipologias/scripts/unidades_dwg.py --dwg caminho/para/bonito.dwg
-   ```
-3. Verificar contagem:
-   - Totais batem com PDF?
-   - Unidades de esquina tem +1 esquadria?
-   - 5 tipologias (Natal) ou conforme esperado?
-
-### Verdade conhecida Natal
-- 5 tipologias / 96 unidades
-- A=74 (sem sacada, cap 2, ~14.33m²)
-- B=10 (sem sacada, cap 5, ~19.94m²)
-- C=10 (sem sacada, cap 3, ~15.18m²)
-- D=1 (sacada, cap 5)
-- E=1 (sacada, cap 3)
+Rodar:
+```bash
+python skills/tabela-tipologias/scripts/unidades_dwg.py --dwg caminho/arquivo.dwg
+```
