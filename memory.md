@@ -7,7 +7,13 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 ## >>> ESTADO ATUAL (2026-05-27, noite) — leia isto primeiro
 
-**FASE 2 ENTREGUE.** Skill `orcamento-decor` construida, instalada e testada. Aba "Orcamento" do dashboard no ar. Suite: **71 passed** (`python -m pytest tests/ -q`).
+**FASE 2 ENTREGUE + memorial estruturado.** Skill `orcamento-decor` construida, instalada, testada. Aba "Orcamento" do dashboard no ar. Suite: **83 passed** (`python -m pytest tests/ -q`).
+
+**MEMORIAL ESTRUTURADO (feito 2026-05-27 noite):** a skill gera SOZINHA o memorial no formato oficial da Raquel (modelo `1-S14JTOVV689UNJAW5lyuv5gDsPOAQq_fG6XEDatj6E`): 12 colunas (ITEM/TIPO, AMBIENTE, IMAGEM, ITEM, FICHA TECNICA+valor, FORNECEDOR, QUANT., REFERENCIA, VALOR UNITARIO, VALOR TOTAL), 4 linhas por item (Largura/Altura/Profundidade/Acabamento), categoria/ambiente "mescladas", TOTAL por categoria, servicos como itens (INSUMOS), Taxa Decor + Taxa Adm, total headline = SEM jacuzzi ("com jacuzzi" so aparece quando ha jacuzzi). Acabamento por estilo (paleta embutida em `acabamentos.py`; Biofilico calibrado do exemplo). Scripts novos: `acabamentos.py`, `servicos.py`, `gerar_xlsx.py` (.xlsx multi-aba: Resumo + 1 aba/tipologia). `montar_orcamento.py` reescrito (`serializar_estruturado` + `total_com_jacuzzi`). Spec/plano: `docs/superpowers/specs/2026-05-27-memorial-estruturado-design.md` + `docs/superpowers/plans/2026-05-27-memorial-estruturado.md`.
+
+**BONITO testado (orcamento):** rodei pras 6 tipologias, estilo Biofilico, precos de referencia. Dashboard (aba Orcamento) mostra Natal + Bonito. ATENCAO: os 4 Sheets que criei estao na pasta ERRADA (`02 - Imagens`) e com owner errado (rachel.souto) — a Raquel vai reconectar a conta e eu refaco como 1 Sheet multi-aba em `03 - Memorial descritivo` (xlsx pronto em `tmp/Orcamento_Decor_Bonito.xlsx`, mas regenerar com gerar_xlsx no formato novo).
+
+**Checkpoint cron:** a cada 20 min (min 13/33/53) faz flush dos arquivos-base. Session-only (job 23eb097e), morre ao fechar, expira em 7 dias.
 
 **O que existe agora:**
 - **Skill `orcamento-decor`** (`skills/orcamento-decor/`): gera memorial descritivo de decor por tipologia (pacote **Plus** fixo; estilo Clean/Biofilico/Industrial/Bruma). Scripts: `modelos.py` (dataclasses), `ler_catalogo.py` (CSV db002->produtos), `montar_orcamento.py` (itens por cap/terraco/PCD + calculos + CSV), `gerar_dashboard_js.py` (upsert do spot em orcamentos.js). Instalada em `~/Claude/.claude/skills/orcamento-decor/`.
