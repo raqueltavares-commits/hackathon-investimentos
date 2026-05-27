@@ -107,7 +107,11 @@
 // ---------- Navegação por abas ----------
 (function () {
   const tabs = document.querySelectorAll(".tab[data-tab]");
-  const panels = { logica: document.getElementById("panel-logica"), tipologias: document.getElementById("panel-tipologias") };
+  const panels = {
+    logica: document.getElementById("panel-logica"),
+    tipologias: document.getElementById("panel-tipologias"),
+    orcamento: document.getElementById("panel-orcamento"),
+  };
   tabs.forEach((t) => {
     t.addEventListener("click", () => {
       tabs.forEach((x) => x.classList.remove("is-active"));
@@ -212,6 +216,106 @@
   if (howtoCopy) {
     howtoCopy.addEventListener("click", () => {
       const txt = ($("#howto-cmd") || {}).textContent || "";
+      navigator.clipboard && navigator.clipboard.writeText(txt);
+      howtoCopy.textContent = "Comando copiado ✓";
+      setTimeout(() => { howtoCopy.textContent = "Copiar comando"; }, 2000);
+    });
+  }
+})();
+
+// ---------- Aba: Orçamento por Spot (vitrine) ----------
+(function () {
+  const O = window.ORCAMENTOS;
+  if (!O) return;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
+
+  const list = $("#orc-list");
+  const empty = $("#orc-empty");
+  const input = $("#orc-search");
+
+  const brl = (v) => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function tabelaHTML(spot) {
+    const rows = spot.tipologias.map((t) => {
+      const link = t.memorial_url && t.memorial_url !== "#"
+        ? `<a class="memorial-link" href="${t.memorial_url}" target="_blank" rel="noopener">Memorial ↗</a>`
+        : `<span class="memorial-link off">—</span>`;
+      return `
+      <tr>
+        <td class="t-tip">${t.tipologia}</td>
+        <td class="t-desc">${t.descricao}</td>
+        <td class="t-custo">${brl(t.custo)}</td>
+        <td>${link}</td>
+      </tr>`;
+    }).join("");
+    return `<div class="table-wrap"><table class="matriz tabela-orc">
+      <thead><tr><th>Tipologia</th><th>Descrição</th><th>Custo estimado</th><th>Memorial</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }
+
+  function card(item) {
+    const c = el("div", "spot-card");
+    const chip = `<div class="fontes"><span class="estilo-chip">${item.estilo} · ${item.pacote}</span></div>`;
+    const cons = item.consolidado_url && item.consolidado_url !== "#"
+      ? `<a class="btn btn-ghost" href="${item.consolidado_url}" target="_blank" rel="noopener">Abrir consolidado no Drive ↗</a>`
+      : "";
+    c.innerHTML = `
+      <div class="spot-card-top">
+        <div>
+          <h3>${item.spot} <span class="spot-cod">${item.codigo}</span></h3>
+          <p class="spot-meta">${item.total_tipologias} tipologias · gerado em ${item.gerado_em}</p>
+        </div>
+        ${chip}
+      </div>
+      <div class="spot-actions">
+        <button class="btn btn-primary" data-ver="${item.slug}">Ver custos</button>
+        ${cons}
+      </div>
+      <div class="spot-tabela" hidden></div>`;
+    c.querySelector("[data-ver]").addEventListener("click", (e) => {
+      const box = c.querySelector(".spot-tabela");
+      const btn = e.currentTarget;
+      if (box.hidden) {
+        if (!box.dataset.loaded) { box.innerHTML = tabelaHTML(O.spots[item.slug]); box.dataset.loaded = "1"; }
+        box.hidden = false; btn.textContent = "Ocultar custos";
+      } else { box.hidden = true; btn.textContent = "Ver custos"; }
+    });
+    return c;
+  }
+
+  function semMatch(termo) {
+    empty.hidden = false;
+    list.innerHTML = "";
+    const cmd = `gera o orçamento do ${termo || "<empreendimento>"}`;
+    empty.innerHTML = `
+      <p class="empty-title">Nenhum orçamento gerado para "<strong>${termo}</strong>".</p>
+      <p class="empty-sub">Os orçamentos são gerados pelo Claude a partir do catálogo. Copie o comando e cole no Claude:</p>
+      <div class="cmd-row"><code>${cmd}</code><button class="btn btn-primary" id="orc-copy-cmd">Pedir geração ao Claude</button></div>`;
+    empty.querySelector("#orc-copy-cmd").addEventListener("click", () => {
+      navigator.clipboard && navigator.clipboard.writeText(cmd);
+      empty.querySelector("#orc-copy-cmd").textContent = "Comando copiado ✓";
+    });
+  }
+
+  function render(termo) {
+    const q = (termo || "").trim().toLowerCase();
+    const itens = (O.index || []).filter((i) =>
+      !q || i.spot.toLowerCase().includes(q) || String(i.codigo).toLowerCase().includes(q));
+    if (!(O.index || []).length) { semMatch(termo); empty.querySelector(".empty-title").innerHTML = "Nenhum orçamento gerado ainda."; return; }
+    if (!itens.length) { semMatch(termo); return; }
+    empty.hidden = true;
+    list.innerHTML = "";
+    itens.forEach((i) => list.appendChild(card(i)));
+  }
+
+  input.addEventListener("input", (e) => render(e.target.value));
+  render("");
+
+  const howtoCopy = $("#orc-howto-copy");
+  if (howtoCopy) {
+    howtoCopy.addEventListener("click", () => {
+      const txt = ($("#orc-howto-cmd") || {}).textContent || "";
       navigator.clipboard && navigator.clipboard.writeText(txt);
       howtoCopy.textContent = "Comando copiado ✓";
       setTimeout(() => { howtoCopy.textContent = "Copiar comando"; }, 2000);
