@@ -106,6 +106,12 @@ conferir se funciona, seguindo os passos do dashboard, antes de gravar o video.
 
 ---
 
+## >>> RETOMAR AQUI (proxima sessao) = FASE 2: Orcamento preliminar do decor
+Fase 1 (skill tabela-tipologias + dashboard) esta PRONTA e validada (3 spots gerados).
+A proxima sessao e a **Fase 2: orcamento preliminar do decor puxando do catalogo** (ver
+escopo no CLAUDE.md e nas decisoes 2026-05-26 abaixo). Comecar por: definir de onde vem o
+catalogo (Google Sheets?) e o formato do orcamento por tipologia.
+
 ## SESSAO 2026-05-27 (tarde) — Novo Campeche II gerado + repo no GitHub
 - **3o Spot gerado: Novo Campeche Spot II** (cod 6320, anteprojeto V04 LANCAMENTO `1AKpL6OBpWhCZ31PPtyyIAie_EIn5NI0m`). Cruzei PDF + comparativo de areas + DWG R03 (ODA). Minha 1a versao deu 8 tipologias; a tabela da Raquel (verdade) tem **12 tip / 49 un** — corrigi tudo (Sheet 17Ykd..., dashboard, CSV). Validacao de referencia NOVA: **Novo Campeche II = 12 tipologias / 49 unidades**.
 - **5 erros meus (corrigidos, ver lessons.md 2026-05-27)** que viraram calibracao da skill (`classificacao-spot.md`): (1) terraco pelo PAVIMENTO — terreo=Garden por menor que seja, nunca Sacada; (2) cap5 a partir de ~22m2 (nao 23); (3) PCD rende -1 nivel (PCD ~20m2=cap3); (4)+(5) o helper FUNDE demais — planta vence area, separar conferindo planta; sinal de layout no render NAO se descarta. Raquel confirmou: criterio de agrupamento e SO layout, sem fator oculto.
