@@ -1,19 +1,12 @@
-"""Gera memorial descritivo de decor por tipologia (pacote Plus).
+"""Gera memorial descritivo de decor por tipologia (pacote Plus), estrutura oficial.
 
 Uso:
   python montar_orcamento.py --tipologias t.json --produtos p.json \
-    --estilo clean --spot "Natal Spot"
-
-Entrada:
-  --tipologias : JSON lista [{tipologia, terraco, tipo, capacidade}]
-  --produtos   : JSON de ler_catalogo.py {codigo: {nome, categoria, valor_unitario}}
-  --estilo     : clean | biofilico | industrial | bruma
-  --spot       : nome do empreendimento
+    --estilo biofilico --spot "Bonito Spot"
 
 Saida (stdout): JSON {memoriais: [...], resumo: [...]}
 """
 import argparse
-import csv as csvmodule
 import io
 import json
 import sys
@@ -21,58 +14,52 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from modelos import LinhaMemorial, MemorialTipologia, Produto
+from acabamentos import acabamento_de, META_ITEM
+from servicos import SERVICOS
 
-# ---------------------------------------------------------------------------
-# Tabela de itens - pacote Plus, precos de referencia 2026
 # (role, categoria, codigo_default, descricao, valor_default)
-# Precos do catalogo real (db002_produtos) sobrescrevem estes defaults.
-# ---------------------------------------------------------------------------
 _ITENS_PLUS = [
-    # MARCENARIA
-    ("gabinete_inferior",   "MARCENARIA",       "MRC0002",  "Gabinete inferior (gavetao como vassoureiro)", 3300.0),
-    ("gabinete_superior",   "MARCENARIA",       "MRC0011",  "Gabinete superior com LED",                   1100.0),
-    ("cabeceira",           "MARCENARIA",       "MRC0038",  "Cabeceira",                                   5800.0),
-    ("arara_roupas",        "MARCENARIA",       "MRC0028",  "Arara de roupas",                             2000.0),
-    ("bancada_refeicao",    "MARCENARIA",       "MRC0022",  "Mesa/bancada de refeicao",                     800.0),
-    ("movel_apoio",         "MARCENARIA",       "MRC0020",  "Movel de apoio",                              1000.0),
-    ("prateleira_banheiro", "MARCENARIA",       "MRC0022b", "Prateleira banheiro",                          450.0),
-    # MARMORARIA
-    ("bancada_coz_pedra",   "MARMORARIA",       "MRM0007",  "Bancada cozinha (granito pitaya)",            2470.0),
-    ("bancada_ban_pedra",   "MARMORARIA",       "MRM0016",  "Bancada banheiro (granito pitaya)",           1499.0),
-    # MOBILIARIO
-    ("cama_queen",          "MOBILIÁRIO",       "MOB0001",  "Cama box Queen size (c/ auxiliar)",           3986.0),
-    ("sofa_cama",           "MOBILIÁRIO",       "MOB0003",  "Sofá-cama",                                   4373.0),
-    ("puff",                "MOBILIÁRIO",       "MOB0004",  "Puff",                                         680.0),
-    ("cadeira_jantar",      "MOBILIÁRIO",       "MOB0005",  "Cadeira de jantar",                            639.0),
-    # LOUCAS E METAIS
-    ("torneira_coz",        "LOUÇAS E METAIS",  "LEM0007",  "Torneira de mesa cozinha",                    324.0),
-    ("cuba_coz",            "LOUÇAS E METAIS",  "LEM0018",  "Cuba de embutir inox cozinha",                284.0),
-    ("cuba_ban",            "LOUÇAS E METAIS",  "LEM0020",  "Cuba de apoio banheiro",                      180.0),
-    ("torneira_ban",        "LOUÇAS E METAIS",  "LEM0012",  "Torneira banheiro bica alta",                 289.0),
-    ("box_banheiro",        "LOUÇAS E METAIS",  "VDR0004",  "Box reto banheiro",                           983.0),
-    ("filtro_agua",         "LOUÇAS E METAIS",  "LEM0027",  "Filtro de agua 3M",                           163.0),
-    ("toalheiro_termico",   "LOUÇAS E METAIS",  "LEM0013",  "Toalheiro termico",                           923.0),
-    ("kit_metais",          "LOUÇAS E METAIS",  "LEM0001",  "Kit de metais",                               222.0),
-    # ELETROS
-    ("cooktop",             "ELETROS",          "ELE0006",  "Cooktop vitroceramico 2 bocas",               899.0),
-    ("frigobar",            "ELETROS",          "ELE0003",  "Frigobar retro",                             1949.0),
-    ("microondas",          "ELETROS",          "ELE0007",  "Microondas 20L Electrolux",                   579.0),
-    ("cafeteira",           "ELETROS",          "ELE0019",  "Cafeteira eletrica",                          179.0),
-    ("chaleira",            "ELETROS",          "ELE0020",  "Chaleira eletrica",                           189.0),
-    ("liquidificador",      "ELETROS",          "ELE0022",  "Liquidificador 1,5L",                         319.0),
-    ("depurador",           "ELETROS",          "ELE0014",  "Depurador",                                   799.0),
-    ("mini_grill",          "ELETROS",          "ELE0024",  "Mini grill e sanduicheira",                   159.0),
-    ("tv",                  "ELETROS",          "ELE0001",  'TV 43"',                                     1599.0),
-    # ILUMINACAO
-    ("iluminacao",          "ILUMINAÇÃO",       "ILU0001",  "Kit iluminacao",                              347.0),
-    # AREA EXTERNA (condicional)
-    ("jacuzzi",             "ÁREA EXTERNA",     "EXT0001",  "Jacuzzi circular O 1,80m",                  5000.0),
-    ("mesa_externa",        "ÁREA EXTERNA",     "EXT0002",  "Mesa externa redonda + cadeiras",            1500.0),
+    ("gabinete_inferior",   "MARCENARIA",      "MRC0002",  "Gabinete inferior (gavetão como vassoureiro)", 3300.0),
+    ("gabinete_superior",   "MARCENARIA",      "MRC0011",  "Gabinete superior com LED",                   1100.0),
+    ("cabeceira",           "MARCENARIA",      "MRC0038",  "Cabeceira",                                   5800.0),
+    ("arara_roupas",        "MARCENARIA",      "MRC0028",  "Arara de roupas",                             2000.0),
+    ("bancada_refeicao",    "MARCENARIA",      "MRC0022",  "Mesa/bancada de refeição",                     800.0),
+    ("movel_apoio",         "MARCENARIA",      "MRC0020",  "Móvel de apoio",                              1000.0),
+    ("prateleira_banheiro", "MARCENARIA",      "MRC0022b", "Prateleira banheiro",                          450.0),
+    ("bancada_coz_pedra",   "MARMORARIA",      "MRM0007",  "Bancada cozinha",                             2470.0),
+    ("bancada_ban_pedra",   "MARMORARIA",      "MRM0016",  "Bancada banheiro",                            1499.0),
+    ("cama_queen",          "MOBILIÁRIO",      "MOB0001",  "Cama box Queen size (c/ auxiliar)",           3986.0),
+    ("sofa_cama",           "MOBILIÁRIO",      "MOB0003",  "Sofá-cama",                                   4373.0),
+    ("puff",                "MOBILIÁRIO",      "MOB0004",  "Puff",                                         680.0),
+    ("cadeira_jantar",      "MOBILIÁRIO",      "MOB0005",  "Cadeira de jantar",                            639.0),
+    ("torneira_coz",        "METAIS E INOX",   "LEM0007",  "Torneira de mesa cozinha",                    324.0),
+    ("cuba_coz",            "METAIS E INOX",   "LEM0018",  "Cuba de embutir inox cozinha",                284.0),
+    ("cuba_ban",            "METAIS E INOX",   "LEM0020",  "Cuba de apoio banheiro",                      180.0),
+    ("torneira_ban",        "METAIS E INOX",   "LEM0012",  "Torneira banheiro bica alta",                 289.0),
+    ("box_banheiro",        "METAIS E INOX",   "VDR0004",  "Box reto banheiro",                           983.0),
+    ("filtro_agua",         "METAIS E INOX",   "LEM0027",  "Filtro de água 3M",                           163.0),
+    ("toalheiro_termico",   "METAIS E INOX",   "LEM0013",  "Toalheiro térmico",                           923.0),
+    ("kit_metais",          "METAIS E INOX",   "LEM0001",  "Kit de metais",                               222.0),
+    ("cooktop",             "ELETROS",         "ELE0006",  "Cooktop vitrocerâmico 2 bocas",               899.0),
+    ("frigobar",            "ELETROS",         "ELE0003",  "Frigobar retrô",                             1949.0),
+    ("microondas",          "ELETROS",         "ELE0007",  "Microondas 20L Electrolux",                   579.0),
+    ("cafeteira",           "ELETROS",         "ELE0019",  "Cafeteira elétrica",                          179.0),
+    ("chaleira",            "ELETROS",         "ELE0020",  "Chaleira elétrica",                           189.0),
+    ("liquidificador",      "ELETROS",         "ELE0022",  "Liquidificador 1,5L",                         319.0),
+    ("depurador",           "ELETROS",         "ELE0014",  "Depurador",                                   799.0),
+    ("mini_grill",          "ELETROS",         "ELE0024",  "Mini grill e sanduicheira",                   159.0),
+    ("tv",                  "ELETROS",         "ELE0001",  'Smart TV 43"',                               1599.0),
+    ("iluminacao",          "ILUMINAÇÃO",      "ILU0001",  "Kit iluminação",                              347.0),
+    ("jacuzzi",             "ÁREA EXTERNA",    "EXT0001",  "Jacuzzi circular Ø 1,80m",                  5000.0),
+    ("mesa_externa",        "ÁREA EXTERNA",    "EXT0002",  "Mesa externa redonda + cadeiras",            1500.0),
 ]
 
 _CADEIRAS_POR_CAP: dict[int, int] = {2: 2, 3: 3, 4: 3, 5: 4}
-_TERRACO_GARDEN   = {"garden", "terraço", "terraco"}
-_TERRACO_VARANDA  = {"varanda", "sacada"}
+_TERRACO_GARDEN  = {"garden", "terraço", "terraco"}
+_TERRACO_VARANDA = {"varanda", "sacada"}
+
+_COLUNAS = ["", "ITEM/TIPO", "AMBIENTE", "IMAGEM", "ITEM", "FICHA TÉCNICA", "",
+            "FORNECEDOR", "QUANT.", "REFERÊNCIA", "VALOR UNITÁRIO", "VALOR TOTAL"]
 
 
 def itens_para_tipologia(
@@ -80,17 +67,18 @@ def itens_para_tipologia(
     terraco: str,
     tipo: str,
     produtos: dict,
+    estilo: str = "biofilico",
 ) -> list[LinhaMemorial]:
     t = terraco.strip().lower()
-    eh_garden   = t in _TERRACO_GARDEN
-    eh_varanda  = t in _TERRACO_VARANDA
-    eh_pcd      = tipo.strip().lower() == "pcd"
+    eh_garden  = t in _TERRACO_GARDEN
+    eh_varanda = t in _TERRACO_VARANDA
+    eh_pcd     = tipo.strip().lower() == "pcd"
 
     linhas: list[LinhaMemorial] = []
     for (role, categoria, codigo, descricao, valor_default) in _ITENS_PLUS:
         if role == "sofa_cama"    and capacidade not in (4, 5): continue
-        if role == "jacuzzi"      and not eh_garden:             continue
-        if role == "mesa_externa" and not eh_varanda:            continue
+        if role == "jacuzzi"      and not eh_garden:            continue
+        if role == "mesa_externa" and not eh_varanda:           continue
 
         qty = _CADEIRAS_POR_CAP.get(capacidade, 2) if role == "cadeira_jantar" else 1
 
@@ -101,110 +89,125 @@ def itens_para_tipologia(
             valor = valor_default
 
         nome = f"{descricao} (PCD)" if (
-            eh_pcd
-            and "banheiro" in descricao.lower()
-            and "bancada" not in descricao.lower()
+            eh_pcd and "banheiro" in descricao.lower() and "bancada" not in descricao.lower()
         ) else descricao
 
-        linhas.append(LinhaMemorial(categoria=categoria, item=nome,
-                                    quantidade=qty, valor_unitario=valor))
+        linhas.append(LinhaMemorial(
+            categoria=categoria, item=nome, quantidade=qty, valor_unitario=valor,
+            ambiente=META_ITEM.get(role, {}).get("ambiente", ""),
+            referencia=codigo, acabamento=acabamento_de(estilo, role),
+            opcional=(role == "jacuzzi"),
+        ))
+
+    for (role, nome, ambiente, codigo, valor_default) in SERVICOS:
+        linhas.append(LinhaMemorial(
+            categoria="INSUMOS", item=nome, quantidade=1, valor_unitario=valor_default,
+            ambiente=ambiente, referencia=codigo, acabamento="N/A",
+        ))
     return linhas
 
 
-def montar_memorial(
-    tipologia: str,
-    descricao: str,
-    estilo: str,
-    spot: str,
-    linhas: list[LinhaMemorial],
-) -> MemorialTipologia:
-    return MemorialTipologia(
-        tipologia=tipologia, descricao=descricao,
-        estilo=estilo, spot=spot, linhas=linhas,
-    )
+def montar_memorial(tipologia, descricao, estilo, spot, linhas) -> MemorialTipologia:
+    return MemorialTipologia(tipologia=tipologia, descricao=descricao,
+                             estilo=estilo, spot=spot, linhas=linhas)
 
 
 def _brl(valor: float) -> str:
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def serializar_csv(memorial: MemorialTipologia) -> str:
-    out = io.StringIO()
-    w = csvmodule.writer(out)
-
-    w.writerow(["TIPOLOGIA:", memorial.tipologia, memorial.descricao])
-    w.writerow(["Empreendimento:", memorial.spot])
-    w.writerow(["Estilo:", memorial.estilo, "Pacote: Plus"])
-    w.writerow([])
-    w.writerow(["ITEM", "Quantidade", "Valor Unitario", "Valor Total"])
+def serializar_estruturado(memorial: MemorialTipologia, estilo: str) -> list[list]:
+    """Matriz de 11 colunas no formato oficial (categoria/ambiente 'mescladas',
+    4 linhas por item, TOTAL por categoria, taxas e dois totais)."""
+    rows: list[list] = []
+    rows.append(["", "MEMORIAL DESCRITIVO", memorial.spot, "", "",
+                 f"{memorial.tipologia} — {memorial.descricao}", "", "",
+                 f"Estilo: {memorial.estilo}", "Pacote: Plus", "", ""])
+    rows.append(list(_COLUNAS))
 
     cat_atual = None
-    for linha in memorial.linhas:
-        if linha.categoria != cat_atual:
-            cat_atual = linha.categoria
-            w.writerow([f" {cat_atual}", "", "", _brl(memorial.subtotais[cat_atual])])
-        w.writerow([linha.item, linha.quantidade,
-                    _brl(linha.valor_unitario), _brl(linha.valor_total)])
+    amb_atual = None
+    for l in memorial.linhas:
+        cat_cell = ""
+        amb_cell = ""
+        if l.categoria != cat_atual:
+            cat_atual = l.categoria
+            amb_atual = None
+            cat_cell = l.categoria
+        if l.ambiente != amb_atual:
+            amb_atual = l.ambiente
+            amb_cell = l.ambiente
+        rows.append(["", cat_cell, amb_cell, "", l.item, "Largura", l.largura,
+                     l.fornecedor, l.quantidade, l.referencia,
+                     _brl(l.valor_unitario), _brl(l.valor_total)])
+        rows.append(["", "", "", "", "", "Altura", l.altura, "", "", "", "", ""])
+        rows.append(["", "", "", "", "", "Profundidade", l.profundidade, "", "", "", "", ""])
+        rows.append(["", "", "", "", "", "Acabamento", l.acabamento, "", "", "", "", ""])
 
-    w.writerow([])
-    w.writerow(["", "", "Valor Produtos", _brl(memorial.valor_produtos)])
-    w.writerow(["Taxa Decor", "R$", "", _brl(memorial.taxa_decor)])
-    w.writerow(["Taxa Adm (13%)", "", "", _brl(memorial.taxa_adm)])
-    w.writerow(["TOTAL GERAL", "", "", _brl(memorial.total_geral)])
+    vistas: list[str] = []
+    for l in memorial.linhas:
+        if l.categoria not in vistas:
+            vistas.append(l.categoria)
+    rows.append([""] * 12)
+    for cat in vistas:
+        rows.append(["", f"TOTAL {cat}", "", "", "", "", "", "", "", "",
+                     _brl(memorial.subtotais[cat]), ""])
 
-    return out.getvalue()
+    rows.append([""] * 12)
+    rows.append(["", "Valor Produtos (sem jacuzzi)", "", "", "", "", "", "", "", "",
+                 _brl(memorial.valor_produtos), ""])
+    rows.append(["", "Taxa Decor", "", "", "", "", "", "", "", "", _brl(memorial.taxa_decor), ""])
+    rows.append(["", "Taxa Adm (13%)", "", "", "", "", "", "", "", "", _brl(memorial.taxa_adm), ""])
+    rows.append(["", "TOTAL (sem jacuzzi)", "", "", "", "", "", "", "", "",
+                 _brl(memorial.total_geral), ""])
+    rows.append(["", "TOTAL (com jacuzzi)", "", "", "", "", "", "", "", "",
+                 _brl(memorial.total_com_jacuzzi), ""])
+    return rows
 
 
 def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser(description="Gera memoriais de decor por tipologia (Plus)")
-    p.add_argument("--tipologias", type=Path, required=True,
-                   help="JSON com lista [{tipologia, terraco, tipo, capacidade}]")
-    p.add_argument("--produtos", type=Path,
-                   help="JSON de ler_catalogo.py (omitir = precos default)")
-    p.add_argument("--estilo", required=True,
-                   choices=["clean", "biofilico", "industrial", "bruma"])
-    p.add_argument("--spot", required=True, help="Nome do empreendimento")
+    p.add_argument("--tipologias", type=Path, required=True)
+    p.add_argument("--produtos", type=Path)
+    p.add_argument("--estilo", required=True, choices=["clean", "biofilico", "industrial", "bruma"])
+    p.add_argument("--spot", required=True)
     args = p.parse_args()
 
     tipologias = json.loads(args.tipologias.read_text(encoding="utf-8"))
     produtos: dict = {}
     if args.produtos:
         raw = json.loads(args.produtos.read_text(encoding="utf-8"))
-        produtos = {
-            k: Produto(k, v["nome"], v["categoria"], v["valor_unitario"], v.get("unidade", "un"))
-            for k, v in raw.items()
-        }
+        produtos = {k: Produto(k, v["nome"], v["categoria"], v["valor_unitario"], v.get("unidade", "un"))
+                    for k, v in raw.items()}
 
     memoriais = []
     for t in tipologias:
-        letra    = t["tipologia"]
+        letra = t["tipologia"]
         terraco_label = "Sem terraço" if t["terraco"].strip().lower() == "sem" else t["terraco"]
-        descr    = f"{terraco_label} · {t['tipo']} · Cap. {t['capacidade']}"
-        linhas   = itens_para_tipologia(t["capacidade"], t["terraco"], t["tipo"], produtos)
-        memorial = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas)
+        descr = f"{terraco_label} · {t['tipo']} · Cap. {t['capacidade']}"
+        linhas = itens_para_tipologia(t["capacidade"], t["terraco"], t["tipo"], produtos,
+                                      estilo=args.estilo)
+        m = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas)
         memoriais.append({
-            "tipologia":      letra,
-            "descricao":      descr,
-            "total_geral":    memorial.total_geral,
-            "valor_produtos": memorial.valor_produtos,
-            "taxa_adm":       memorial.taxa_adm,
-            "taxa_decor":     memorial.taxa_decor,
-            "subtotais":      memorial.subtotais,
+            "tipologia": letra, "descricao": descr,
+            "total_geral": m.total_geral, "total_com_jacuzzi": m.total_com_jacuzzi,
+            "valor_produtos": m.valor_produtos, "valor_opcionais": m.valor_opcionais,
+            "taxa_adm": m.taxa_adm, "taxa_decor": m.taxa_decor, "subtotais": m.subtotais,
             "linhas": [
-                {"categoria": l.categoria, "item": l.item,
+                {"categoria": l.categoria, "ambiente": l.ambiente, "item": l.item,
                  "quantidade": l.quantidade, "valor_unitario": l.valor_unitario,
-                 "valor_total": l.valor_total}
-                for l in memorial.linhas
+                 "valor_total": l.valor_total, "referencia": l.referencia,
+                 "acabamento": l.acabamento, "fornecedor": l.fornecedor, "opcional": l.opcional}
+                for l in m.linhas
             ],
-            "csv": serializar_csv(memorial),
+            "rows": serializar_estruturado(m, args.estilo),
         })
 
-    resumo = [{"tipologia": m["tipologia"], "descricao": m["descricao"],
-               "total_geral": m["total_geral"]} for m in memoriais]
-    print(json.dumps({"memoriais": memoriais, "resumo": resumo},
-                     ensure_ascii=False, indent=2))
+    resumo = [{"tipologia": x["tipologia"], "descricao": x["descricao"],
+               "total_geral": x["total_geral"]} for x in memoriais]
+    print(json.dumps({"memoriais": memoriais, "resumo": resumo}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
