@@ -206,4 +206,15 @@
 
   input.addEventListener("input", (e) => render(e.target.value));
   render("");
+
+  // Botão "Copiar comando" do bloco "Gerar uma tabela nova"
+  const howtoCopy = $("#howto-copy");
+  if (howtoCopy) {
+    howtoCopy.addEventListener("click", () => {
+      const txt = ($("#howto-cmd") || {}).textContent || "";
+      navigator.clipboard && navigator.clipboard.writeText(txt);
+      howtoCopy.textContent = "Comando copiado ✓";
+      setTimeout(() => { howtoCopy.textContent = "Copiar comando"; }, 2000);
+    });
+  }
 })();

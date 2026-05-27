@@ -221,6 +221,15 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
 .fonte-tag::before { content: "✓"; font-size: 10px; }
 .fonte-tag.off::before { content: "✕"; }
 
+/* bloco "Gerar uma tabela nova" */
+.howto-lede { font-size: 15px; color: var(--ink-60); margin-bottom: 16px; }
+.howto-steps { margin: 0 0 18px; padding-left: 0; list-style: none; counter-reset: howto; }
+.howto-steps li { position: relative; padding: 8px 0 8px 40px; font-size: 14px; color: var(--navy); border-bottom: 1px solid var(--line); counter-increment: howto; }
+.howto-steps li:last-child { border-bottom: none; }
+.howto-steps li::before { content: counter(howto); position: absolute; left: 0; top: 7px; width: 26px; height: 26px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.howto-steps code, .howto-lede code, .howto-nota code { background: var(--paper-2); color: var(--navy); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+.howto-nota { margin-top: 14px; font-size: 13px; color: var(--ink-60); }
+
 /* bloco precisão */
 .precisao-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .prec-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }

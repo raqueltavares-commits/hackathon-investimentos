@@ -95,6 +95,24 @@
     </section>
 
     <section class="block reveal">
+      <div class="block-head"><span class="num">+</span><h2>Gerar uma tabela nova</h2></div>
+      <p class="howto-lede">Peça ao Claude e ele monta a tabela do anteprojeto sozinho — do Drive ao Google Sheet editável. É a skill <code>tabela-tipologias</code>.</p>
+      <ol class="howto-steps">
+        <li><strong>Peça ao Claude</strong> com o comando abaixo (ou <code>/tabela-tipologias</code>).</li>
+        <li>Ele <strong>acha o anteprojeto LANÇAMENTOS</strong> do Spot no Drive (nunca o COMPATIBILIZADO INTERIORES).</li>
+        <li>Lê o <strong>PDF</strong> (metragem, nº de unidades) + o <strong>DWG</strong> (esquadrias, pra separar layouts iguais dos diferentes).</li>
+        <li><strong>Classifica e agrupa</strong> em tipologias e <strong>valida</strong> o total de unidades.</li>
+        <li>Cria o <strong>Google Sheet editável</strong> na pasta do Spot (<code>10 - Projeto de Interiores / 02 - Imagens</code>) e te manda o link.</li>
+        <li>Você <strong>revisa e ajusta</strong> a capacidade (previsão) na planilha depois do layout final.</li>
+      </ol>
+      <div class="cmd-row">
+        <code id="howto-cmd">monta a tabela de tipologias do &lt;empreendimento&gt;</code>
+        <button class="btn btn-primary" id="howto-copy">Copiar comando</button>
+      </div>
+      <p class="howto-nota">Precisa do Google Drive conectado + Python (ezdxf, openpyxl, pymupdf) e o ODA File Converter — já configurados nesta máquina.</p>
+    </section>
+
+    <section class="block reveal">
       <div class="search-bar">
         <input id="spot-search" type="text" placeholder="Buscar empreendimento (nome ou código)…" autocomplete="off" />
       </div>
