@@ -19,7 +19,7 @@
     </a>
     <nav class="tabs" role="tablist">
       <button class="tab is-active" data-tab="logica" role="tab">Lógica &amp; Regras</button>
-      <button class="tab is-soon" disabled>Tipologias por Spot <em>em breve</em></button>
+      <button class="tab" data-tab="tipologias" role="tab">Tipologias por Spot</button>
       <button class="tab is-soon" disabled>Orçamento <em>em breve</em></button>
     </nav>
   </header>
@@ -68,7 +68,29 @@
     </footer>
   </main>
 
+  <main id="panel-tipologias" class="panel" hidden>
+    <section class="hero reveal">
+      <p class="eyebrow">Tabelas geradas · Lançamentos</p>
+      <h1>Tipologias por <span class="hl">empreendimento</span>.</h1>
+      <p class="lede">As tabelas de tipologias geradas a partir do anteprojeto. Busque pelo empreendimento, veja a tabela e abra a planilha no Drive.</p>
+    </section>
+
+    <section class="block reveal">
+      <div class="search-bar">
+        <input id="spot-search" type="text" placeholder="Buscar empreendimento (nome ou código)…" autocomplete="off" />
+      </div>
+      <div id="spot-list" class="spot-list"></div>
+      <div id="spot-empty" class="spot-empty" hidden></div>
+    </section>
+
+    <footer class="foot">
+      <span>Seazone Investimentos · Padrão Spot</span>
+      <span>Seu lugar fora de casa</span>
+    </footer>
+  </main>
+
   <script src="data/padrao-spot.js"></script>
+  <script src="data/tipologias.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

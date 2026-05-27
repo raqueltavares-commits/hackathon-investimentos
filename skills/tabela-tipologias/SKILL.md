@@ -48,16 +48,18 @@ Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`.
 
 ### 5. Entregar
 1. Salve o CSV em `docs/tipologias_<spot>.csv` (snapshot versionável, encoding UTF-8).
-2. Crie um **novo** Google Sheet no Drive (`GOOGLESHEETS_CREATE_GOOGLE_SHEET1` + escrita
-   de valores) **dentro de `05 - Projeto Arquitetônico / 10 - Projeto de Interiores / 02 - Imagens`**
-   do próprio Spot (ver `references/drive-navegacao.md`). NÃO sobrescreva planilhas
-   existentes. Devolva o link.
-3. Coloque na planilha a nota fixa de capacidade:
-   "⚠️ Capacidade é previsão baseada em área útil + programa — confirmar/editar
-   quando o layout final estiver pronto."
-4. Escreva um **resumo executivo** (chat + opcional no Sheet): total de tipologias/
-   unidades, resultado da validação, `avisos` de baixa confiança/fronteira de área,
-   premissas usadas na previsão de capacidade.
+2. Crie um **novo** Google Sheet no Drive **dentro de `05 - Projeto Arquitetônico /
+   10 - Projeto de Interiores / 02 - Imagens`** do próprio Spot (ver `references/drive-navegacao.md`).
+   O toolkit Google Sheets NÃO está conectado — use `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT`
+   com `mime_type=application/vnd.google-apps.spreadsheet` e o CSV (+ uma linha de aviso
+   de capacidade) como `text_content`. Valide exportando de volta (`GOOGLEDRIVE_DOWNLOAD_FILE
+   mime_type=text/csv`). NÃO sobrescreva nada. Devolva o link.
+3. **Alimente a vitrine do dashboard**: edite `dashboard/data/tipologias.js` —
+   adicione/atualize o Spot em `window.TIPOLOGIAS.spots[<slug>]` (com `tipologias`,
+   `drive_url`) e a entrada em `window.TIPOLOGIAS.index` (spot, codigo, slug, gerado_em,
+   total_tipologias, total_unidades, drive_url). Assim ele aparece na aba "Tipologias por Spot".
+4. Escreva um **resumo executivo** (chat): total de tipologias/unidades, resultado da
+   validação, `avisos` de baixa confiança/fronteira de área, premissas da previsão de capacidade.
 
 ## Validação de referência
 Natal Spot deve dar **5 tipologias / 96 unidades** (A=74/cap2, B=10/cap5, C=10/cap3,

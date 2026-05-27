@@ -172,6 +172,41 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
 }
 .foot span:last-child { color: var(--blue); font-weight: 700; }
 
+/* ---------- Tipologias por Spot (vitrine) ---------- */
+.search-bar { margin-bottom: 28px; }
+#spot-search {
+  width: 100%; font-family: var(--font); font-size: 16px; color: var(--navy);
+  padding: 16px 20px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--white); box-shadow: var(--shadow); outline: none;
+}
+#spot-search:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,84,252,.12); }
+#spot-search::placeholder { color: #9AA4C2; }
+
+.spot-list { display: grid; gap: 16px; }
+.spot-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.spot-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.spot-card h3 { font-size: 19px; }
+.spot-cod { font-size: 13px; font-weight: 700; color: var(--blue); background: var(--paper-2); padding: 2px 8px; border-radius: 7px; margin-left: 6px; }
+.spot-meta { font-size: 13px; color: var(--ink-60); margin-top: 5px; }
+.spot-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+.btn { font-family: var(--font); font-size: 14px; font-weight: 700; padding: 10px 18px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; text-decoration: none; display: inline-block; transition: .18s; }
+.btn-primary { background: var(--blue); color: var(--white); }
+.btn-primary:hover { background: #0047d6; }
+.btn-ghost { background: transparent; color: var(--navy); border-color: var(--line); }
+.btn-ghost:hover { background: var(--paper-2); }
+
+.spot-tabela { margin-top: 18px; }
+.tabela-tip td.t-tip { font-weight: 700; color: var(--blue); }
+.tabela-tip td.t-unids { text-align: left; font-size: 12.5px; color: var(--ink-60); max-width: 360px; }
+.tabela-tip td { text-align: center; }
+
+.spot-empty { background: var(--white); border: 1px dashed var(--line); border-radius: var(--radius); padding: 32px; text-align: center; }
+.empty-title { font-size: 17px; font-weight: 700; }
+.empty-sub { font-size: 14px; color: var(--ink-60); margin: 8px 0 18px; }
+.cmd-row { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.cmd-row code { background: var(--paper-2); color: var(--navy); padding: 10px 14px; border-radius: 10px; font-size: 13.5px; }
+
 /* ---------- Reveal ---------- */
 .reveal { opacity: 0; transform: translateY(14px); animation: rise .6s cubic-bezier(.2,.7,.2,1) forwards; }
 .reveal:nth-child(1) { animation-delay: .02s; }

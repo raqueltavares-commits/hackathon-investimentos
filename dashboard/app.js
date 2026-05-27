@@ -103,3 +103,98 @@
     passos.appendChild(li);
   });
 })();
+
+// ---------- Navegação por abas ----------
+(function () {
+  const tabs = document.querySelectorAll(".tab[data-tab]");
+  const panels = { logica: document.getElementById("panel-logica"), tipologias: document.getElementById("panel-tipologias") };
+  tabs.forEach((t) => {
+    t.addEventListener("click", () => {
+      tabs.forEach((x) => x.classList.remove("is-active"));
+      t.classList.add("is-active");
+      Object.entries(panels).forEach(([k, p]) => { if (p) p.hidden = k !== t.dataset.tab; });
+      window.scrollTo(0, 0);
+    });
+  });
+})();
+
+// ---------- Aba: Tipologias por Spot (vitrine) ----------
+(function () {
+  const T = window.TIPOLOGIAS;
+  if (!T) return;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
+
+  const list = $("#spot-list");
+  const empty = $("#spot-empty");
+  const input = $("#spot-search");
+
+  function tabelaHTML(spot) {
+    const rows = spot.tipologias.map((t) => `
+      <tr>
+        <td class="t-tip">${t.tipologia}</td>
+        <td class="t-unids">${t.unidades.join(", ")}</td>
+        <td>${t.terraco}</td>
+        <td>${t.tipo}</td>
+        <td>${t.quantidade}</td>
+        <td>${t.capacidade}</td>
+        <td>${t.area_util}</td>
+        <td>${t.area_unidade}</td>
+      </tr>`).join("");
+    const head = T.colunas.map((c) => `<th>${c}</th>`).join("");
+    return `<div class="table-wrap"><table class="matriz tabela-tip"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function card(item) {
+    const c = el("div", "spot-card");
+    c.innerHTML = `
+      <div class="spot-card-top">
+        <div>
+          <h3>${item.spot} <span class="spot-cod">${item.codigo}</span></h3>
+          <p class="spot-meta">${item.total_tipologias} tipologias · ${item.total_unidades} unidades · gerado em ${item.gerado_em}</p>
+        </div>
+      </div>
+      <div class="spot-actions">
+        <button class="btn btn-primary" data-ver="${item.slug}">Ver tabela</button>
+        <a class="btn btn-ghost" href="${item.drive_url}" target="_blank" rel="noopener">Abrir no Drive ↗</a>
+      </div>
+      <div class="spot-tabela" hidden></div>`;
+    c.querySelector("[data-ver]").addEventListener("click", (e) => {
+      const box = c.querySelector(".spot-tabela");
+      const btn = e.currentTarget;
+      if (box.hidden) {
+        if (!box.dataset.loaded) { box.innerHTML = tabelaHTML(T.spots[item.slug]); box.dataset.loaded = "1"; }
+        box.hidden = false; btn.textContent = "Ocultar tabela";
+      } else { box.hidden = true; btn.textContent = "Ver tabela"; }
+    });
+    return c;
+  }
+
+  function semMatch(termo) {
+    empty.hidden = false;
+    list.innerHTML = "";
+    const cmd = `gera a tabela de tipologias do ${termo || "<empreendimento>"}`;
+    empty.innerHTML = `
+      <p class="empty-title">Nenhuma tabela gerada para "<strong>${termo}</strong>".</p>
+      <p class="empty-sub">As tabelas são geradas pelo Claude a partir do anteprojeto. Copie o comando e cole no Claude:</p>
+      <div class="cmd-row"><code id="cmd">${cmd}</code><button class="btn btn-primary" id="copy-cmd">Pedir geração ao Claude</button></div>`;
+    empty.querySelector("#copy-cmd").addEventListener("click", () => {
+      navigator.clipboard && navigator.clipboard.writeText(cmd);
+      empty.querySelector("#copy-cmd").textContent = "Comando copiado ✓";
+    });
+  }
+
+  function render(termo) {
+    const q = (termo || "").trim().toLowerCase();
+    const itens = T.index.filter((i) =>
+      !q || i.spot.toLowerCase().includes(q) || String(i.codigo).toLowerCase().includes(q));
+    if (!T.index.length) { semMatch(termo); empty.querySelector(".empty-title").innerHTML = "Nenhuma tabela gerada ainda."; return; }
+    if (!itens.length) { semMatch(termo); return; }
+    empty.hidden = true;
+    list.innerHTML = "";
+    itens.forEach((i) => list.appendChild(card(i)));
+  }
+
+  input.addEventListener("input", (e) => render(e.target.value));
+  render("");
+})();
