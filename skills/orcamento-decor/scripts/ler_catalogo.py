@@ -89,6 +89,8 @@ def parsear_csv(
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser(description="Parseia CSV do db002_produtos -> JSON")
     p.add_argument("--csv", type=Path, help="Caminho do CSV (default: stdin)")
     for campo in COLUNAS_PADRAO:

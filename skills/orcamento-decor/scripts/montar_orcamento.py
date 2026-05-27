@@ -156,6 +156,8 @@ def serializar_csv(memorial: MemorialTipologia) -> str:
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser(description="Gera memoriais de decor por tipologia (Plus)")
     p.add_argument("--tipologias", type=Path, required=True,
                    help="JSON com lista [{tipologia, terraco, tipo, capacidade}]")
