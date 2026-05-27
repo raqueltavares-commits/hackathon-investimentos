@@ -36,9 +36,11 @@ O Google Sheet da tabela e criado DENTRO do proprio Spot, em:
 ### Dashboard (branch feat/dashboard-padrao-spot)
 Site estatico em `dashboard/`, identidade Seazone (Helvetica, azul #0054FC, navy #000C3C, coral #F06054). Aba "Logica & Regras" pronta. Dev server: `python -m http.server 5500 --directory hackathon-investimentos/dashboard` (em .claude/launch.json na raiz do workspace).
 
-## Estado atual / feitos (2026-05-26)
-- **Skill `tabela-tipologias`** (branch `feat/tabela-tipologias`): helper Python testado (13/13), referencias, SKILL.md. Roda de ponta a ponta com dado real.
-- **Dry-run Natal**: 5 tipologias / 96 unidades, validacao OK; Google Sheet criado em `Projeto de Interiores / 02 - Imagens`. Snapshot em `docs/tipologias_natal-spot.csv`.
-- **Dashboard "Padrao Spot"** (branch `feat/dashboard-padrao-spot`): aba "Logica & Regras" pronta e revisada pela Raquel (correcoes: vassoureiro flexivel; jacuzzi = ponto obrigatorio, instalacao do proprietario; banheiro com marcenaria+espelho; PCD porta de correr ou giro p/ fora; copa nao precisa estar em sequencia mas SEMPRE em parede que divide tubulacao com outra unidade espelhada ou com o banheiro).
-- **Branches abertas**: `feat/tabela-tipologias` e `feat/dashboard-padrao-spot` (ainda nao mergeadas em master). `master` so tem spec+plano.
-- **Pendente**: aba "Tipologias por Spot" e "Orcamento" no dashboard (Fase 2); rodar a skill em outros Spots; conectar Google Sheets pra formatar a planilha.
+## Estado atual / feitos (atualizado 2026-05-26)
+TUDO consolidado em `master` (branches feat/* ja mergeadas).
+- **Skill `tabela-tipologias`**: helper Python testado (13/13), referencias, SKILL.md. Le anteprojeto do Drive (planilha ÁREA UNDS quando existe, senao PDF), classifica, gera CSV + cria Google Sheet em `Projeto de Interiores / 02 - Imagens` + alimenta a vitrine (escreve `dashboard/data/tipologias.js` com `fonte`).
+- **Capacidade (previsao) por metragem interna**: <=17m2 cap2, ~18 cap3, >=19 cap4 (sofa-cama), ~23+ cap5. Em `references/classificacao-spot.md`.
+- **Dashboard "Padrao Spot"** (2 abas): "Logica & Regras" (revisada pela Raquel) + "Tipologias por Spot" (vitrine: busca, cards, ver tabela, abrir no Drive, comando pra gerar Spot novo, bloco "Precisao: analise vs so PDF", selo de fonte por Spot). "Orcamento" = em breve. Dev server na 5500 (.claude/launch.json).
+- **Spots gerados**: Natal (fonte=analise, 5 tip/96 un) e Bonito (fonte=pdf RASCUNHO, 4 tip/53 un — falta a Raquel dividir a tipologia A por layout). Ambos na vitrine + Sheet no Drive.
+- **Checkpoint de aprendizados**: cron a cada 30 min (so nesta sessao) faz flush dos arquivos base.
+- **Pendente**: Fase 2 (Orcamento do decor); Raquel editar agrupamento por layout do Bonito; hospedar o dashboard num link; (opcional) conectar Google Sheets pra formatar planilha.
