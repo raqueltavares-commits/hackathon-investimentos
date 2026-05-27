@@ -39,7 +39,8 @@ ezdxf.options.set("odafc-addon","win_exec_path", r"C:\Program Files\ODA\ODAFileC
 doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no layer A-GLAZ
 ```
 
-**ONDE PARAMOS:** Tarefa #1 (DWG) COMPLETA — 22 testes passando, ler_dwg.py + unidades_dwg.py + integracao no montar_tabela.py funcionando. Pendente: validar com DWG real do Bonito (baixar do Drive). Depois: Fase 2 (orcamento decor) + hospedar dashboard.
+**ONDE PARAMOS (2026-05-27):** Tarefa #1 (DWG) **NAO esta completa** — o ler_dwg.py passa 22 testes mas RETORNA `{}` no DWG real do Bonito (fixture sintetica nao batia com a estrutura real; ver lessons.md). VALIDACAO REAL feita nos 3 pisos do Bonito (baixados do Drive p/ tmp/): metodo correto = nearest-label de blocos A-GLAZ na planta de AREAS, agrupando por contagem crua. Funciona em tipo (12 padrao + 4 esquina) e rooftop (6 padrao + 2 esquina), bate com o PDF. Nao funciona no terreo (sem janela, abre por porta) — terreo separa pela AREA do PDF. PROXIMO PASSO acordado com a Raquel: reescrever ler_dwg.py com essa abordagem (assinatura por janela p/ AGRUPAR, nao tabela de esquadrias); portas saem da assinatura. Depois: Fase 2 (orcamento decor) + hospedar dashboard.
+**DWGs baixados do Drive (pasta DWG do anteprojeto LANCAMENTOS Bonito):** tmp/bonito_terreo.dwg, tmp/bonito_tipo.dwg, tmp/bonito_rooftop.dwg. IDs no Drive: terreo 1ItWYy5q27tn39AtlXEK5r-jrPvwVFJkj, tipo 1OaldjeRa2X3f9IMf6AYpT1aDlLuDY_Gh, rooftop 1TjKvyDJEpH7oqSkv_J5VUuSbvmkYtc0k. Pasta DWG: 1knRQbcvUhvBimcZ-iiA08pi9-t1RjXtY. Download via composio retorna base64 > limite -> salva em tool-results .txt -> decodificar com base64. (tmp/ NAO versionar.)
 
 **Pendencias menores:** Raquel dividir o agrupamento por layout do Bonito (rascunho); conectar Google Sheets (hoje so Drive).
 
@@ -111,8 +112,8 @@ A metragem é só pista; o que decide é desenho + nº de esquadrias, visto na p
 
 - **Natal (RESOLVIDO)**: a tabela da Raquel mantem A=74 (5 tipologias / 96 un) — as x01 (17,29m²) FICAM no A. Minha geracao do Natal estava CORRETA (A=74). Eu tinha inferido errado que a x01 maior = +1 esquadria; metragem maior sozinha NAO significa esquadria extra. Tabela da Raquel (Natal): https://docs.google.com/spreadsheets/d/1Fe4FYtQByBtQRF2zgdJvt7gOqLqo6dNv7jwgOcVmHHs/edit — bate com a gerada (so difere a ordem das letras B/C e D/E).
 
-### Leituras DWG implementadas (2026-05-27)
-Todas em `master`, 22 testes passando.
+### Leituras DWG implementadas (2026-05-27) — ATENCAO: NAO validado em DWG real, retorna {} (ver abaixo)
+Todas em `master`, 22 testes passando NA FIXTURE SINTETICA. No DWG real do Bonito retorna `{}` — a abordagem point-in-polygon/nome-por-texto-proximo nao corresponde ao export Revit. SERA REESCRITO (nearest-label de A-GLAZ na planta de areas). Ver "ONDE PARAMOS" e lessons.md 2026-05-27.
 
 - **`ler_dwg.py`** — extrai esquadrias por unidade via ezdxf+ODA+shapely. Layers: A-AREA-BNDY (poligonos), A-AREA-IDEN (textos=unidade), A-GLAZ-IDEN (janelas). Point-in-polygon associa janela a unidade. Commit: 613a042.
 - **`unidades_dwg.py`** — CLI: `python unidades_dwg.py --dwg caminho/arquivo.dwg` → JSON `{unidade: contagem}`. Commits: c83a73f, 203dd37.

@@ -211,6 +211,15 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
 .selo { flex: none; align-self: flex-start; font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
 .selo-analise { background: rgba(0,84,252,.12); color: var(--blue); }
 .selo-pdf { background: #FFF3CC; color: #8A6D00; }
+.selo-dwg { background: rgba(0,12,60,.10); color: var(--navy); }
+
+/* tags de fonte por spot (verde = tem / vermelho = não tem) */
+.fontes { display: flex; gap: 6px; flex-wrap: wrap; align-self: flex-start; }
+.fonte-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .03em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.fonte-tag.on { background: rgba(22,140,75,.13); color: #168C4B; }
+.fonte-tag.off { background: rgba(240,96,84,.13); color: var(--coral); }
+.fonte-tag::before { content: "✓"; font-size: 10px; }
+.fonte-tag.off::before { content: "✕"; }
 
 /* bloco precisão */
 .precisao-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }

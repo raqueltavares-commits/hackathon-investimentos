@@ -147,16 +147,21 @@
 
   function card(item) {
     const c = el("div", "spot-card");
-    const selo = item.fonte === "analise"
-      ? '<span class="selo selo-analise" title="Gerado a partir da planilha de análise (ÁREA UNDS) — dados exatos.">✓ Gerado com análise</span>'
-      : '<span class="selo selo-pdf" title="Gerado só do anteprojeto PDF — rascunho, capacidade por previsão e layout a revisar.">rascunho · só PDF</span>';
+    const f = item.fontes || { pdf: item.fonte !== "analise", analise: item.fonte === "analise", dwg: false };
+    const tag = (label, on, titulo) =>
+      `<span class="fonte-tag ${on ? "on" : "off"}" title="${titulo}">${label}</span>`;
+    const fontes = `<div class="fontes">
+      ${tag("PDF", f.pdf, f.pdf ? "Áreas e números vieram do anteprojeto PDF." : "Sem PDF.")}
+      ${tag("Análise", f.analise, f.analise ? "Áreas confirmadas pela planilha de análise (ÁREA UNDS)." : "Sem planilha de análise — áreas só do PDF.")}
+      ${tag("DWG", f.dwg, f.dwg ? "Agrupamento conferido no DWG (esquadrias por unidade)." : "Sem DWG — agrupamento por layout a revisar na planta.")}
+    </div>`;
     c.innerHTML = `
       <div class="spot-card-top">
         <div>
           <h3>${item.spot} <span class="spot-cod">${item.codigo}</span></h3>
           <p class="spot-meta">${item.total_tipologias} tipologias · ${item.total_unidades} unidades · gerado em ${item.gerado_em}</p>
         </div>
-        ${selo}
+        ${fontes}
       </div>
       <div class="spot-actions">
         <button class="btn btn-primary" data-ver="${item.slug}">Ver tabela</button>
