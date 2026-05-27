@@ -21,19 +21,19 @@ window.ORCAMENTOS = {
       "tipologias": [
         {
           "tipologia": "A",
-          "descricao": "Sem · Padrão · Cap. 2",
+          "descricao": "Sem terraço · Padrão · Cap. 2",
           "custo": 41766.37,
           "memorial_url": "#"
         },
         {
           "tipologia": "B",
-          "descricao": "Sem · Padrão · Cap. 3",
+          "descricao": "Sem terraço · Padrão · Cap. 3",
           "custo": 42488.44,
           "memorial_url": "#"
         },
         {
           "tipologia": "C",
-          "descricao": "Sem · Padrão · Cap. 5",
+          "descricao": "Sem terraço · Padrão · Cap. 5",
           "custo": 48152.0,
           "memorial_url": "#"
         },

@@ -180,7 +180,8 @@ def main() -> None:
     memoriais = []
     for t in tipologias:
         letra    = t["tipologia"]
-        descr    = f"{t['terraco']} · {t['tipo']} · Cap. {t['capacidade']}"
+        terraco_label = "Sem terraço" if t["terraco"].strip().lower() == "sem" else t["terraco"]
+        descr    = f"{terraco_label} · {t['tipo']} · Cap. {t['capacidade']}"
         linhas   = itens_para_tipologia(t["capacidade"], t["terraco"], t["tipo"], produtos)
         memorial = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas)
         memoriais.append({
