@@ -17,6 +17,12 @@ window.TIPOLOGIAS = {
       fontes: { pdf: true, analise: false, dwg: false },
       drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
       rascunho: true
+    },
+    {
+      spot: "Novo Campeche Spot II", codigo: "6320", slug: "novo-campeche-spot-ii",
+      gerado_em: "2026-05-27", total_tipologias: 12, total_unidades: 49, fonte: "dwg",
+      fontes: { pdf: true, analise: true, dwg: true },
+      drive_url: "https://docs.google.com/spreadsheets/d/17YkdQ69TQgDU4Mo35dTpQU38-0bbnd_Q0OJmNwNEKuw/edit"
     }
   ],
   spots: {
@@ -53,6 +59,42 @@ window.TIPOLOGIAS = {
           area_util: "22,91", area_unidade: "22,91", unidades: ["104","105"] },
         { tipologia: "D", terraco: "Garden", tipo: "Padrão", quantidade: 1, capacidade: 4,
           area_util: "19,20", area_unidade: "19,20", unidades: ["106"] }
+      ]
+    },
+    "novo-campeche-spot-ii": {
+      spot: "Novo Campeche Spot II", codigo: "6320",
+      drive_url: "https://docs.google.com/spreadsheets/d/17YkdQ69TQgDU4Mo35dTpQU38-0bbnd_Q0OJmNwNEKuw/edit",
+      tipologias: [
+        { tipologia: "A", terraco: "Garden", tipo: "PCD", quantidade: 1, capacidade: 3,
+          area_util: "20,23", area_unidade: "25,08", unidades: ["101"] },
+        { tipologia: "B", terraco: "Garden", tipo: "Padrão", quantidade: 4, capacidade: 2,
+          area_util: "14,51–15,01", area_unidade: "19,60–20,12",
+          unidades: ["102","103","104","105"] },
+        { tipologia: "C", terraco: "Garden", tipo: "PCD", quantidade: 1, capacidade: 3,
+          area_util: "20,03", area_unidade: "36,70", unidades: ["106"] },
+        { tipologia: "D", terraco: "Garden", tipo: "Padrão", quantidade: 4, capacidade: 2,
+          area_util: "16,10–16,60", area_unidade: "21,73–22,21",
+          unidades: ["107","108","109","110"] },
+        { tipologia: "E", terraco: "Sem sacada", tipo: "Padrão", quantidade: 6, capacidade: 2,
+          area_util: "15,75–15,87", area_unidade: "15,75–15,87",
+          unidades: ["207","208","209","307","308","309"] },
+        { tipologia: "F", terraco: "Sem sacada", tipo: "Padrão", quantidade: 4, capacidade: 5,
+          area_util: "22,11–22,12", area_unidade: "22,11–22,12",
+          unidades: ["206","210","306","310"] },
+        { tipologia: "G", terraco: "Sem sacada", tipo: "Padrão", quantidade: 20, capacidade: 2,
+          area_util: "14,51–15,05", area_unidade: "14,51–15,05",
+          unidades: ["201","202","203","204","205","211","212","213","214","215","301","302","303","304","305","311","312","313","314","315"] },
+        { tipologia: "H", terraco: "Sem sacada", tipo: "Padrão", quantidade: 2, capacidade: 2,
+          area_util: "14,98", area_unidade: "14,98", unidades: ["216","316"] },
+        { tipologia: "I", terraco: "Terraço", tipo: "Padrão", quantidade: 3, capacidade: 2,
+          area_util: "14,79–15,12", area_unidade: "24,75–25,30",
+          unidades: ["401","402","403"] },
+        { tipologia: "J", terraco: "Terraço", tipo: "Padrão", quantidade: 1, capacidade: 2,
+          area_util: "14,45", area_unidade: "37,37", unidades: ["404"] },
+        { tipologia: "K", terraco: "Terraço", tipo: "Padrão", quantidade: 2, capacidade: 2,
+          area_util: "14,37", area_unidade: "24,05", unidades: ["405","406"] },
+        { tipologia: "L", terraco: "Terraço", tipo: "Padrão", quantidade: 1, capacidade: 2,
+          area_util: "14,35", area_unidade: "33,13", unidades: ["407"] }
       ]
     }
   }

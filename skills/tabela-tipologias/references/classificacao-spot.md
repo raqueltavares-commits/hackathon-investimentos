@@ -3,8 +3,17 @@
 Cada unidade é classificada por **Terraço + Tipo construtivo + Capacidade**.
 
 ## Terraço / Área externa
-Sem · Sacada · Varanda · Garden · Terraço. (Garden/Terraço = área externa ampla;
-Sacada/Varanda = compacta.)
+Sem · Sacada · Varanda · Garden · Terraço.
+
+**Quem decide o rótulo é o PAVIMENTO, não o tamanho em m²:**
+- **Térreo** → área externa privativa é **Garden** (é chão/quintal), por menor que seja
+  (mesmo ~5 m²). NUNCA "Sacada" no térreo. (Erro real Novo Campeche II: classifiquei
+  101-110 como Sacada pela área de ~5 m² — eram todas Garden.)
+- **Pisos intermediários** → varanda elevada = **Sacada** (compacta) ou **Varanda** (maior).
+- **Rooftop/cobertura** → **Terraço** (quando a unidade tem terraço privativo). Mas
+  "rooftop = terraço" NÃO é universal: se a cobertura for área comum (piscina/lazer), a
+  unidade do último piso pode ser "Sem sacada". A planta decide.
+- Pavimento tipo sem área externa = **Sem** (ou "Sem sacada").
 
 ## Tipo construtivo
 Padrão · PCD (porta de correr, raio de giro Ø 1,50m, acesso bilateral à cama) ·
@@ -36,8 +45,13 @@ Matriz resumida:
 Guia de previsão por metragem interna (sempre PREVISÃO, confirmar no layout):
 - até ~17 m² → **cap 2** (só a base).
 - ~18 m² → **cap 3** (cabe cama auxiliar).
-- **≥ ~19 m² → cap 4** (cabe sofá-cama).
-- ~23 m²+ (cabe os dois) → **cap 5**.
+- ~19–21 m² → **cap 4** (cabe sofá-cama).
+- **≥ ~22 m² → cap 5** (cabe cama auxiliar + sofá-cama). (Calibrado em Novo Campeche II:
+  22,1 m² interno já é cap 5 — o limiar antigo "~23" era alto demais.)
+
+**PCD rende um nível ABAIXO do que a área crua sugere.** O giro Ø1,50m + acesso bilateral
+à cama comem área útil, então não aplique a matriz direto. Ex. Novo Campeche II: unidades
+PCD de ~20 m² (101, 106) = **cap 3**, não cap 4. Regra prática: PCD ≈ (cap da área) − 1.
 
 ## Agrupamento em tipologias — REGRA (decide pela PLANTA, não pela área)
 O que define a tipologia é o **DESENHO**: mesma posição de banheiro e o **mesmo
@@ -49,3 +63,13 @@ número/tipo de esquadrias (janelas)**. A metragem é só pista — não decide.
 
 Por isso o agrupamento por área do helper é só ponto de partida: **conferir na planta**
 quantas esquadrias cada unidade tem. Terraço + Tipo + Capacidade continuam separando também.
+
+**REGRA-MÃE (quando planta e área discordam, a PLANTA vence).** O helper agrupa por
+(terraço+tipo+cap) com tolerância de área (~1 m²) e por isso **FUNDE demais**: unidades de
+área quase igual mas layout diferente caem juntas. O default DEPOIS de rodar o helper é
+**SEPARAR conferindo a planta**, não aceitar a fusão. Sinal de layout visto no render
+(footprint diferente, orientação da cama, posição do banheiro, esquina) **NÃO se descarta
+por causa da resolução** — se dá pra ver diferença, é tipologia candidata a separar.
+(Erro real Novo Campeche II: fundi 28 unidades do pav tipo numa só; eram TRÊS — coluna
+direita 207-209/307-309, núcleo 216/316, e o miolo. Eu tinha VISTO a diferença no render
+e descartei. O rooftop, idem: 4 layouts, não 2.)
