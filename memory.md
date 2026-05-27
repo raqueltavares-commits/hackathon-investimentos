@@ -44,7 +44,8 @@ doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no laye
 - **Leitura DWG**: ler_dwg.py reescrito com NEAREST-LABEL + normalizacao. Layers CONFIGURAVEIS (`label_layer`, `janela_layers`) + `listar_layers()` + CLI `--listar-layers`/`--label-layer`/`--janela-layers` (nomes de layer variam por projeto; defaults AIA/Revit NAO universais). A janela e UM sinal, nao universal — TODO pavimento pode diferir e abrir por porta; avaliar piso a piso. 27 testes passando.
 - **Dashboard "Padrao Spot"** completo: aba Logica & Regras; aba Tipologias por Spot com bloco "De onde vem a precisao" (3 fontes PDF/Analise/DWG), tags verde/vermelho por spot (campo `fontes`), e o bloco "Gerar uma tabela nova" (resumo + 6 passos + comando copiavel).
 
-**PROXIMO PASSO (o que a Raquel vai fazer na conversa NOVA):** TESTAR a skill num EMPREENDIMENTO NOVO seguindo os passos do dashboard, pra confirmar que funciona de verdade ANTES de gravar o video. Ver runbook "TESTAR UM SPOT NOVO" abaixo. Depois: gravar video + transcricao + montar a pasta de entrega no Drive.
+**[DESATUALIZADO — ver bloco "SESSAO 2026-05-27 (tarde)" mais abaixo pro estado atual.]** Este bloco "ONDE PARAMOS" e da manha de 27/05. Desde entao: a skill JA foi testada num spot novo (Novo Campeche II, deu certo apos correcao da Raquel) e o projeto JA esta no GitHub publico.
+**PROXIMO PASSO:** gravar video + transcricao + montar a pasta de entrega no Drive + enviar formulario do hackathon.
 **DWGs baixados do Drive (pasta DWG do anteprojeto LANCAMENTOS Bonito):** tmp/bonito_terreo.dwg, tmp/bonito_tipo.dwg, tmp/bonito_rooftop.dwg. IDs no Drive: terreo 1ItWYy5q27tn39AtlXEK5r-jrPvwVFJkj, tipo 1OaldjeRa2X3f9IMf6AYpT1aDlLuDY_Gh, rooftop 1TjKvyDJEpH7oqSkv_J5VUuSbvmkYtc0k. Pasta DWG: 1knRQbcvUhvBimcZ-iiA08pi9-t1RjXtY. Download via composio retorna base64 > limite -> salva em tool-results .txt -> decodificar com base64. (tmp/ NAO versionar.)
 
 **Pendencias menores:** Raquel dividir o agrupamento por layout do Bonito (rascunho); conectar Google Sheets (hoje so Drive).
@@ -88,9 +89,11 @@ conferir se funciona, seguindo os passos do dashboard, antes de gravar o video.
   e-mail @seazone.com.br + trilha.
 - **Criterios:** resolve problema SZI real 30% · qualidade da IA 20% · qualidade dos arquivos
   de contexto (claude/lessons/memory) 20% · skill funcional pro dia a dia 15% · clareza da demo 15%.
-- **GAPS de entrega ainda abertos:** projeto so existe em git LOCAL (nao foi pro Drive nem
-  GitHub) → montar a pasta de entrega no Drive; gravar video; transcricao; enviar formulario.
-  (Confirmar com a organizacao se `claude.md/lessons.md/memory.md` sao pastas ou so os arquivos.)
+- **GAPS de entrega (atualizado 2026-05-27 tarde):** GitHub FEITO (repo publico
+  https://github.com/raqueltavares-commits/hackathon-investimentos). Ainda abertos:
+  montar a pasta de entrega no Drive (com claude.md/lessons.md/memory.md + codigo);
+  gravar video; transcricao; enviar formulario. (Confirmar com a organizacao se
+  `claude.md/lessons.md/memory.md` sao pastas ou so os arquivos.)
 
 ## COMMITS DA SESSAO 2026-05-27 (todos em master, SEM push)
 - `e519cb9` dashboard: fonte DWG na precisao + selos PDF/Analise/DWG por spot
