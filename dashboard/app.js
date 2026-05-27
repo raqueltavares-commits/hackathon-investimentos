@@ -137,7 +137,7 @@
     const rows = spot.tipologias.map((t) => `
       <tr>
         <td class="t-tip">${t.tipologia}</td>
-        <td class="t-unids">${t.unidades.join(", ")}</td>
+        <td class="t-unids">${t.unidades.join(", ")}${t.obs ? ` <em>(${t.obs})</em>` : ""}</td>
         <td>${t.terraco}</td>
         <td>${t.tipo}</td>
         <td>${t.quantidade}</td>

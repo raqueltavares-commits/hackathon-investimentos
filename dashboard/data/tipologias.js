@@ -13,10 +13,9 @@ window.TIPOLOGIAS = {
     },
     {
       spot: "Bonito Spot", codigo: "5316", slug: "bonito-spot",
-      gerado_em: "2026-05-26", total_tipologias: 4, total_unidades: 53, fonte: "pdf",
-      fontes: { pdf: true, analise: false, dwg: false },
-      drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
-      rascunho: true
+      gerado_em: "2026-05-27", total_tipologias: 6, total_unidades: 53, fonte: "dwg",
+      fontes: { pdf: true, analise: false, dwg: true },
+      drive_url: "https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit"
     },
     {
       spot: "Novo Campeche Spot II", codigo: "6320", slug: "novo-campeche-spot-ii",
@@ -47,18 +46,24 @@ window.TIPOLOGIAS = {
     },
     "bonito-spot": {
       spot: "Bonito Spot", codigo: "5316",
-      drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
+      drive_url: "https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit",
       tipologias: [
-        { tipologia: "A", terraco: "Sem sacada", tipo: "Padrão", quantidade: 40, capacidade: 2,
-          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
-          unidades: ["201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","401","402","403","404","405","406","407","408"] },
-        { tipologia: "B", terraco: "Garden", tipo: "Padrão", quantidade: 10, capacidade: 2,
-          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+        { tipologia: "A", terraco: "Garden", tipo: "Padrão", quantidade: 10, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37", obs: "somente 113 com jacuzzi",
           unidades: ["101","102","103","107","108","109","110","111","112","113"] },
-        { tipologia: "C", terraco: "Garden", tipo: "PCD", quantidade: 2, capacidade: 4,
+        { tipologia: "B", terraco: "Garden", tipo: "Padrão", quantidade: 2, capacidade: 4,
           area_util: "22,91", area_unidade: "22,91", unidades: ["104","105"] },
-        { tipologia: "D", terraco: "Garden", tipo: "Padrão", quantidade: 1, capacidade: 4,
-          area_util: "19,20", area_unidade: "19,20", unidades: ["106"] }
+        { tipologia: "C", terraco: "Garden", tipo: "Padrão", quantidade: 1, capacidade: 4,
+          area_util: "19,20", area_unidade: "19,20", unidades: ["106"] },
+        { tipologia: "D", terraco: "Sem sacada", tipo: "Padrão", quantidade: 30, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+          unidades: ["201","202","205","206","207","208","209","210","211","214","215","216","301","302","305","306","307","308","309","310","311","314","315","316","401","402","405","406","407","408"] },
+        { tipologia: "E", terraco: "Sem sacada", tipo: "Padrão", quantidade: 6, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+          unidades: ["203","204","303","304","403","404"] },
+        { tipologia: "F", terraco: "Sem sacada", tipo: "Padrão", quantidade: 4, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+          unidades: ["212","213","312","313"] }
       ]
     },
     "novo-campeche-spot-ii": {
