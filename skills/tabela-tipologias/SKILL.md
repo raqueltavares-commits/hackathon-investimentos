@@ -23,14 +23,28 @@ Leia `references/drive-navegacao.md`. A partir do nome do Spot:
 **FONTE IDEAL = DWG + PDF (cruzar os dois).** Cada um dá uma parte:
 - **PDF** (ou `ANÁLISE.xlsx`): **metragem por unidade**, **nº/total de unidades**, quadro
   de áreas e textos relevantes. → os NÚMEROS e o texto.
-- **DWG**: **esquadrias** (layer `A-GLAZ`), portas, layout, banheiro, espelhamento. → o
-  AGRUPAMENTO (ver `references/dwg-leitura.md`; ODA File Converter + `ezdxf`).
+- **DWG**: **esquadrias** (layer `A-GLAZ`), portas, layout, espelhamento. → o AGRUPAMENTO
+  (diferencia unidades de mesma área que diferem só pela janela de esquina).
 
 Passos: do PDF/planilha tire área interna (privativa coberta), área da unidade (total),
-terraço e o total de unidades. Do DWG (quando houver) conte as esquadrias por unidade pro
-agrupamento. Sem DWG, **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a planilha
-sozinha NÃO dá o layout: metragem parecida pode ser tipologia diferente. Sempre validar o
-total de unidades entre as fontes.
+terraço e o total de unidades. Sempre validar o total de unidades entre as fontes.
+
+**Leitura DWG (automática) — quando houver DWG no Drive:**
+Na pasta do anteprojeto LANÇAMENTOS costuma haver uma subpasta `DWG` (uma planta por
+pavimento). Baixe o(s) DWG dos pavimentos de unidades (térreo, tipo, rooftop) do Drive
+(`search_files` por `parentId` → `download_file_content`; o base64 vem grande, é salvo num
+.txt em tool-results → decodifique com `base64`). Então rode, por pavimento:
+```bash
+python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/para/pavimento.dwg
+```
+Retorna `{unidade: nº de janelas}` (já normalizado). Unidades com nº diferente de janelas
+= tipologias diferentes (a de esquina tem +1). Detalhes/limitações em `references/arquitetura-dwg.md`.
+⚠️ **Térreo**: costuma abrir por porta de correr (não janela) → contagem ~0; lá o
+agrupamento sai da ÁREA (PDF), não do DWG. NUNCA excluir o térreo — pode ter unidades
+diferentes (PCD, garden).
+
+Sem DWG, **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a planilha sozinha
+NÃO dá o layout: metragem parecida pode ser tipologia diferente.
 
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:
@@ -46,11 +60,15 @@ Monte uma lista JSON no contrato do helper:
 ```
 
 ### 4. Agrupar, validar e gerar CSV
-Rode o helper (salve a lista em `unidades.json`):
+Rode o helper (salve a lista em `unidades.json`). `<SKILL_DIR>` = a pasta deste SKILL.md:
 ```bash
-python skills/tabela-tipologias/scripts/montar_tabela.py --total <TOTAL_DECLARADO> < unidades.json
+python <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> < unidades.json
+# com leitura DWG integrada (separa esquinas automaticamente):
+python <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> --dwg caminho/pavimento.dwg < unidades.json
 ```
-Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`.
+Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`. O `--dwg` separa
+unidades de mesma área com nº de janelas diferente (labels pareados tipo "201-301" são
+expandidos automaticamente).
 **Se `validacao.ok == false`, NÃO entregue como certo — destaque a divergência.**
 
 ⚠️ O helper agrupa só por (terraço + tipo + capacidade + área) — isso é um **ponto de
@@ -67,12 +85,13 @@ planilha; em qualquer caso o agrupamento por layout depende da leitura da planta
    com `mime_type=application/vnd.google-apps.spreadsheet` e o CSV (+ uma linha de aviso
    de capacidade) como `text_content`. Valide exportando de volta (`GOOGLEDRIVE_DOWNLOAD_FILE
    mime_type=text/csv`). NÃO sobrescreva nada. Devolva o link.
-3. **Alimente a vitrine do dashboard**: edite `dashboard/data/tipologias.js` —
-   adicione/atualize o Spot em `window.TIPOLOGIAS.spots[<slug>]` (com `tipologias`,
-   `drive_url`) e a entrada em `window.TIPOLOGIAS.index` (spot, codigo, slug, gerado_em,
-   total_tipologias, total_unidades, drive_url, **fonte**). `fonte: "analise"` se usou a
-   planilha ÁREA UNDS (preciso); `fonte: "pdf"` se foi só pelo anteprojeto (rascunho — vira
-   selo na vitrine). Assim ele aparece na aba "Tipologias por Spot".
+3. **Alimente a vitrine do dashboard** (SÓ no projeto `hackathon-investimentos`, se a pasta
+   `dashboard/` existir): edite `dashboard/data/tipologias.js` — adicione/atualize o Spot em
+   `window.TIPOLOGIAS.spots[<slug>]` (com `tipologias`, `drive_url`) e a entrada em
+   `window.TIPOLOGIAS.index` (spot, codigo, slug, gerado_em, total_tipologias,
+   total_unidades, drive_url, **`fontes`**). `fontes` = objeto `{ pdf, analise, dwg }` com
+   `true/false` indicando quais fontes alimentaram a tabela (vira as tags verde/vermelho na
+   vitrine). Ex.: usou PDF + DWG, sem planilha → `{ pdf: true, analise: false, dwg: true }`.
 4. Escreva um **resumo executivo** (chat): total de tipologias/unidades, resultado da
    validação, `avisos` de baixa confiança/fronteira de área, premissas da previsão de capacidade.
 
