@@ -25,6 +25,13 @@ Senão, achar a página de QUADRO DE ÁREAS no PDF (varrer texto antes de ler im
 Enumere TODAS as unidades com: número, pavimento, **área interna (privativa coberta)**,
 área da unidade (privativa total), terraço. Use o ANÁLISE só para as **áreas**.
 
+**SEMPRE renderize e olhe as PLANTAS** (mesmo quando há `ANÁLISE.xlsx`). A planilha dá
+áreas/unidades exatas mas **NÃO** dá a identidade de **layout** — duas unidades de metragem
+parecida podem ser tipologias diferentes (posição/orientação/espelhamento). Sem a planta o
+agrupamento sai errado. Renderize as páginas (`fitz`, dpi ~170), recorte e leia os blocos
+de unidades, identificando: garden/sacada/terraço de verdade, PCD (W.C PCD no desenho),
+e quais unidades compartilham o MESMO desenho.
+
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:
 `terraco`, `tipo`, `capacidade` (PREVISÃO), `area_util`, `area_unidade`.
@@ -45,6 +52,12 @@ python skills/tabela-tipologias/scripts/montar_tabela.py --total <TOTAL_DECLARAD
 ```
 Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`.
 **Se `validacao.ok == false`, NÃO entregue como certo — destaque a divergência.**
+
+⚠️ O helper agrupa só por (terraço + tipo + capacidade + área) — isso é um **ponto de
+partida**, NÃO a verdade. Confira contra as PLANTAS: unidades de área parecida mas
+**layout diferente** (esquina, espelhamento, orientação) devem virar tipologias separadas;
+faça esse ajuste antes de entregar. Marque `fonte: "analise"` só quando áreas vieram da
+planilha; em qualquer caso o agrupamento por layout depende da leitura da planta.
 
 ### 5. Entregar
 1. Salve o CSV em `docs/tipologias_<spot>.csv` (snapshot versionável, encoding UTF-8).
