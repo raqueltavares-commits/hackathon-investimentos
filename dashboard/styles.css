@@ -250,3 +250,17 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
 .reveal:nth-child(6) { animation-delay: .42s; }
 @keyframes rise { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
+
+/* ---------- Aba Orçamento ---------- */
+.estilo-chip {
+  flex: none; align-self: flex-start; font-size: 11px; font-weight: 700;
+  letter-spacing: .03em; padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+  background: rgba(0,84,252,.12); color: var(--blue);
+}
+.tabela-orc td.t-tip { font-weight: 700; color: var(--blue); }
+.tabela-orc td.t-desc { text-align: left; color: var(--ink-60); font-size: 13.5px; }
+.tabela-orc td.t-custo { font-weight: 700; color: var(--navy); white-space: nowrap; }
+.tabela-orc td { text-align: center; }
+.memorial-link { font-size: 13px; font-weight: 700; color: var(--blue); text-decoration: none; }
+.memorial-link:hover { text-decoration: underline; }
+.memorial-link.off { color: #B7C0D8; font-weight: 400; }
