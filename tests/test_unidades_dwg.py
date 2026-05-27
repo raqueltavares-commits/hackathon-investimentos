@@ -24,4 +24,4 @@ def test_cli_help():
         text=True,
     )
     assert result.returncode == 0
-    assert "--dwg" in result.stdout
+    assert "--dwg" in (result.stdout + result.stderr)

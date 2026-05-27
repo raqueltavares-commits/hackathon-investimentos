@@ -14,7 +14,7 @@ def main(argv=None):
     p.add_argument("--dwg", required=True, help="Caminho para o arquivo DWG")
     args = p.parse_args(argv)
 
-    scripts_dir = Path(__file__).resolve().parents[1] / "skills" / "tabela-tipologias" / "scripts"
+    scripts_dir = Path(__file__).resolve().parent
     sys.path.insert(0, str(scripts_dir))
     from ler_dwg import ler_dwg
 
