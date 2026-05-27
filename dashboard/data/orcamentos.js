@@ -19,7 +19,8 @@ window.ORCAMENTOS = {
       "pacote": "Plus",
       "gerado_em": "2026-05-27",
       "total_tipologias": 6,
-      "consolidado_url": "https://docs.google.com/spreadsheets/d/1jVKKo4wnauDk4-aTd3njIY8m8dsAnSBvWiUp6NMdMrw/edit"
+      "consolidado_url": "https://docs.google.com/spreadsheets/d/16xSVLo7rrrr9qblGb7tCTlW2u3ZHQ1WBphHLSAIPTZI/edit",
+      "em_construcao": true
     }
   ],
   "spots": {
@@ -65,43 +66,44 @@ window.ORCAMENTOS = {
       "spot": "Bonito Spot",
       "estilo": "Biofílico",
       "pacote": "Plus",
-      "consolidado_url": "https://docs.google.com/spreadsheets/d/1jVKKo4wnauDk4-aTd3njIY8m8dsAnSBvWiUp6NMdMrw/edit",
+      "consolidado_url": "https://docs.google.com/spreadsheets/d/16xSVLo7rrrr9qblGb7tCTlW2u3ZHQ1WBphHLSAIPTZI/edit",
+      "em_construcao": true,
       "tipologias": [
         {
           "tipologia": "A",
           "descricao": "Garden · Padrão · Cap. 2",
-          "custo": 47416.37,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1dA-TxfWsRGINpyxSuPFImmGnMhnmbR7l7U9z0CbTM3c/edit"
+          "custo": 44828.67,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/15kvKMBc_7lwJ02id_PGYLVjuh0nWGyAQAlo2qum3tU0/edit"
         },
         {
           "tipologia": "B",
           "descricao": "Garden · Padrão · Cap. 4",
-          "custo": 53079.93,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1e3_4GtP3r6k0QFfI4U0zhOHjTicysq0WZVuooNI9Ww8/edit"
+          "custo": 50492.23,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/1rVGoPLb4-2NJO1Di4hs9UL6ly1kM5adN7Odu7cQEqXg/edit"
         },
         {
           "tipologia": "C",
           "descricao": "Garden · Padrão · Cap. 4",
-          "custo": 53079.93,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1e3_4GtP3r6k0QFfI4U0zhOHjTicysq0WZVuooNI9Ww8/edit"
+          "custo": 50492.23,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/1YShLfXgTCoX7U7PM44-kiyxkJHZN-k6qbINnqti15MA/edit"
         },
         {
           "tipologia": "D",
           "descricao": "Sem sacada · Padrão · Cap. 2",
-          "custo": 41766.37,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA/edit"
+          "custo": 44828.67,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/1nvv6_xn08aQB2ADzmCAUb1JPdGv9XgIQfitHiCtmMy4/edit"
         },
         {
           "tipologia": "E",
           "descricao": "Sem sacada · Padrão · Cap. 2",
-          "custo": 41766.37,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA/edit"
+          "custo": 44828.67,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/1d1DTxxwgX5Db_bBQRCaqyxP6ScUxkQ3k8Qe0L7MVHP4/edit"
         },
         {
           "tipologia": "F",
           "descricao": "Sem sacada · Padrão · Cap. 2",
-          "custo": 41766.37,
-          "memorial_url": "https://docs.google.com/spreadsheets/d/1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA/edit"
+          "custo": 44828.67,
+          "memorial_url": "https://docs.google.com/spreadsheets/d/1lGl6b2Ugw23Z1j_cFLTCBgvfq9mMT5JBCtAws4NP0JY/edit"
         }
       ]
     }

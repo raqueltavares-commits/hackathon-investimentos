@@ -256,7 +256,9 @@
 
   function card(item) {
     const c = el("div", "spot-card");
-    const chip = `<div class="fontes"><span class="estilo-chip">${item.estilo} · ${item.pacote}</span></div>`;
+    const chips = [`<span class="estilo-chip">${item.estilo} · ${item.pacote}</span>`];
+    if (item.em_construcao) chips.push(`<span class="estilo-chip chip-aviso">Em construção</span>`);
+    const chip = `<div class="fontes">${chips.join("")}</div>`;
     const cons = item.consolidado_url && item.consolidado_url !== "#"
       ? `<a class="btn btn-ghost" href="${item.consolidado_url}" target="_blank" rel="noopener">Abrir consolidado no Drive ↗</a>`
       : "";

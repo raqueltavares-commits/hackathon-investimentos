@@ -13,6 +13,16 @@
   --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.alert-bar {
+  background: rgba(240,96,84,.12);
+  color: var(--coral);
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -256,6 +266,10 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
   flex: none; align-self: flex-start; font-size: 11px; font-weight: 700;
   letter-spacing: .03em; padding: 5px 12px; border-radius: 999px; white-space: nowrap;
   background: rgba(0,84,252,.12); color: var(--blue);
+}
+.chip-aviso {
+  background: rgba(240,96,84,.12) !important;
+  color: var(--coral) !important;
 }
 .tabela-orc td.t-tip { font-weight: 700; color: var(--blue); }
 .tabela-orc td.t-desc { text-align: left; color: var(--ink-60); font-size: 13.5px; }
