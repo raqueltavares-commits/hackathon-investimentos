@@ -39,7 +39,13 @@ Guia de previsão por metragem interna (sempre PREVISÃO, confirmar no layout):
 - **≥ ~19 m² → cap 4** (cabe sofá-cama).
 - ~23 m²+ (cabe os dois) → **cap 5**.
 
-## Agrupamento em tipologias
-Unidades com o **mesmo layout/desenho** + Terraço + Tipo + Capacidade são a
-mesma tipologia, **mesmo que o m² difira por pouco** (tolerância ~1 m²).
-Diferença grande de m² (layout distinto) separa. Casos de fronteira → sinalizar.
+## Agrupamento em tipologias — REGRA (decide pela PLANTA, não pela área)
+O que define a tipologia é o **DESENHO**: mesma posição de banheiro e o **mesmo
+número/tipo de esquadrias (janelas)**. A metragem é só pista — não decide.
+- **Espelhamento** (unidade idêntica, só espelhada) = **MESMA** tipologia.
+- Desenho e esquadrias iguais, **só muda um pouco o m²** = **MESMA** tipologia.
+- Tem **uma esquadria a mais** (ex.: janela de esquina) = **OUTRA** tipologia,
+  mesmo que à primeira vista pareça igual. (Geralmente a de esquina é um pouco maior.)
+
+Por isso o agrupamento por área do helper é só ponto de partida: **conferir na planta**
+quantas esquadrias cada unidade tem. Terraço + Tipo + Capacidade continuam separando também.
