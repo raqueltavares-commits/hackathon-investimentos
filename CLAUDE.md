@@ -13,7 +13,8 @@ Hackathon SZI (IA First Investimentos), trilha Decor. Ferramentas pro time de La
 - **Skill**: Python 3.12 stdlib (`csv`, `json`); helper `montar_tabela.py`. Testes em pytest (TDD).
 - **Dashboard**: HTML/CSS/JS estatico (sem framework), dados em JS. Dev server: `python -m http.server`.
 - **Identidade visual**: BrandBook Seazone — Helvetica, azul `#0054FC`, navy `#000C3C`, coral `#F06054`. Ver `docs/identidade-visual-seazone.md`.
-- **Leitura de DWG** (fonte mais precisa): ODA File Converter (DWG->DXF) + `ezdxf`. Esquadrias no layer `A-GLAZ`. Ver `skills/tabela-tipologias/references/dwg-leitura.md`.
+- **Leitura de DWG** (sinal de agrupamento): ODA File Converter (DWG->DXF) + `ezdxf`. `ler_dwg.py` usa NEAREST-LABEL (bloco de esquadria mais proximo do numero da unidade) + normalizacao. Nomes de layer VARIAM por projeto (defaults AIA/Revit `A-GLAZ`/`A-AREA-IDEN` nao sao universais) — inspecionar com `--listar-layers` e adaptar. A janela e UM sinal, nao universal: TODO pavimento pode diferir/abrir por porta; avaliar piso a piso. Ver `references/arquitetura-dwg.md` e `dwg-leitura.md`.
+- **Skill instalada**: copia em `~/Claude/.claude/skills/tabela-tipologias/` (descobrivel global). O repo e a fonte; recopiar pra atualizar a instalada.
 
 ## Integracoes (MCPs)
 - **Google Drive** (composio) — CONECTADO. Le anteprojetos, cria a planilha (via conversao CSV->Sheet).

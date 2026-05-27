@@ -18,7 +18,7 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 **Rodar os testes da skill:**
 ```
 cd C:\Users\Seazone\Claude\seazone\hackathon-investimentos
-python -m pytest tests/ -q        # esperado: 22 passed
+python -m pytest tests/ -q        # esperado: 27 passed
 ```
 
 **Rodar o helper da tabela (parte deterministica):**
@@ -39,7 +39,12 @@ ezdxf.options.set("odafc-addon","win_exec_path", r"C:\Program Files\ODA\ODAFileC
 doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no layer A-GLAZ
 ```
 
-**ONDE PARAMOS (2026-05-27):** Tarefa #1 (DWG) **REESCRITA e VALIDADA**. ler_dwg.py agora usa NEAREST-LABEL (nao mais point-in-polygon): conta o bloco A-GLAZ mais proximo de cada numero de unidade (A-AREA-IDEN), restrito a bbox dos numeros, e normaliza pela contagem-base do piso (blocos/janela) -> nº de janelas por unidade. Validado nos 3 DWGs reais do Bonito: tipo 12x1+4x2 janelas (esquinas 203,204,212,213), rooftop 6x1+2x2 (403,404), terreo ~0 (abre por porta -> agrupa pela area). Bate com a tabela de janelas do PDF. Labels pareados ("201-301") expandidos no montar_tabela (split "-"). 25 testes passando (fixture refeita com blocos INSERT). Contrato: ExtraidosDWG.contagem_blocos (cru) + janelas_por_unidade()/contagem_por_unidade() (normalizado). PROXIMO: Fase 2 (orcamento decor) + hospedar dashboard.
+**ONDE PARAMOS (2026-05-27, fim da sessao):** TUDO o que importa pro hackathon esta PRONTO e commitado em `master`:
+- **Skill `tabela-tipologias` INSTALADA E FUNCIONANDO**: copiada pra `~/Claude/.claude/skills/tabela-tipologias/` (descobrivel globalmente; aparece na lista de skills). Testada ponta-a-ponta com o DWG real (separa esquinas de padrao). O repo do projeto e a fonte; a copia global e o que roda. Pra atualizar a instalada: recopiar SKILL.md/references/scripts pra a pasta global.
+- **Leitura DWG**: ler_dwg.py reescrito com NEAREST-LABEL + normalizacao. Layers CONFIGURAVEIS (`label_layer`, `janela_layers`) + `listar_layers()` + CLI `--listar-layers`/`--label-layer`/`--janela-layers` (nomes de layer variam por projeto; defaults AIA/Revit NAO universais). A janela e UM sinal, nao universal — TODO pavimento pode diferir e abrir por porta; avaliar piso a piso. 27 testes passando.
+- **Dashboard "Padrao Spot"** completo: aba Logica & Regras; aba Tipologias por Spot com bloco "De onde vem a precisao" (3 fontes PDF/Analise/DWG), tags verde/vermelho por spot (campo `fontes`), e o bloco "Gerar uma tabela nova" (resumo + 6 passos + comando copiavel).
+
+**PROXIMO PASSO (o que a Raquel vai fazer na conversa NOVA):** TESTAR a skill num EMPREENDIMENTO NOVO seguindo os passos do dashboard, pra confirmar que funciona de verdade ANTES de gravar o video. Ver runbook "TESTAR UM SPOT NOVO" abaixo. Depois: gravar video + transcricao + montar a pasta de entrega no Drive.
 **DWGs baixados do Drive (pasta DWG do anteprojeto LANCAMENTOS Bonito):** tmp/bonito_terreo.dwg, tmp/bonito_tipo.dwg, tmp/bonito_rooftop.dwg. IDs no Drive: terreo 1ItWYy5q27tn39AtlXEK5r-jrPvwVFJkj, tipo 1OaldjeRa2X3f9IMf6AYpT1aDlLuDY_Gh, rooftop 1TjKvyDJEpH7oqSkv_J5VUuSbvmkYtc0k. Pasta DWG: 1knRQbcvUhvBimcZ-iiA08pi9-t1RjXtY. Download via composio retorna base64 > limite -> salva em tool-results .txt -> decodificar com base64. (tmp/ NAO versionar.)
 
 **Pendencias menores:** Raquel dividir o agrupamento por layout do Bonito (rascunho); conectar Google Sheets (hoje so Drive).
@@ -47,6 +52,54 @@ doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no laye
 **Checkpoint de aprendizados (cron):** a cada 30 min (min 7 e 37) faz flush dos arquivos base — CRON E SESSION-ONLY, morre ao fechar. Amanha, recriar se quiser (CronCreate, "7,37 * * * *", durable: true).
 
 **Links das tabelas geradas:** Natal https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit · Bonito (rascunho) https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit
+
+---
+
+## TESTAR UM SPOT NOVO (runbook — o que a Raquel vai fazer na conversa nova)
+Objetivo: rodar a skill `tabela-tipologias` num empreendimento novo de ponta a ponta e
+conferir se funciona, seguindo os passos do dashboard, antes de gravar o video.
+
+1. **Pedir ao Claude:** "monta a tabela de tipologias do <NOME DO SPOT>" (ou `/tabela-tipologias`).
+2. O Claude segue o SKILL.md (`~/Claude/.claude/skills/tabela-tipologias/SKILL.md`):
+   a. Acha o anteprojeto **LANÇAMENTOS** do Spot no Drive (raiz dos projetos:
+      `1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF` → Spot → `02 - Projetos / 05 - Projeto
+      Arquitetonico / 03 - Anteprojeto / [versao LANÇAMENTOS]`). NUNCA COMPATIBILIZADO INTERIORES.
+   b. Le o PDF (metragem, nº/total de unidades). Se houver subpasta `DWG`, baixa os DWGs
+      dos pavimentos (composio: search_files por parentId → download_file_content → base64
+      salvo em tool-results .txt → decodificar pra tmp/).
+   c. **Inspeciona os layers** de cada DWG (`unidades_dwg.py --dwg X --listar-layers`),
+      identifica o layer dos numeros e o(s) de esquadria (variam por projeto!), e conta
+      (`--label-layer ... --janela-layers ...` se diferirem dos defaults A-AREA-IDEN/A-GLAZ).
+   d. Classifica (terraco, tipo, capacidade-previsao pela area interna), agrupa, valida o total.
+   e. Cria o Google Sheet editavel no Drive do Spot (`05 - Projeto Arquitetonico /
+      10 - Projeto de Interiores / 02 - Imagens`), sem sobrescrever, e devolve o link.
+   f. (So neste projeto) alimenta `dashboard/data/tipologias.js` com o campo `fontes`.
+3. **Conferir:** total bate com o PDF? unidades de esquina/PCD/garden separadas? capacidade
+   coerente? Lembrar: capacidade e PREVISAO; agrupamento por DWG/planta e ponto de partida,
+   conferir na planta. Avaliar TODO pavimento (nenhum e caso especial).
+
+## REGRAS DO HACKATHON (https://hackathon-szi.seazone.dev/#regras — lido 2026-05-27)
+- **Prazo de entrega: 27/05 ate 18h** (apos isso nada e aceito). Avaliacao assincrona dia 28+.
+- **Individual**, **usar Claude Code** (ferramenta oficial), **dados reais da SZI**.
+- **Trilha: Decor** (a da Raquel).
+- **ENTREGAVEIS** (formulario no site): (1) **pasta no Drive** compartilhada com avaliadores
+  contendo `claude.md`, `lessons.md`, `memory.md` + o codigo do projeto; (2) **video** curto
+  (problema, solucao, como usar); (3) **transcricao** do video. Enviar pelo formulario com
+  e-mail @seazone.com.br + trilha.
+- **Criterios:** resolve problema SZI real 30% · qualidade da IA 20% · qualidade dos arquivos
+  de contexto (claude/lessons/memory) 20% · skill funcional pro dia a dia 15% · clareza da demo 15%.
+- **GAPS de entrega ainda abertos:** projeto so existe em git LOCAL (nao foi pro Drive nem
+  GitHub) → montar a pasta de entrega no Drive; gravar video; transcricao; enviar formulario.
+  (Confirmar com a organizacao se `claude.md/lessons.md/memory.md` sao pastas ou so os arquivos.)
+
+## COMMITS DA SESSAO 2026-05-27 (todos em master, SEM push)
+- `e519cb9` dashboard: fonte DWG na precisao + selos PDF/Analise/DWG por spot
+- `57c4b68` docs: PLANO.md atualizado + plano DWG
+- `deefe13` docs: aprendizados (puxar DWG do Drive, estado dashboard)
+- `ad4d7bd` feat(dwg): reescreve ler_dwg com nearest-label, validado em DWG real
+- `86d4e74` docs(skill): SKILL.md leitura DWG automatica, paths skill-relative, campo fontes
+- `7ad2933` feat(dashboard): bloco "Gerar uma tabela nova" (resumo + passo a passo)
+- `cd79aaa` fix(dwg): layers configuraveis + janela como sinal nao-universal
 
 ---
 
