@@ -94,18 +94,29 @@ GOOGLEDRIVE_CREATE_FILE_FROM_TEXT
   parent_id: <id da pasta 02 - Imagens>
 ```
 
-### 8. Atualizar tipologias.js
+### 8. Atualizar a vitrine do dashboard (orcamentos.js)
 
-Se o spot nao tinha `estilo`, adicione ao entry do index:
-```javascript
-estilo: "ESTILO",
-orcamento_url: "<link do Sheet tipologias+custo>"
+Durante os passos 6 e 7 voce coletou: o `consolidado_url` (Sheet "Tipologias + Custo") e um `memorial_url` por tipologia (cada Sheet criado no passo 6). Monte um JSON de URLs e rode o script -- ele faz upsert do Spot em `dashboard/data/orcamentos.js` sem tocar `tipologias.js`.
+
+```bash
+# tmp/memorial_urls.json  ->  {"A": "https://.../edit", "B": "https://.../edit", ...}
+python skills/orcamento-decor/scripts/gerar_dashboard_js.py \
+  --orcamentos-js dashboard/data/orcamentos.js \
+  --spot "SPOT_NAME" --codigo CODIGO --slug SLUG \
+  --estilo ESTILO_CAPITALIZADO \
+  --consolidado-url "URL_DO_CONSOLIDADO" \
+  --memoriais tmp/memoriais.json \
+  --memorial-urls tmp/memorial_urls.json \
+  --gerado-em AAAA-MM-DD
 ```
+
 Faca commit:
 ```bash
-git add dashboard/data/tipologias.js
-git commit -m "feat(orcamento): estilo e orcamento_url do SPOT_NAME"
+git add dashboard/data/orcamentos.js
+git commit -m "feat(orcamento): vitrine do SPOT_NAME no dashboard"
 ```
+
+**NUNCA edite `tipologias.js` (arquivo da skill tabela-tipologias).**
 
 ### 9. Apresentar resultado
 
