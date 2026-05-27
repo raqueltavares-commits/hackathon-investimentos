@@ -21,31 +21,31 @@ window.ORCAMENTOS = {
       "tipologias": [
         {
           "tipologia": "A",
-          "descricao": "Sem � Padr�o � Cap. 2",
+          "descricao": "Sem terraço · Padrão · Cap. 2",
           "custo": 41766.37,
           "memorial_url": "#"
         },
         {
           "tipologia": "B",
-          "descricao": "Sem � Padr�o � Cap. 3",
+          "descricao": "Sem terraço · Padrão · Cap. 3",
           "custo": 42488.44,
           "memorial_url": "#"
         },
         {
           "tipologia": "C",
-          "descricao": "Sem � Padr�o � Cap. 5",
+          "descricao": "Sem terraço · Padrão · Cap. 5",
           "custo": 48152.0,
           "memorial_url": "#"
         },
         {
           "tipologia": "D",
-          "descricao": "Sacada � Padr�o � Cap. 3",
+          "descricao": "Sacada · Padrão · Cap. 3",
           "custo": 44183.44,
           "memorial_url": "#"
         },
         {
           "tipologia": "E",
-          "descricao": "Sacada � Padr�o � Cap. 5",
+          "descricao": "Sacada · Padrão · Cap. 5",
           "custo": 49847.0,
           "memorial_url": "#"
         }
