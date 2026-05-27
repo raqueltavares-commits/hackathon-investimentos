@@ -176,7 +176,7 @@ def main(argv=None):
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from ler_dwg import ler_dwg
         extraidos = ler_dwg(args.dwg)
-        esquadrias = extraidos.contagem_por_unidade()
+        esquadrias = {k: int(v) for k, v in extraidos.contagem_por_unidade().items()}
 
     tipologias, avisos = agrupar(unidades, tolerancia_m2=args.tolerancia,
                                   esquadrias_por_unidade=esquadrias)
