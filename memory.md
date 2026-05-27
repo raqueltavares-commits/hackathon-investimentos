@@ -23,6 +23,16 @@ Caminho ate o anteprojeto de qualquer Spot:
 - Validacao Natal Spot: 5 tipologias / 96 unidades (bate com o CSV do projeto antigo).
 - Bonito Spot: a FONTE DE VERDADE e o PROJETO (anteprojeto V03 PDF) = 53 unidades (401-408, NAO existe 409). A tabela manual da Raquel (https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit) tinha 2 erros: inventou a unidade 409 (total 54) e marcou 104/105 como PADRAO (sao PCD - tem W.C PCD na planta). Eixo terraco = GARDEN (terreo) / SEM SACADA (demais; rooftop nao tem terraco privativo, a cobertura/piscina e comum). Unidades maiores (~19-23m2) = cap 4. REGRA: sempre seguir o projeto, nao tratar tabela manual como verdade.
 
+### DWG como fonte mais precisa (testado 2026-05-26)
+Teste de viabilidade no DWG do Bonito (pavimento tipo): POSITIVO. O DWG (export Revit)
+tem as esquadrias como blocos no layer `A-GLAZ` + tags em `A-GLAZ-IDEN` (marcas V14..V52),
+areas, portas (`A-DOOR`), polígonos de área (`A-AREA-BNDY`) — layers padrão AIA. Dá pra
+CONTAR esquadrias por unidade (o que a regra de agrupamento exige). Ferramenta instalada:
+**ODA File Converter** (winget `ODA.ODAFileConverter`, em `C:\Program Files\ODA\ODAFileConverter 27.1.0\`)
++ **ezdxf** (lê DXF). Detalhes e abordagem em `skills/tabela-tipologias/references/dwg-leitura.md`.
+Pendente: construir a leitura DWG->contagem de esquadrias->agrupamento na skill (associação
+espacial janela↔unidade) e validar contra verdade conhecida.
+
 ### Integração Google (2026-05-26)
 O toolkit **Google Sheets (composio) NÃO está conectado** na conta raquel.tavares@seazone.com.br — só o **Google Drive**. Pra criar a planilha, NÃO usar `GOOGLESHEETS_CREATE_*`; usar `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT` com `mime_type=application/vnd.google-apps.spreadsheet` passando o CSV (o Drive converte em Sheet editável). Validar exportando de volta com `GOOGLEDRIVE_DOWNLOAD_FILE mime_type=text/csv`. (Se um dia conectarem o Sheets, dá pra formatar célula/nota.)
 - Primeira tabela gerada (Natal): https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit

@@ -13,6 +13,7 @@ Hackathon SZI (IA First Investimentos), trilha Decor. Ferramentas pro time de La
 - **Skill**: Python 3.12 stdlib (`csv`, `json`); helper `montar_tabela.py`. Testes em pytest (TDD).
 - **Dashboard**: HTML/CSS/JS estatico (sem framework), dados em JS. Dev server: `python -m http.server`.
 - **Identidade visual**: BrandBook Seazone — Helvetica, azul `#0054FC`, navy `#000C3C`, coral `#F06054`. Ver `docs/identidade-visual-seazone.md`.
+- **Leitura de DWG** (fonte mais precisa): ODA File Converter (DWG->DXF) + `ezdxf`. Esquadrias no layer `A-GLAZ`. Ver `skills/tabela-tipologias/references/dwg-leitura.md`.
 
 ## Integracoes (MCPs)
 - **Google Drive** (composio) — CONECTADO. Le anteprojetos, cria a planilha (via conversao CSV->Sheet).
