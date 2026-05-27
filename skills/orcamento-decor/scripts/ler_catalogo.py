@@ -1,4 +1,4 @@
-"""Parseia CSV do db002_produtos (exportado do Drive) → dict[str, Produto].
+"""Parseia CSV do db002_produtos (exportado do Drive) -> dict[str, Produto].
 
 Uso:
   python ler_catalogo.py --csv caminho/db002.csv > produtos.json
@@ -89,7 +89,7 @@ def parsear_csv(
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Parseia CSV do db002_produtos → JSON")
+    p = argparse.ArgumentParser(description="Parseia CSV do db002_produtos -> JSON")
     p.add_argument("--csv", type=Path, help="Caminho do CSV (default: stdin)")
     for campo in COLUNAS_PADRAO:
         p.add_argument(f"--col-{campo}", dest=f"col_{campo}",
