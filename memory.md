@@ -5,6 +5,34 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 ---
 
+## >>> ESTADO ATUAL (2026-05-27, noite) — leia isto primeiro
+
+**FASE 2 ENTREGUE.** Skill `orcamento-decor` construida, instalada e testada. Aba "Orcamento" do dashboard no ar. Suite: **71 passed** (`python -m pytest tests/ -q`).
+
+**O que existe agora:**
+- **Skill `orcamento-decor`** (`skills/orcamento-decor/`): gera memorial descritivo de decor por tipologia (pacote **Plus** fixo; estilo Clean/Biofilico/Industrial/Bruma). Scripts: `modelos.py` (dataclasses), `ler_catalogo.py` (CSV db002->produtos), `montar_orcamento.py` (itens por cap/terraco/PCD + calculos + CSV), `gerar_dashboard_js.py` (upsert do spot em orcamentos.js). Instalada em `~/Claude/.claude/skills/orcamento-decor/`.
+- **Aba Orcamento no dashboard**: `dashboard/data/orcamentos.js` (`window.ORCAMENTOS`, arquivo SEPARADO de tipologias.js) + painel `#panel-orcamento` + IIFE de render em app.js. Mostra custo por tipologia + chip de estilo + botoes Drive (consolidado + memorial por tipologia). Natal e Bonito ja na vitrine.
+- **Bonito CORRIGIDO** no tipologias.js/dashboard: agora **6 tipologias / 53 un** (era rascunho de 4), batendo com a tabela autoritativa da Raquel (Sheet `1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE`). 104/105 = Garden **Padrao** cap4 (NAO PCD); Sem sacada separada em D/E/F por layout de esquina; nota "somente 113 com jacuzzi".
+
+**Decisoes Fase 2:**
+- Dados do orcamento embutidos em `orcamentos.js` (hibrido: resumo na pagina + link pro Drive). Custo = numero puro; pagina formata em R$.
+- Memorial descritivo no Drive vai na pasta **`03 - Memorial descritivo`** (`1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`), dentro de `10 - Projeto de Interiores` — NAO na `02 - Imagens` (la vai so a tabela de tipologias).
+- Formato do memorial: **UM unico Google Sheet com uma ABA por tipologia** (+ aba Resumo). Multi-aba via upload de `.xlsx` (openpyxl) com conversao pra Sheet (o CSV so faz 1 aba).
+- Scripts forcam `sys.stdout.reconfigure(encoding=utf-8)` — Windows escreve cp1252 em stdout redirecionado e corrompia acentos no JSON/Sheet.
+- Regra "Garden=jacuzzi" NAO e universal: no Bonito so a unidade 113 tem jacuzzi. Tratar jacuzzi como excecao por projeto (a skill ainda adiciona por padrao -> revisar).
+
+**BLOQUEIO ABERTO — conta do conector Drive:** o conector Google Drive (composio) esta autenticado como **`rachel.souto@seazone.com.br`**, NAO `raquel.tavares`. Tudo que e criado sai como owner rachel.souto. EU NAO TROCO a conta daqui (config do conector) — a Raquel precisa reconectar com a conta dela. Este MCP **nao tem ferramenta de delete** (nao da pra apagar arquivo).
+
+**PENDENCIAS (proxima retomada):**
+1. Raquel reconectar o conector Drive como raquel.tavares -> avisar.
+2. Criar o Sheet unico multi-aba do Bonito em `03 - Memorial descritivo` (xlsx pronto em `tmp/Orcamento_Decor_Bonito.xlsx`, 7 abas: Resumo+A-F) e atualizar orcamentos.js pra apontar pra ele.
+3. Apagar os 4 Sheets criados errado na `02 - Imagens` do Bonito (rachel.souto; sem delete tool -> Raquel manda pra lixeira). IDs: resumo `1jVKKo4wnauDk4-aTd3njIY8m8dsAnSBvWiUp6NMdMrw`, A `1dA-TxfWsRGINpyxSuPFImmGnMhnmbR7l7U9z0CbTM3c`, B/C `1e3_4GtP3r6k0QFfI4U0zhOHjTicysq0WZVuooNI9Ww8`, D/E/F `1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA`.
+4. **Push pro GitHub**: varios commits locais em `master` sem push (correcao Bonito, licao, vitrine Bonito, fix encoding). Aguardando OK da Raquel.
+
+**Catalogo de precos:** o export CSV do catalogo (`1Q_AiMW7CICEMrpQR3jTchx6xknSEiCQxEZbpm97Yx_o`) traz so a 1a aba (Controle Financeiro Decor), NAO a `db002_produtos` (gid 1263042396) — o MCP nao mira gid. Por isso o Bonito saiu com **precos de referencia Plus 2026** (defaults de `_ITENS_PLUS`), a revisar. Pra precos reais: Raquel exporta a aba db002 como CSV.
+
+---
+
 ## COMO RETOMAR AMANHA (terminal) — leia isto primeiro
 
 **Pasta do projeto:** `C:\Users\Seazone\Claude\seazone\hackathon-investimentos`
@@ -18,7 +46,7 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 **Rodar os testes da skill:**
 ```
 cd C:\Users\Seazone\Claude\seazone\hackathon-investimentos
-python -m pytest tests/ -q        # esperado: 27 passed
+python -m pytest tests/ -q        # esperado: 71 passed (Fase 1 + Fase 2)
 ```
 
 **Rodar o helper da tabela (parte deterministica):**
@@ -106,11 +134,12 @@ conferir se funciona, seguindo os passos do dashboard, antes de gravar o video.
 
 ---
 
-## >>> RETOMAR AQUI (proxima sessao) = FASE 2: Orcamento preliminar do decor
-Fase 1 (skill tabela-tipologias + dashboard) esta PRONTA e validada (3 spots gerados).
-A proxima sessao e a **Fase 2: orcamento preliminar do decor puxando do catalogo** (ver
-escopo no CLAUDE.md e nas decisoes 2026-05-26 abaixo). Comecar por: definir de onde vem o
-catalogo (Google Sheets?) e o formato do orcamento por tipologia.
+## [CONCLUIDO] FASE 2: Orcamento preliminar do decor
+Fase 1 (tabela-tipologias + dashboard) e Fase 2 (skill `orcamento-decor` + aba Orcamento)
+estao PRONTAS. Estado atual e pendencias no bloco ">>> ESTADO ATUAL" no topo deste arquivo.
+Spec/plano da Fase 2: `docs/superpowers/specs/2026-05-27-orcamento-decor-design.md` e
+`docs/superpowers/plans/2026-05-27-orcamento-decor.md`. Aba Orcamento:
+`docs/superpowers/specs/2026-05-27-aba-orcamento-dashboard-design.md`.
 
 ## SESSAO 2026-05-27 (tarde) — Novo Campeche II gerado + repo no GitHub
 - **3o Spot gerado: Novo Campeche Spot II** (cod 6320, anteprojeto V04 LANCAMENTO `1AKpL6OBpWhCZ31PPtyyIAie_EIn5NI0m`). Cruzei PDF + comparativo de areas + DWG R03 (ODA). Minha 1a versao deu 8 tipologias; a tabela da Raquel (verdade) tem **12 tip / 49 un** — corrigi tudo (Sheet 17Ykd..., dashboard, CSV). Validacao de referencia NOVA: **Novo Campeche II = 12 tipologias / 49 unidades**.
@@ -134,7 +163,8 @@ Caminho ate o anteprojeto de qualquer Spot:
 - Pasta raiz dos projetos: https://drive.google.com/drive/folders/1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF
 - Na pasta da versao LANCAMENTOS costuma ter tambem `ANALISE_LANCAMENTO_..._V0X.xlsx` (dados estruturados, fonte secundaria mais confiavel que o PDF de 33 MB).
 - Validacao Natal Spot: 5 tipologias / 96 unidades (bate com o CSV do projeto antigo).
-- Bonito Spot: a FONTE DE VERDADE e o PROJETO (anteprojeto V03 PDF) = 53 unidades (401-408, NAO existe 409). A tabela manual da Raquel (https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit) tinha 2 erros: inventou a unidade 409 (total 54) e marcou 104/105 como PADRAO (sao PCD - tem W.C PCD na planta). Eixo terraco = GARDEN (terreo) / SEM SACADA (demais; rooftop nao tem terraco privativo, a cobertura/piscina e comum). Unidades maiores (~19-23m2) = cap 4. REGRA: sempre seguir o projeto, nao tratar tabela manual como verdade.
+- Bonito Spot: a FONTE DE VERDADE e o PROJETO (anteprojeto V03 PDF) = 53 unidades (401-408, NAO existe 409). Eixo terraco = GARDEN (terreo) / SEM SACADA (demais; rooftop nao tem terraco privativo, a cobertura/piscina e comum). Unidades maiores (~19-23m2) = cap 4. REGRA: sempre seguir o projeto, nao tratar tabela manual como verdade.
+  - **[ATUALIZADO 2026-05-27 noite]** A tabela AUTORITATIVA FINAL da Raquel (Sheet `1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE`) = **6 tipologias / 53 un**: Garden A(101,102,103,107-113,cap2,"so 113 c/ jacuzzi")+B(104,105,cap4)+C(106,cap4) TODAS **PADRAO**; Sem sacada D(30)+E(6 esquinas)+F(4 esquinas) cap2. Ou seja: **104/105 sao PADRAO, NAO PCD** (a decisao final reverteu o "W.C PCD"), e nenhuma unidade tem 409. O tipologias.js/dashboard ja foi corrigido pra essa versao. NAO marcar PCD por conta propria; PADRAO e o default. Detalhe em lessons.md (2026-05-27).
 
 ### FONTE IDEAL da tabela = DWG + PDF (decisao Raquel 2026-05-26)
 Cruzar os dois: do **PDF** vem a metragem por unidade, o nº/total de unidades e os textos
