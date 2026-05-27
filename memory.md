@@ -11,7 +11,22 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 **MEMORIAL ESTRUTURADO (feito 2026-05-27 noite):** a skill gera SOZINHA o memorial no formato oficial da Raquel (modelo `1-S14JTOVV689UNJAW5lyuv5gDsPOAQq_fG6XEDatj6E`): 12 colunas (ITEM/TIPO, AMBIENTE, IMAGEM, ITEM, FICHA TECNICA+valor, FORNECEDOR, QUANT., REFERENCIA, VALOR UNITARIO, VALOR TOTAL), 4 linhas por item (Largura/Altura/Profundidade/Acabamento), categoria/ambiente "mescladas", TOTAL por categoria, servicos como itens (INSUMOS), Taxa Decor + Taxa Adm, total headline = SEM jacuzzi ("com jacuzzi" so aparece quando ha jacuzzi). Acabamento por estilo (paleta embutida em `acabamentos.py`; Biofilico calibrado do exemplo). Scripts novos: `acabamentos.py`, `servicos.py`, `gerar_xlsx.py` (.xlsx multi-aba: Resumo + 1 aba/tipologia). `montar_orcamento.py` reescrito (`serializar_estruturado` + `total_com_jacuzzi`). Spec/plano: `docs/superpowers/specs/2026-05-27-memorial-estruturado-design.md` + `docs/superpowers/plans/2026-05-27-memorial-estruturado.md`.
 
-**BONITO testado (orcamento):** rodei pras 6 tipologias, estilo Biofilico, precos de referencia. Dashboard (aba Orcamento) mostra Natal + Bonito. ATENCAO: os 4 Sheets que criei estao na pasta ERRADA (`02 - Imagens`) e com owner errado (rachel.souto) — a Raquel vai reconectar a conta e eu refaco como 1 Sheet multi-aba em `03 - Memorial descritivo` (xlsx pronto em `tmp/Orcamento_Decor_Bonito.xlsx`, mas regenerar com gerar_xlsx no formato novo).
+**BONITO testado (orcamento):** rodei pras 6 tipologias, estilo Biofilico, precos de referencia. Dashboard (aba Orcamento) mostra Natal + Bonito.
+
+### >>> RETOMAR AQUI (proxima sessao) — subir o memorial do Bonito no Drive
+A Raquel JA RECONECTOU o conector do Drive como raquel.tavares (confirmar o owner no 1o upload). Nesta sessao anterior as tools do Drive (composio) tinham caido; na nova devem estar OK (`/mcp` se nao).
+Passos:
+1. Regenerar o xlsx (tmp/ e apagado ao fechar a sessao):
+   ```
+   printf '%s' '[{"tipologia":"A","terraco":"Garden","tipo":"Padrão","capacidade":2},{"tipologia":"B","terraco":"Garden","tipo":"Padrão","capacidade":4},{"tipologia":"C","terraco":"Garden","tipo":"Padrão","capacidade":4},{"tipologia":"D","terraco":"Sem sacada","tipo":"Padrão","capacidade":2},{"tipologia":"E","terraco":"Sem sacada","tipo":"Padrão","capacidade":2},{"tipologia":"F","terraco":"Sem sacada","tipo":"Padrão","capacidade":2}]' > tmp/bonito_tips.json
+   python skills/orcamento-decor/scripts/montar_orcamento.py --tipologias tmp/bonito_tips.json --estilo biofilico --spot "Bonito Spot" > tmp/memoriais_bonito.json
+   python skills/orcamento-decor/scripts/gerar_xlsx.py --memoriais tmp/memoriais_bonito.json --spot "Bonito Spot" --saida tmp/Orcamento_Decor_Bonito.xlsx
+   ```
+2. Subir como UM Google Sheet (base64 do xlsx, conversao) na pasta `03 - Memorial descritivo` = `1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`. Confirmar owner = raquel.tavares.
+3. orcamentos.js: consolidado_url + memorial_url (todas as tipologias) = link do Sheet novo; rodar gerar_dashboard_js.py (ver SKILL.md passo 7). Commit.
+4. Apagar os 4 Sheets ERRADOS na `02 - Imagens` (owner rachel.souto, sem delete por MCP -> Raquel manda pra lixeira): resumo `1jVKKo4wnauDk4-aTd3njIY8m8dsAnSBvWiUp6NMdMrw`, A `1dA-TxfWsRGINpyxSuPFImmGnMhnmbR7l7U9z0CbTM3c`, B/C `1e3_4GtP3r6k0QFfI4U0zhOHjTicysq0WZVuooNI9Ww8`, D/E/F `1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA`.
+5. Push pro GitHub (commits locais acumulados em master) quando a Raquel autorizar.
+6. Recriar o cron de checkpoint (20 min) se quiser: CronCreate "13,33,53 * * * *" (session-only).
 
 **Checkpoint cron:** a cada 20 min (min 13/33/53) faz flush dos arquivos-base. Session-only (job 23eb097e), morre ao fechar, expira em 7 dias.
 
