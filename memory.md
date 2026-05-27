@@ -5,6 +5,50 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 ---
 
+## COMO RETOMAR AMANHA (terminal) — leia isto primeiro
+
+**Pasta do projeto:** `C:\Users\Seazone\Claude\seazone\hackathon-investimentos`
+**Git:** tudo em `master`, working tree limpo (branches feat/* ja mergeadas). `git log --oneline -10` mostra o historico.
+
+**Dependencias (ja instaladas globalmente nesta maquina, persistem):**
+- Python 3.12 (usar `python`, NAO `python3`). Pacotes: `pytest`, `openpyxl`, `pymupdf` (import `fitz`), `pillow`, `ezdxf`.
+- **ODA File Converter** (DWG->DXF) via winget em `C:\Program Files\ODA\ODAFileConverter 27.1.0\ODAFileConverter.exe`.
+- Se faltar algo: `python -m pip install pytest openpyxl pymupdf pillow ezdxf`.
+
+**Rodar os testes da skill:**
+```
+cd C:\Users\Seazone\Claude\seazone\hackathon-investimentos
+python -m pytest tests/ -q        # esperado: 13 passed
+```
+
+**Rodar o helper da tabela (parte deterministica):**
+```
+python skills/tabela-tipologias/scripts/montar_tabela.py --total <N_UNIDADES> < unidades.json
+# unidades.json = lista de {unidade,pavimento,terraco,tipo,capacidade,area_util,area_unidade}
+```
+
+**Abrir o dashboard:**
+- Simples: abrir `dashboard/index.html` no navegador (funciona via file://).
+- Com servidor: `python -m http.server 5500 --directory dashboard` e abrir http://localhost:5500
+- (No Claude Code o preview usa `.claude/launch.json` -> server "dashboard-spot".)
+
+**Ler DWG (fonte ideal + precisa):** ver `skills/tabela-tipologias/references/dwg-leitura.md`. Em runtime:
+```python
+import ezdxf; from ezdxf.addons import odafc
+ezdxf.options.set("odafc-addon","win_exec_path", r"C:\Program Files\ODA\ODAFileConverter 27.1.0\ODAFileConverter.exe")
+doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no layer A-GLAZ
+```
+
+**ONDE PARAMOS / proximo passo:** decidir entre (a) **construir o caminho DWG+PDF na skill** (contar esquadria por unidade + associacao espacial janela<->unidade + agrupar; usar spec->plano antes de codar) — esse e o pulo de precisao; (b) **Fase 2 (orcamento do decor)**; (c) **hospedar o dashboard** num link pro time. Recomendacao: (a).
+
+**Pendencias menores:** Raquel dividir o agrupamento por layout do Bonito (rascunho); conectar Google Sheets (hoje so Drive).
+
+**Atencao:** o cron de checkpoint (a cada 30 min) era SO desta sessao do Claude — morre ao fechar. Amanha, recriar se quiser (CronCreate, "7,37 * * * *").
+
+**Links das tabelas geradas:** Natal https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit · Bonito (rascunho) https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit
+
+---
+
 2026-05-26 --- Fase 1 do projeto = skill `tabela-tipologias`: puxa o anteprojeto LANÇAMENTOS do Drive, avalia cada unidade em todos os pavimentos, classifica (Terraço + Tipo + Capacidade) e agrupa em tipologias. Reusa a logica do projeto antigo `mapeamento-completo-de-mobilirio--unidade-spot`. Fase 2 (depois) = orcamento preliminar do decor puxando do catalogo (Google Sheets).
 
 2026-05-26 --- DECISAO de arquitetura (geracao da tabela): a planilha ANALISE/ÁREA UNDS e feita por OUTRA equipe (analise de arquitetura) e NAO e confiavel pros proximos lancamentos — a Raquel nem a produz. Logo: NAO depender dela; o **PDF do anteprojeto e a fonte principal** (sempre existe). Ler PDF precisa da inteligencia do Claude, entao a geracao FICA com o Claude (skill), NAO vira ferramenta so-navegador. Dashboard = VITRINE (todo mundo ve as tabelas + link do Drive). Self-service no navegador (backend + API Claude lendo PDF) = evolucao futura (opcao 3), fora do escopo agora. Ordem de fonte da skill: 1) planilha ÁREA UNDS se existir (exato); 2) quadro de areas em texto no PDF (exato); 3) leitura visual das plantas (estimativa, marcar pra conferir).
