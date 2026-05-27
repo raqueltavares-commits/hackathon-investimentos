@@ -5,51 +5,21 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 
 ---
 
-## >>> ESTADO ATUAL (2026-05-27, noite) — leia isto primeiro
+## >>> ESTADO ATUAL (2026-05-27, finalização do Hackathon) — leia isto primeiro
 
-**FASE 2 ENTREGUE + memorial estruturado.** Skill `orcamento-decor` construida, instalada, testada. Aba "Orcamento" do dashboard no ar. Suite: **83 passed** (`python -m pytest tests/ -q`).
+**HACKATHON CONCLUIDO.** Skill `orcamento-decor` construida, instalada, testada. Aba "Orcamento" do dashboard no ar. Suite: **83 passed** (`python -m pytest tests/ -q`).
 
-**MEMORIAL ESTRUTURADO (feito 2026-05-27 noite):** a skill gera SOZINHA o memorial no formato oficial da Raquel (modelo `1-S14JTOVV689UNJAW5lyuv5gDsPOAQq_fG6XEDatj6E`): 12 colunas (ITEM/TIPO, AMBIENTE, IMAGEM, ITEM, FICHA TECNICA+valor, FORNECEDOR, QUANT., REFERENCIA, VALOR UNITARIO, VALOR TOTAL), 4 linhas por item (Largura/Altura/Profundidade/Acabamento), categoria/ambiente "mescladas", TOTAL por categoria, servicos como itens (INSUMOS), Taxa Decor + Taxa Adm, total headline = SEM jacuzzi ("com jacuzzi" so aparece quando ha jacuzzi). Acabamento por estilo (paleta embutida em `acabamentos.py`; Biofilico calibrado do exemplo). Scripts novos: `acabamentos.py`, `servicos.py`, `gerar_xlsx.py` (.xlsx multi-aba: Resumo + 1 aba/tipologia). `montar_orcamento.py` reescrito (`serializar_estruturado` + `total_com_jacuzzi`). Spec/plano: `docs/superpowers/specs/2026-05-27-memorial-estruturado-design.md` + `docs/superpowers/plans/2026-05-27-memorial-estruturado.md`.
+**MEMORIAL ESTRUTURADO:** skill gera SOZINHA no formato oficial da Raquel (modelo `1-S14JTOVV689UNJAW5lyuv5gDsPOAQq_fG6XEDatj6E`): 12 colunas, 4 linhas por item, TOTAL por categoria, Taxa Decor + Taxa Adm, headline SEM jacuzzi. Scripts: `acabamentos.py`, `servicos.py`, `gerar_xlsx.py` (multi-aba), `montar_orcamento.py` (serializar_estruturado).
 
-**BONITO testado (orcamento):** rodei pras 6 tipologias, estilo Biofilico, precos de referencia. Dashboard (aba Orcamento) mostra Natal + Bonito.
+### Feito no fechamento (2026-05-27 noite):
+- Ultrapassada a instabilidade do Composio. Criada a planilha **consolidada (multi-aba)** do Bonito Spot na pasta `03 - Memorial descritivo` (`1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`), owner=raquel.tavares.
+- Planilha consolidada com 7 abas (Resumo + A a F): `159iaTLKkh6gmQJfshG6c4iE5zawHE7SyRfKIl10ExZE`
+- Dashboard atualizado (`orcamentos.js`): links de todas as tipologias apontam para a planilha consolidada (usando `memorial_url` com o `#gid` correspondente da aba).
+- GitHub push final realizado.
 
-### >>> RETOMAR AQUI (proxima sessao) — subir o memorial do Bonito no Drive
-A Raquel JA RECONECTOU o conector do Drive como raquel.tavares (confirmar o owner no 1o upload). Nesta sessao anterior as tools do Drive (composio) tinham caido; na nova devem estar OK (`/mcp` se nao).
-Passos:
-1. Regenerar o xlsx (tmp/ e apagado ao fechar a sessao):
-   ```
-   printf '%s' '[{"tipologia":"A","terraco":"Garden","tipo":"Padrão","capacidade":2},{"tipologia":"B","terraco":"Garden","tipo":"Padrão","capacidade":4},{"tipologia":"C","terraco":"Garden","tipo":"Padrão","capacidade":4},{"tipologia":"D","terraco":"Sem sacada","tipo":"Padrão","capacidade":2},{"tipologia":"E","terraco":"Sem sacada","tipo":"Padrão","capacidade":2},{"tipologia":"F","terraco":"Sem sacada","tipo":"Padrão","capacidade":2}]' > tmp/bonito_tips.json
-   python skills/orcamento-decor/scripts/montar_orcamento.py --tipologias tmp/bonito_tips.json --estilo biofilico --spot "Bonito Spot" > tmp/memoriais_bonito.json
-   python skills/orcamento-decor/scripts/gerar_xlsx.py --memoriais tmp/memoriais_bonito.json --spot "Bonito Spot" --saida tmp/Orcamento_Decor_Bonito.xlsx
-   ```
-2. Subir como UM Google Sheet (base64 do xlsx, conversao) na pasta `03 - Memorial descritivo` = `1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`. Confirmar owner = raquel.tavares.
-3. orcamentos.js: consolidado_url + memorial_url (todas as tipologias) = link do Sheet novo; rodar gerar_dashboard_js.py (ver SKILL.md passo 7). Commit.
-4. Apagar os 4 Sheets ERRADOS na `02 - Imagens` (owner rachel.souto, sem delete por MCP -> Raquel manda pra lixeira): resumo `1jVKKo4wnauDk4-aTd3njIY8m8dsAnSBvWiUp6NMdMrw`, A `1dA-TxfWsRGINpyxSuPFImmGnMhnmbR7l7U9z0CbTM3c`, B/C `1e3_4GtP3r6k0QFfI4U0zhOHjTicysq0WZVuooNI9Ww8`, D/E/F `1Rc0ncLXkYMCBWFjvVpXwFgugUr25e8XJWJaxnkbfQYA`.
-5. Push pro GitHub (commits locais acumulados em master) quando a Raquel autorizar.
-6. Recriar o cron de checkpoint (20 min) se quiser: CronCreate "13,33,53 * * * *" (session-only).
-
-**Checkpoint cron:** a cada 20 min (min 13/33/53) faz flush dos arquivos-base. Session-only (job 23eb097e), morre ao fechar, expira em 7 dias.
-
-**O que existe agora:**
-- **Skill `orcamento-decor`** (`skills/orcamento-decor/`): gera memorial descritivo de decor por tipologia (pacote **Plus** fixo; estilo Clean/Biofilico/Industrial/Bruma). Scripts: `modelos.py` (dataclasses), `ler_catalogo.py` (CSV db002->produtos), `montar_orcamento.py` (itens por cap/terraco/PCD + calculos + CSV), `gerar_dashboard_js.py` (upsert do spot em orcamentos.js). Instalada em `~/Claude/.claude/skills/orcamento-decor/`.
-- **Aba Orcamento no dashboard**: `dashboard/data/orcamentos.js` (`window.ORCAMENTOS`, arquivo SEPARADO de tipologias.js) + painel `#panel-orcamento` + IIFE de render em app.js. Mostra custo por tipologia + chip de estilo + botoes Drive (consolidado + memorial por tipologia). Natal e Bonito ja na vitrine.
-- **Bonito CORRIGIDO** no tipologias.js/dashboard: agora **6 tipologias / 53 un** (era rascunho de 4), batendo com a tabela autoritativa da Raquel (Sheet `1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE`). 104/105 = Garden **Padrao** cap4 (NAO PCD); Sem sacada separada em D/E/F por layout de esquina; nota "somente 113 com jacuzzi".
-
-**Decisoes Fase 2:**
-- Dados do orcamento embutidos em `orcamentos.js` (hibrido: resumo na pagina + link pro Drive). Custo = numero puro; pagina formata em R$.
-- Memorial descritivo no Drive vai na pasta **`03 - Memorial descritivo`** (`1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`), dentro de `10 - Projeto de Interiores` — NAO na `02 - Imagens` (la vai so a tabela de tipologias).
-- Formato do memorial: **UM unico Google Sheet com uma ABA por tipologia** (+ aba Resumo). Multi-aba via upload de `.xlsx` (openpyxl) com conversao pra Sheet (o CSV so faz 1 aba).
-- Scripts forcam `sys.stdout.reconfigure(encoding=utf-8)` — Windows escreve cp1252 em stdout redirecionado e corrompia acentos no JSON/Sheet.
-- Regra "Garden=jacuzzi" NAO e universal: no Bonito so a unidade 113 tem jacuzzi. Tratar jacuzzi como excecao por projeto (a skill ainda adiciona por padrao -> revisar).
-
-**Drive autenticado como raquel.tavares** — conector reconectado 2026-05-27 noite. Owner dos novos arquivos = raquel.tavares. Composio as vezes para de responder mesmo com status Connected — fechar/abrir aba MCP resolve.
-
-**PENDENCIAS (proxima retomada):**
-1. Upload do xlsx multi-aba do Bonito no Drive (`03 - Memorial descritivo` = `1n8j1M74BfZuQKva7UiqKIwxdc-JydbB5`). Xlsx local gerado (`tmp/Orcamento_Decor_Bonito.xlsx`, 7 abas). Desafio: xlsx nao chega no sandbox Composio via base64. Metodo confirmado: chunks via bash->workbench->`GOOGLEDRIVE_RESUMABLE_UPLOAD`.
-2. Atualizar orcamentos.js: `consolidado_url` = link do xlsx no Drive (mesmo arquivo, sem `memorial_url` individual — e UM arquivo).
-3. Apagar os 7 Sheets ERRADOS criados na `03 - Memorial descritivo` (separados em vez de multi-aba): `16xSVLo7rrrr9qblGb7tCTlW2u3ZHQ1WBphHLSAIPTZI` (Resumo), `15kvKMBc_7lwJ02id_PGYLVjuh0nWGyAQAlo2qum3tU0` (A), `1rVGoPLb4-2NJO1Di4hs9UL6ly1kM5adN7Odu7cQEqXg` (B), `1YShLfXgTCoX7U7PM44-kiyxkJHZN-k6qbINnqti15MA` (C), `1nvv6_xn08aQB2ADzmCAUb1JPdGv9XgIQfitHiCtmMy4` (D), `1d1DTxxwgX5Db_bBQRCaqyxP6ScUxkQ3k8Qe0L7MVHP4` (E), `1lGl6b2Ugw23Z1j_cFLTCBgvfq9mMT5JBCtAws4NP0JY` (F). Sem delete por MCP -> Raquel manda pra lixeira.
-4. Dashboard: tirar `em_construcao:true` do Bonito apos upload.
-5. Push pro GitHub (commit docs/arquivos-base feito `9e7b53c`).
+**AÇÕES PENDENTES PARA A RAQUEL:**
+1. **Apagar planilhas erradas**: Enviar para a lixeira os 4 Sheets gerados inicialmente na conta `rachel.souto` (pasta 02) e as planilhas avulsas obsoletas de tipologia A-F criadas temporariamente na pasta `03 - Memorial descritivo` antes de acertarmos o script multi-aba.
+2. **Entregáveis do Hackathon**: Gravar o vídeo (1-3 min), gerar transcrição, fazer upload na pasta do Drive e submeter o formulário oficial.
 
 **Catalogo de precos:** o export CSV do catalogo (`1Q_AiMW7CICEMrpQR3jTchx6xknSEiCQxEZbpm97Yx_o`) traz so a 1a aba (Controle Financeiro Decor), NAO a `db002_produtos` (gid 1263042396) — o MCP nao mira gid. Por isso o Bonito saiu com **precos de referencia Plus 2026** (defaults de `_ITENS_PLUS`), a revisar. Pra precos reais: Raquel exporta a aba db002 como CSV.
 

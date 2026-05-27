@@ -7,7 +7,7 @@ Este projeto segue ~/Claude/.claude/CLAUDE.md (global) + ~/Claude/seazone/CLAUDE
 Hackathon SZI (IA First Investimentos), trilha Decor. Ferramentas pro time de Lancamentos/Interiores a partir do anteprojeto dos empreendimentos Spot:
 1. **Skill `tabela-tipologias`** — puxa o anteprojeto LANCAMENTOS do Drive, avalia cada unidade de todos os pavimentos, classifica (Terraco + Tipo + Capacidade) e agrupa em tipologias, gerando um Google Sheet editavel.
 2. **Dashboard "Padrao Spot"** — site estatico (abas: Logica & Regras · Tipologias por Spot · Orcamento) com a logica das tipologias + regras de mobiliario + orcamentos por Spot.
-3. **Skill `orcamento-decor` (Fase 2 — ENTREGUE)** — dado um Spot com tipologias geradas, monta o memorial descritivo de decor por tipologia (pacote **Plus**; estilo Clean/Biofilico/Industrial/Bruma) com precos do catalogo, cria Google Sheets no Drive e alimenta a aba Orcamento.
+3. **Skill `orcamento-decor` (Fase 2 — ENTREGUE)** — dado um Spot com tipologias geradas, monta o memorial descritivo de decor por tipologia (pacote **Plus**; estilo Clean/Biofilico/Industrial/Bruma) com precos do catalogo, criando UMA planilha Google Sheets consolidada (multi-aba) no Drive e alimentando a aba Orcamento.
 
 ## Stack
 - **Skills**: Python 3.12 stdlib (`csv`, `json`, `argparse`, `openpyxl`). `tabela-tipologias`: `montar_tabela.py`. `orcamento-decor`: `modelos.py` · `ler_catalogo.py` · `acabamentos.py` · `servicos.py` · `montar_orcamento.py` · `gerar_xlsx.py` · `gerar_dashboard_js.py`. Testes em pytest — suite total **83 passed**.
