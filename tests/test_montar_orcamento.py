@@ -167,7 +167,7 @@ def test_estruturado_contem_total_geral():
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
     flat = [c for r in serializar_estruturado(m, "clean") for c in r]
-    assert any("TOTAL (sem jacuzzi)" in str(c) for c in flat)
+    assert any("TOTAL GERAL" in str(c) for c in flat)
 
 def test_estruturado_contem_nome_spot():
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)

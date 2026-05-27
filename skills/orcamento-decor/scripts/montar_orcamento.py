@@ -152,15 +152,17 @@ def serializar_estruturado(memorial: MemorialTipologia, estilo: str) -> list[lis
         rows.append(["", f"TOTAL {cat}", "", "", "", "", "", "", "", "",
                      _brl(memorial.subtotais[cat]), ""])
 
+    tem_opcionais = memorial.valor_opcionais > 0
     rows.append([""] * 12)
-    rows.append(["", "Valor Produtos (sem jacuzzi)", "", "", "", "", "", "", "", "",
-                 _brl(memorial.valor_produtos), ""])
+    rows.append(["", "Valor Produtos" + (" (sem jacuzzi)" if tem_opcionais else ""),
+                 "", "", "", "", "", "", "", "", _brl(memorial.valor_produtos), ""])
     rows.append(["", "Taxa Decor", "", "", "", "", "", "", "", "", _brl(memorial.taxa_decor), ""])
     rows.append(["", "Taxa Adm (13%)", "", "", "", "", "", "", "", "", _brl(memorial.taxa_adm), ""])
-    rows.append(["", "TOTAL (sem jacuzzi)", "", "", "", "", "", "", "", "",
-                 _brl(memorial.total_geral), ""])
-    rows.append(["", "TOTAL (com jacuzzi)", "", "", "", "", "", "", "", "",
-                 _brl(memorial.total_com_jacuzzi), ""])
+    rows.append(["", "TOTAL (sem jacuzzi)" if tem_opcionais else "TOTAL GERAL",
+                 "", "", "", "", "", "", "", "", _brl(memorial.total_geral), ""])
+    if tem_opcionais:
+        rows.append(["", "TOTAL (com jacuzzi)", "", "", "", "", "", "", "", "",
+                     _brl(memorial.total_com_jacuzzi), ""])
     return rows
 
 
