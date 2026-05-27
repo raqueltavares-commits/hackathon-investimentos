@@ -21,6 +21,7 @@ Caminho ate o anteprojeto de qualquer Spot:
 - Pasta raiz dos projetos: https://drive.google.com/drive/folders/1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF
 - Na pasta da versao LANCAMENTOS costuma ter tambem `ANALISE_LANCAMENTO_..._V0X.xlsx` (dados estruturados, fonte secundaria mais confiavel que o PDF de 33 MB).
 - Validacao Natal Spot: 5 tipologias / 96 unidades (bate com o CSV do projeto antigo).
+- Validacao Bonito Spot (tabela CORRETA feita pela Raquel, fonte de verdade): 54 unidades, 6 tipologias, eixo terraco = GARDEN (terreo) / SEM SACADA (demais), unidades maiores (~19-23m2) = cap 4. https://docs.google.com/spreadsheets/d/1L5EZXvCum72iN819CcHClLYuSDYBrloXsBy_32_DUNE/edit — usar pra medir se o caminho-PDF-visual acerta.
 
 ### Integração Google (2026-05-26)
 O toolkit **Google Sheets (composio) NÃO está conectado** na conta raquel.tavares@seazone.com.br — só o **Google Drive**. Pra criar a planilha, NÃO usar `GOOGLESHEETS_CREATE_*`; usar `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT` com `mime_type=application/vnd.google-apps.spreadsheet` passando o CSV (o Drive converte em Sheet editável). Validar exportando de volta com `GOOGLEDRIVE_DOWNLOAD_FILE mime_type=text/csv`. (Se um dia conectarem o Sheets, dá pra formatar célula/nota.)
