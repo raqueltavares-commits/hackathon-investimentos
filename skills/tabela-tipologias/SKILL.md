@@ -31,20 +31,32 @@ terraço e o total de unidades. Sempre validar o total de unidades entre as font
 
 **Leitura DWG (automática) — quando houver DWG no Drive:**
 Na pasta do anteprojeto LANÇAMENTOS costuma haver uma subpasta `DWG` (uma planta por
-pavimento). Baixe o(s) DWG dos pavimentos de unidades (térreo, tipo, rooftop) do Drive
-(`search_files` por `parentId` → `download_file_content`; o base64 vem grande, é salvo num
-.txt em tool-results → decodifique com `base64`). Então rode, por pavimento:
-```bash
-python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/para/pavimento.dwg
-```
-Retorna `{unidade: nº de janelas}` (já normalizado). Unidades com nº diferente de janelas
-= tipologias diferentes (a de esquina tem +1). Detalhes/limitações em `references/arquitetura-dwg.md`.
-⚠️ **Térreo**: costuma abrir por porta de correr (não janela) → contagem ~0; lá o
-agrupamento sai da ÁREA (PDF), não do DWG. NUNCA excluir o térreo — pode ter unidades
-diferentes (PCD, garden).
+pavimento). Baixe o(s) DWG dos pavimentos de unidades do Drive (`search_files` por
+`parentId` → `download_file_content`; o base64 vem grande, é salvo num .txt em tool-results
+→ decodifique com `base64`). Então, **para cada pavimento**:
 
-Sem DWG, **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a planilha sozinha
-NÃO dá o layout: metragem parecida pode ser tipologia diferente.
+1. **Inspecione os layers primeiro** (os nomes VARIAM de projeto pra projeto — desenhistas
+   diferentes nomeiam diferente; os defaults seguem AIA/Revit mas não são universais):
+   ```bash
+   python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg --listar-layers
+   ```
+   Identifique o layer dos **números de unidade** e o(s) de **esquadria**.
+2. **Conte as janelas por unidade** (passe os layers do projeto se diferirem dos defaults):
+   ```bash
+   python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg \
+     --label-layer A-AREA-IDEN --janela-layers A-GLAZ,A-GLAZ-IDEN
+   ```
+   Retorna `{unidade: nº de janelas}` (normalizado). Unidades com nº diferente = tipologias
+   diferentes (a de esquina tem +1). Detalhes em `references/arquitetura-dwg.md`.
+
+⚠️ **A janela é UM sinal, não o único nem universal.** QUALQUER pavimento (térreo, tipo,
+rooftop) pode ter unidades diferentes (PCD, garden, layout próprio) e pode abrir por **porta**
+em vez de janela → aí a contagem vem ~0 e o agrupamento sai da **ÁREA** (PDF) + layout. Avalie
+**pavimento a pavimento**; nunca assuma qual sinal vale onde — depende do projeto. NUNCA exclua
+um pavimento do agrupamento.
+
+Sem DWG (ou pra confirmar), **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a
+planilha sozinha NÃO dá o layout: metragem parecida pode ser tipologia diferente.
 
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:

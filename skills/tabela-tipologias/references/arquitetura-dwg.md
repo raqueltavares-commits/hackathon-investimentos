@@ -38,11 +38,16 @@ ler_dwg(path)  -> extrair(msp)
 - Labels pareados ("201-301") sao expandidos pra cada unidade na integracao do
   `montar_tabela` (`label.split("-")`).
 
-## Limitacoes
+## Limitacoes / o que varia por projeto
 - Exige ODA File Converter (so no `ler_dwg`; `extrair(msp)` e testavel sem ODA).
-- TERREO: unidades costumam abrir por porta de correr, nao janela -> contagem ~0.
-  Nao e bug: la o agrupamento sai da AREA (PDF) + layout, nao do DWG. NUNCA excluir
-  o terreo do agrupamento — pode ter unidades diferentes (PCD, garden).
+- **Nomes de layer variam por projeto** (desenhistas diferentes). `label_layer` e
+  `janela_layers` sao parametros; os defaults (`A-AREA-IDEN`, `A-GLAZ`/`A-GLAZ-IDEN`)
+  seguem AIA/Revit e NAO sao universais. Use `listar_layers(dwg)` (ou o CLI
+  `--listar-layers`) pra inspecionar um arquivo novo e ajustar.
+- **A janela e UM sinal, nao universal.** QUALQUER pavimento (terreo, tipo, rooftop) pode
+  ter unidades diferentes e pode abrir por porta em vez de janela -> contagem ~0; ai o
+  agrupamento sai da AREA (PDF) + layout. Avaliar pavimento a pavimento; nunca excluir
+  nenhum pavimento.
 - Portas (A-DOOR) NAO entram na assinatura (area comum contamina o nearest-label).
 
 ## Validacao real (Bonito, 2026-05-27)

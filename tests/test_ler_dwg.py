@@ -11,7 +11,7 @@ import ezdxf
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills" / "tabela-tipologias" / "scripts"))
 
-from ler_dwg import extrair
+from ler_dwg import extrair, listar_layers
 from tests.fixtures.dxf_fixtures import carregar_msp, criar_dxf_teste
 
 
@@ -99,3 +99,26 @@ def test_sem_labels_retorna_vazio():
     extr = extrair(msp)
     assert extr.contagem_blocos == {}
     assert extr.janelas_por_unidade() == {}
+
+
+def test_layers_customizados_por_projeto():
+    """Os nomes de layer variam por projeto -> aceitar override."""
+    msp = _msp_vazio()
+    # Projeto que nomeia diferente: numeros em "UNID-NUM", janelas em "JANELAS"
+    msp.add_text("501", dxfattribs={"layer": "UNID-NUM", "insert": (0, 0)})
+    _add_bloco_janela(msp, 1, 1, layer="JANELAS")
+    # Com os defaults (A-AREA-IDEN/A-GLAZ) nao acha nada
+    assert extrair(msp).contagem_blocos == {}
+    # Com os layers do projeto, acha
+    extr = extrair(msp, label_layer="UNID-NUM", janela_layers=("JANELAS",))
+    assert extr.contagem_blocos == {"501": 1}
+
+
+def test_listar_layers():
+    """listar_layers ajuda a inspecionar um DWG novo."""
+    msp = _msp_vazio()
+    _add_unidade(msp, "101", 0, 0)
+    _add_bloco_janela(msp, 1, 1)
+    layers = listar_layers(msp)
+    assert layers.get("A-AREA-IDEN", 0) >= 1
+    assert layers.get("A-GLAZ", 0) >= 1

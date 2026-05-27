@@ -113,7 +113,9 @@ A metragem é só pista; o que decide é desenho + nº de esquadrias, visto na p
 - **Natal (RESOLVIDO)**: a tabela da Raquel mantem A=74 (5 tipologias / 96 un) — as x01 (17,29m²) FICAM no A. Minha geracao do Natal estava CORRETA (A=74). Eu tinha inferido errado que a x01 maior = +1 esquadria; metragem maior sozinha NAO significa esquadria extra. Tabela da Raquel (Natal): https://docs.google.com/spreadsheets/d/1Fe4FYtQByBtQRF2zgdJvt7gOqLqo6dNv7jwgOcVmHHs/edit — bate com a gerada (so difere a ordem das letras B/C e D/E).
 
 ### Leitura DWG (2026-05-27) — REESCRITA com nearest-label, validada no DWG real
-ler_dwg.py reescrito: nearest-label de blocos A-GLAZ por numero de unidade + normalizacao pela contagem-base do piso. Validado nos 3 pisos do Bonito (tipo 12+4 esquina, rooftop 6+2, terreo ~0). 25 testes passando. Detalhes e contrato em `skills/tabela-tipologias/references/arquitetura-dwg.md`. (A 1a versao usava point-in-polygon e retornava {} no DWG real — ver lessons.md 2026-05-27.)
+ler_dwg.py reescrito: nearest-label de blocos A-GLAZ por numero de unidade + normalizacao pela contagem-base do piso. Validado nos 3 pisos do Bonito (tipo 12+4 esquina, rooftop 6+2, terreo ~0). 27 testes passando. Detalhes e contrato em `skills/tabela-tipologias/references/arquitetura-dwg.md`. (A 1a versao usava point-in-polygon e retornava {} no DWG real — ver lessons.md 2026-05-27.)
+- **Layers configuraveis** (variam por projeto): `ler_dwg(..., label_layer=, janela_layers=)` + `listar_layers(dwg)` + CLI `--listar-layers`/`--label-layer`/`--janela-layers`. Defaults AIA/Revit NAO sao universais.
+- **A janela e UM sinal, nao universal**: TODO pavimento pode ter unidades diferentes e pode abrir por porta -> avaliar pavimento a pavimento, nunca excluir nenhum (ver lessons.md 2026-05-27).
 
 - **`ler_dwg.py`** — extrai esquadrias por unidade via ezdxf+ODA+shapely. Layers: A-AREA-BNDY (poligonos), A-AREA-IDEN (textos=unidade), A-GLAZ-IDEN (janelas). Point-in-polygon associa janela a unidade. Commit: 613a042.
 - **`unidades_dwg.py`** — CLI: `python unidades_dwg.py --dwg caminho/arquivo.dwg` → JSON `{unidade: contagem}`. Commits: c83a73f, 203dd37.

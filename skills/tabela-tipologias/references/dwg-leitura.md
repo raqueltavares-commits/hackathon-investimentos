@@ -49,7 +49,11 @@ implementada em `ler_dwg.py` (ver `arquitetura-dwg.md`):
    por janela) → nº de janelas por unidade. Unidades com nº diferente = tipologias
    diferentes (a de esquina costuma ter 1 a mais).
 5. Espelhamento NÃO separa; só o nº de esquadrias (e banheiro/desenho) separa.
-6. Térreo costuma abrir por porta (não janela) → contagem ~0; lá agrupa pela área (PDF).
+6. A janela é UM sinal, não universal: QUALQUER pavimento pode ter unidades diferentes e
+   pode abrir por porta (não janela) → contagem ~0; aí agrupa pela área (PDF) + layout.
+   Avaliar pavimento a pavimento; nunca excluir nenhum.
+7. Os nomes de layer variam por projeto — confirme com `--listar-layers` antes de contar
+   (os layers AIA acima foram o caso do Bonito, não são regra).
 
 ## Cuidados
 - Blocos vêm do Revit com nomes longos ("...-02 - SEGUNDO PAVIMENTO PROPOSTA"); agrupar
