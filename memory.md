@@ -50,4 +50,4 @@ TUDO consolidado em `master` (branches feat/* ja mergeadas).
 - UMA ESQUADRIA A MAIS (ex.: janela de esquina) = OUTRA tipologia (geralmente a de esquina é maior).
 A metragem é só pista; o que decide é desenho + nº de esquadrias, visto na planta.
 
-- **Natal (re-check)**: padrão (16,84m², 1 esquadria J02, espelhadas) = 1 tipologia. As de esquina x01 (17,29m²) = provavel +1 esquadria (esquina) -> tipologia SEPARADA pela regra. (Render do PDF nao deixou contar a esquadria extra com 100% de certeza; decisao por inferencia da regra — confirmar com a Raquel antes de sobrescrever a tabela do Natal ja publicada.)
+- **Natal (RESOLVIDO)**: a tabela da Raquel mantem A=74 (5 tipologias / 96 un) — as x01 (17,29m²) FICAM no A. Minha geracao do Natal estava CORRETA (A=74). Eu tinha inferido errado que a x01 maior = +1 esquadria; metragem maior sozinha NAO significa esquadria extra. Tabela da Raquel (Natal): https://docs.google.com/spreadsheets/d/1Fe4FYtQByBtQRF2zgdJvt7gOqLqo6dNv7jwgOcVmHHs/edit — bate com a gerada (so difere a ordem das letras B/C e D/E).
