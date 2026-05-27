@@ -6,11 +6,13 @@ Uso (runtime da skill):
 Entrada: JSON (stdin) = lista de unidades classificadas.
 Saída: JSON (stdout) = {"tipologias": [...], "validacao": {...}, "csv": "..."}.
 """
+import argparse
 import csv
 import io
 import json
 import sys
 from collections import defaultdict
+from pathlib import Path
 
 
 _TERRACO_ORDEM = {"Sem": 0, "Sacada": 1, "Varanda": 2, "Garden": 3, "Terraço": 4}
@@ -26,16 +28,23 @@ def _ordena_unidades(unidades):
     return sorted(unidades, key=chave)
 
 
-def _clusters_por_area(us, tolerancia_m2):
-    """Quebra um grupo em sub-grupos quando a área útil dá um salto > tolerância.
+def _clusters_por_area(us, tolerancia_m2, esquadrias_por_unidade=None):
+    """Quebra um grupo em sub-grupos quando a área útil dá um salto > tolerância
+    ou quando o número de esquadrias é diferente.
 
     Unidades com área quase igual ficam juntas (mesmo layout); um salto grande
-    indica layout distinto e abre uma nova tipologia.
+    indica layout distinto e abre uma nova tipologia. Se esquadrias_por_unidade
+    for fornecido, unidades com contagem diferente de esquadrias teżm
+    tipologias separadas mesmo se a área for similar.
     """
-    ordenadas = sorted(us, key=lambda u: u["area_util"])
+    _esc = esquadrias_por_unidade or {}
+    ordenadas = sorted(us, key=lambda u: (u["area_util"], _esc.get(u["unidade"], 0)))
     clusters, atual = [], [ordenadas[0]]
     for u in ordenadas[1:]:
-        if u["area_util"] - atual[-1]["area_util"] > tolerancia_m2:
+        diff_m2 = u["area_util"] - atual[-1]["area_util"]
+        prev_esc = _esc.get(atual[-1]["unidade"], 0)
+        curr_esc = _esc.get(u["unidade"], 0)
+        if diff_m2 > tolerancia_m2 or curr_esc != prev_esc:
             clusters.append(atual)
             atual = [u]
         else:
@@ -44,12 +53,14 @@ def _clusters_por_area(us, tolerancia_m2):
     return clusters
 
 
-def agrupar(unidades, tolerancia_m2=1.0):
+def agrupar(unidades, tolerancia_m2=1.0, esquadrias_por_unidade=None):
     """Agrupa unidades em tipologias A, B, C...
 
     Chave de agrupamento: (terraço, tipo, capacidade). Dentro de cada chave,
     unidades com área útil parecida (diferença <= tolerancia_m2) formam a mesma
     tipologia; um salto maior separa em tipologias diferentes (layouts distintos).
+    Se esquadrias_por_unidade for fornecido, unidades com contagem diferente
+    de esquadrias también são separadas em tipologias distintas.
     Ordena por quantidade desc, depois terraço, capacidade asc e área asc.
     Retorna (lista_de_tipologias, lista_de_avisos).
     """
@@ -59,7 +70,7 @@ def agrupar(unidades, tolerancia_m2=1.0):
 
     itens = []
     for (terraco, tipo, capacidade), us in grupos.items():
-        clusters = _clusters_por_area(us, tolerancia_m2)
+        clusters = _clusters_por_area(us, tolerancia_m2, esquadrias_por_unidade)
         for cl in clusters:
             areas_uteis = [u["area_util"] for u in cl]
             areas_unid = [u["area_unidade"] for u in cl]
@@ -88,11 +99,18 @@ def agrupar(unidades, tolerancia_m2=1.0):
         t["tipologia"] = chr(ord("A") + i)
     for t in itens:
         if t.pop("_n_clusters", 1) > 1:
-            avisos.append(
-                f"Tipologia {t['tipologia']}: mesma capacidade ({t['capacidade']}) e "
-                f"terraço ({t['terraco']}) de outra(s), mas área útil distinta "
-                f"(~{t['area_util_min']:.2f} m²) — layouts diferentes, separados."
-            )
+            if esquadrias_por_unidade:
+                avisos.append(
+                    f"Tipologia {t['tipologia']}: mesma capacidade ({t['capacidade']}) e "
+                    f"terraço ({t['terraco']}), mas área útil ou contagem de esquadrias distinta "
+                    f"(~{t['area_util_min']:.2f} m²) — layouts diferentes, separados."
+                )
+            else:
+                avisos.append(
+                    f"Tipologia {t['tipologia']}: mesma capacidade ({t['capacidade']}) e "
+                    f"terraço ({t['terraco']}) de outra(s), mas área útil distinta "
+                    f"(~{t['area_util_min']:.2f} m²) — layouts diferentes, separados."
+                )
     return itens, avisos
 
 
@@ -140,7 +158,6 @@ def to_csv(tipologias, total_unidades):
 
 
 def main(argv=None):
-    import argparse
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser(description="Monta a tabela de tipologias.")
@@ -148,10 +165,21 @@ def main(argv=None):
                    help="Total de unidades declarado no anteprojeto.")
     p.add_argument("--tolerancia", type=float, default=1.0,
                    help="Tolerância de variação de área útil (m²) dentro de uma tipologia.")
+    p.add_argument("--dwg", help="Caminho para o DWG (ativa leitura de esquadrias)")
     args = p.parse_args(argv)
 
     unidades = json.load(sys.stdin)
-    tipologias, avisos = agrupar(unidades, tolerancia_m2=args.tolerancia)
+
+    # Carrega contagem de esquadrias do DWG se fornecido
+    esquadrias = None
+    if args.dwg:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from ler_dwg import ler_dwg
+        extraidos = ler_dwg(args.dwg)
+        esquadrias = extraidos.contagem_por_unidade()
+
+    tipologias, avisos = agrupar(unidades, tolerancia_m2=args.tolerancia,
+                                  esquadrias_por_unidade=esquadrias)
     validacao = validar(tipologias, total_declarado=args.total)
     csv_txt = to_csv(tipologias, total_unidades=args.total)
     json.dump(

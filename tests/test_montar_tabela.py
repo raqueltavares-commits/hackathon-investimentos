@@ -126,3 +126,40 @@ def test_to_csv_capacidade_marcada_como_previsao(unidades_natal):
     tipologias, _ = agrupar(unidades_natal)
     csv_txt = to_csv(tipologias, total_unidades=96)
     assert "previsão" in csv_txt.lower()
+
+
+def test_agrupar_separa_por_esquadrias_quando_contagem_diferente():
+    """Mesma capacidade/terraço, mas número de esquadrias diferente → tipologias separadas."""
+    unidades = [
+        {"unidade": "101", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 15.0, "area_unidade": 19.0},
+        {"unidade": "102", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 15.3, "area_unidade": 19.5},
+    ]
+    esquadrias = {"101": 2, "102": 3}
+    tipologias, avisos = agrupar(unidades, esquadrias_por_unidade=esquadrias)
+    assert len(tipologias) == 2
+
+
+def test_agrupar_mesma_contagem_e_area_proxima_junta():
+    unidades = [
+        {"unidade": "101", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 15.0, "area_unidade": 19.0},
+        {"unidade": "102", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 15.2, "area_unidade": 19.3},
+    ]
+    esquadrias = {"101": 2, "102": 2}
+    tipologias, _ = agrupar(unidades, esquadrias_por_unidade=esquadrias)
+    assert len(tipologias) == 1
+
+
+def test_agrupar_sem_esquadrias_usa_m2_so():
+    """Sem dado de esquadrias, volta ao comportamento original (m²)."""
+    unidades = [
+        {"unidade": "101", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.0, "area_unidade": 18.0},
+        {"unidade": "102", "pavimento": 1, "terraco": "Sem", "tipo": "Padrão",
+         "capacidade": 2, "area_util": 14.5, "area_unidade": 18.4},
+    ]
+    tipologias, _ = agrupar(unidades)  # sem esquadrias
+    assert len(tipologias) == 1
