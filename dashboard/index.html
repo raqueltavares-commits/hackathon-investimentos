@@ -20,7 +20,7 @@
     <nav class="tabs" role="tablist">
       <button class="tab is-active" data-tab="logica" role="tab">Lógica &amp; Regras</button>
       <button class="tab" data-tab="tipologias" role="tab">Tipologias por Spot</button>
-      <button class="tab is-soon" disabled>Orçamento <em>em breve</em></button>
+      <button class="tab" data-tab="orcamento" role="tab">Orçamento</button>
     </nav>
   </header>
 
@@ -126,8 +126,47 @@
     </footer>
   </main>
 
+  <main id="panel-orcamento" class="panel" hidden>
+    <section class="hero reveal">
+      <p class="eyebrow">Orçamento de decor · Lançamentos</p>
+      <h1>Custo de decor por <span class="hl">empreendimento</span>.</h1>
+      <p class="lede">O orçamento preliminar de decor (pacote Plus) por tipologia, gerado a partir do catálogo. Busque o empreendimento, veja o custo por tipologia e abra os memoriais no Drive.</p>
+    </section>
+
+    <section class="block reveal">
+      <div class="block-head"><span class="num">+</span><h2>Gerar um orçamento</h2></div>
+      <p class="howto-lede">Peça ao Claude e ele monta o memorial descritivo de decor de cada tipologia — puxando preços do catálogo e criando os Sheets no Drive. É a skill <code>orcamento-decor</code>.</p>
+      <ol class="howto-steps">
+        <li><strong>Peça ao Claude</strong> com o comando abaixo (ou <code>/orcamento-decor</code>).</li>
+        <li>Ele <strong>identifica o estilo</strong> do Spot (Clean · Biofílico · Industrial · Bruma) — pergunta se ainda não estiver definido.</li>
+        <li>Baixa o <strong>catálogo de produtos</strong> e lê as <strong>tipologias</strong> já geradas.</li>
+        <li>Monta o <strong>memorial por tipologia</strong> (itens · qtd · preço · subtotais · taxas) no pacote <strong>Plus</strong>.</li>
+        <li>Cria os <strong>Sheets no Drive</strong> (um por tipologia + um consolidado) e atualiza esta vitrine.</li>
+      </ol>
+      <div class="cmd-row">
+        <code id="orc-howto-cmd">gera o orçamento do &lt;empreendimento&gt;</code>
+        <button class="btn btn-primary" id="orc-howto-copy">Copiar comando</button>
+      </div>
+      <p class="howto-nota">Custos são <strong>referência (Plus 2026)</strong> — o memorial completo, com itens e preços, fica nos Sheets do Drive.</p>
+    </section>
+
+    <section class="block reveal">
+      <div class="search-bar">
+        <input id="orc-search" type="text" placeholder="Buscar empreendimento (nome ou código)…" autocomplete="off" />
+      </div>
+      <div id="orc-list" class="spot-list"></div>
+      <div id="orc-empty" class="spot-empty" hidden></div>
+    </section>
+
+    <footer class="foot">
+      <span>Seazone Investimentos · Padrão Spot</span>
+      <span>Seu lugar fora de casa</span>
+    </footer>
+  </main>
+
   <script src="data/padrao-spot.js"></script>
   <script src="data/tipologias.js"></script>
+  <script src="data/orcamentos.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
