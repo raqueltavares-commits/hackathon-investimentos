@@ -12,11 +12,14 @@ Preferencias especificas deste projeto (alem das do workspace e do global).
 
 ## Logica de dominio (Spot)
 - Capacidade vem da area INTERNA; sacada/varanda nao contam. Seguir a Matriz.
-- Letras das tipologias (A, B, C...) sao rotulos por ordem (quantidade desc); nao precisam casar com a nomenclatura de um PDF antigo.
+- **Matriz calibrada (2026-05-27):** <=17 cap2 · ~18 cap3 · ~19-21 cap4 · **>=~22 cap5** · **PCD = -1 nivel** (PCD ~20m2 = cap3).
+- **Terraco pelo PAVIMENTO, nao pelo m²:** terreo = Garden (qualquer tamanho, nunca Sacada) · intermediario = Sacada/Varanda · rooftop = Terraco (so se a unidade tiver terraco privativo).
+- **PLANTA vence AREA.** O helper agrupa por area+tolerancia e FUNDE demais: default depois de rodar e SEPARAR conferindo a planta. Sinal de layout visto no render (footprint/banheiro/orientacao/esquina) NAO se descarta por resolucao. Criterio de agrupamento e SO layout (confirmado pela Raquel) — nao inventar fatores extras (vista/sol).
+- Letras das tipologias (A, B, C...) sao rotulos por ordem; nao precisam casar com a nomenclatura de um PDF antigo.
 
 ## Validacao antes de entregar
 - Soma das quantidades TEM que fechar com o total de unidades; se nao fechar, avisar, nao entregar como certo.
-- Conferir contra verdade conhecida quando houver (Natal = 5 tipologias / 96 unidades).
+- Conferir contra verdade conhecida quando houver (Natal = 5 tip / 96 un · Novo Campeche II = 12 tip / 49 un).
 
 ## Acoes no Drive (compartilhado)
 - So CRIAR planilha nova; nunca sobrescrever arquivo existente.

@@ -51,7 +51,7 @@ doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no laye
 
 **Checkpoint de aprendizados (cron):** a cada 30 min (min 7 e 37) faz flush dos arquivos base — CRON E SESSION-ONLY, morre ao fechar. Amanha, recriar se quiser (CronCreate, "7,37 * * * *", durable: true).
 
-**Links das tabelas geradas:** Natal https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit · Bonito (rascunho) https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit
+**Links das tabelas geradas:** Natal https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit · Bonito (rascunho) https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit · Novo Campeche II (corrigida, 12 tip/49 un) https://docs.google.com/spreadsheets/d/17YkdQ69TQgDU4Mo35dTpQU38-0bbnd_Q0OJmNwNEKuw/edit (o antigo 16nq4ty... de 8 tip foi SUPERADO — Raquel descarta)
 
 ---
 
@@ -103,6 +103,12 @@ conferir se funciona, seguindo os passos do dashboard, antes de gravar o video.
 
 ---
 
+## SESSAO 2026-05-27 (tarde) — Novo Campeche II gerado + repo no GitHub
+- **3o Spot gerado: Novo Campeche Spot II** (cod 6320, anteprojeto V04 LANCAMENTO `1AKpL6OBpWhCZ31PPtyyIAie_EIn5NI0m`). Cruzei PDF + comparativo de areas + DWG R03 (ODA). Minha 1a versao deu 8 tipologias; a tabela da Raquel (verdade) tem **12 tip / 49 un** — corrigi tudo (Sheet 17Ykd..., dashboard, CSV). Validacao de referencia NOVA: **Novo Campeche II = 12 tipologias / 49 unidades**.
+- **5 erros meus (corrigidos, ver lessons.md 2026-05-27)** que viraram calibracao da skill (`classificacao-spot.md`): (1) terraco pelo PAVIMENTO — terreo=Garden por menor que seja, nunca Sacada; (2) cap5 a partir de ~22m2 (nao 23); (3) PCD rende -1 nivel (PCD ~20m2=cap3); (4)+(5) o helper FUNDE demais — planta vence area, separar conferindo planta; sinal de layout no render NAO se descarta. Raquel confirmou: criterio de agrupamento e SO layout, sem fator oculto.
+- **Projeto agora no GitHub (PUBLICO):** https://github.com/raqueltavares-commits/hackathon-investimentos (conta `raqueltavares-commits`, branch `master` com upstream `origin/master`). Push direto em master OK (master = branch de trabalho; nao ha `main` remoto). Resolve o GAP "so existe em git local".
+- **Skill instalada vs repo:** editei AMBOS (instalada `~/Claude/.claude/skills/...` e a fonte no repo `skills/...`) e mantive em sincronia. Commit desta sessao: `ffe26d9`.
+
 2026-05-26 --- Fase 1 do projeto = skill `tabela-tipologias`: puxa o anteprojeto LANÇAMENTOS do Drive, avalia cada unidade em todos os pavimentos, classifica (Terraço + Tipo + Capacidade) e agrupa em tipologias. Reusa a logica do projeto antigo `mapeamento-completo-de-mobilirio--unidade-spot`. Fase 2 (depois) = orcamento preliminar do decor puxando do catalogo (Google Sheets).
 
 2026-05-26 --- DECISAO de arquitetura (geracao da tabela): a planilha ANALISE/ÁREA UNDS e feita por OUTRA equipe (analise de arquitetura) e NAO e confiavel pros proximos lancamentos — a Raquel nem a produz. Logo: NAO depender dela; o **PDF do anteprojeto e a fonte principal** (sempre existe). Ler PDF precisa da inteligencia do Claude, entao a geracao FICA com o Claude (skill), NAO vira ferramenta so-navegador. Dashboard = VITRINE (todo mundo ve as tabelas + link do Drive). Self-service no navegador (backend + API Claude lendo PDF) = evolucao futura (opcao 3), fora do escopo agora. Ordem de fonte da skill: 1) planilha ÁREA UNDS se existir (exato); 2) quadro de areas em texto no PDF (exato); 3) leitura visual das plantas (estimativa, marcar pra conferir).
@@ -152,7 +158,7 @@ Site estatico em `dashboard/`, identidade Seazone (Helvetica, azul #0054FC, navy
 ## Estado atual / feitos (atualizado 2026-05-26)
 TUDO consolidado em `master` (branches feat/* ja mergeadas).
 - **Skill `tabela-tipologias`**: helper Python testado (13/13), referencias, SKILL.md. Le anteprojeto do Drive (planilha ÁREA UNDS quando existe, senao PDF), classifica, gera CSV + cria Google Sheet em `Projeto de Interiores / 02 - Imagens` + alimenta a vitrine (escreve `dashboard/data/tipologias.js` com `fonte`).
-- **Capacidade (previsao) por metragem interna**: <=17m2 cap2, ~18 cap3, >=19 cap4 (sofa-cama), ~23+ cap5. Em `references/classificacao-spot.md`.
+- **Capacidade (previsao) por metragem interna** (CALIBRADA 2026-05-27 no Novo Campeche II): <=17m2 cap2, ~18 cap3, ~19-21 cap4 (sofa-cama), **>=~22 cap5** (antes era ~23, alto demais). **PCD rende -1 nivel** (PCD ~20m2 = cap3, nao cap4). Em `references/classificacao-spot.md`.
 - **Dashboard "Padrao Spot"** (2 abas): "Logica & Regras" (revisada pela Raquel) + "Tipologias por Spot" (vitrine: busca, cards, ver tabela, abrir no Drive, comando pra gerar Spot novo). Bloco "De onde vem a precisao" = 3 FONTES (PDF da numeros / Analise confirma areas / DWG resolve agrupamento por desenho). Selos por spot = 3 tags PDF/Analise/DWG (verde tem, vermelho nao) via campo `fontes` em tipologias.js. Aviso: terreo/pavimentos/rooftop podem ter unidades diferentes; capacidade e previsao ate layout final. "Orcamento" = em breve. Dev server na 5500 (.claude/launch.json). Commits dashboard: e519cb9 (feature) + 57c4b68 (docs/PLANO). NOTA: o server de preview cacheia assets agressivamente — pra ver mudanca, hard refresh (Ctrl+Shift+R).
 - **Spots gerados**: Natal (fonte=analise, 5 tip/96 un) e Bonito (fonte=pdf RASCUNHO, 4 tip/53 un — falta a Raquel dividir a tipologia A por layout). Ambos na vitrine + Sheet no Drive.
 - **Checkpoint de aprendizados**: cron a cada 30 min (so nesta sessao) faz flush dos arquivos base.

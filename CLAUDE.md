@@ -33,7 +33,8 @@ Hackathon SZI (IA First Investimentos), trilha Decor. Ferramentas pro time de La
 - `feat/tabela-tipologias` — a skill (`skills/tabela-tipologias/`, `tests/`).
 - `feat/dashboard-padrao-spot` — o dashboard (`dashboard/`).
 - `docs/superpowers/` — spec e plano. `docs/identidade-visual-seazone.md` — marca.
-- Validacao de referencia: Natal Spot = 5 tipologias / 96 unidades.
+- Validacao de referencia: Natal Spot = 5 tipologias / 96 unidades; Novo Campeche Spot II = 12 tipologias / 49 unidades.
+- Repo no GitHub (publico): https://github.com/raqueltavares-commits/hackathon-investimentos (`master`).
 
 ## Os 4 arquivos de base
 `CLAUDE.md` (este, manual) · `memory.md` (decisoes/estado) · `lessons.md` (erros a nao repetir) · `rules.md` (estilo/convencoes).
