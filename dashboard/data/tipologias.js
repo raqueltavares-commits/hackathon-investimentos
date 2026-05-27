@@ -7,12 +7,12 @@ window.TIPOLOGIAS = {
   index: [
     {
       spot: "Natal Spot", codigo: "6953", slug: "natal-spot",
-      gerado_em: "2026-05-26", total_tipologias: 5, total_unidades: 96,
+      gerado_em: "2026-05-26", total_tipologias: 5, total_unidades: 96, fonte: "analise",
       drive_url: "https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit"
     },
     {
       spot: "Bonito Spot", codigo: "5316", slug: "bonito-spot",
-      gerado_em: "2026-05-26", total_tipologias: 4, total_unidades: 53,
+      gerado_em: "2026-05-26", total_tipologias: 4, total_unidades: 53, fonte: "pdf",
       drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
       rascunho: true
     }

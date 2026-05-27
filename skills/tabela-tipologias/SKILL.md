@@ -57,7 +57,9 @@ Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`.
 3. **Alimente a vitrine do dashboard**: edite `dashboard/data/tipologias.js` —
    adicione/atualize o Spot em `window.TIPOLOGIAS.spots[<slug>]` (com `tipologias`,
    `drive_url`) e a entrada em `window.TIPOLOGIAS.index` (spot, codigo, slug, gerado_em,
-   total_tipologias, total_unidades, drive_url). Assim ele aparece na aba "Tipologias por Spot".
+   total_tipologias, total_unidades, drive_url, **fonte**). `fonte: "analise"` se usou a
+   planilha ÁREA UNDS (preciso); `fonte: "pdf"` se foi só pelo anteprojeto (rascunho — vira
+   selo na vitrine). Assim ele aparece na aba "Tipologias por Spot".
 4. Escreva um **resumo executivo** (chat): total de tipologias/unidades, resultado da
    validação, `avisos` de baixa confiança/fronteira de área, premissas da previsão de capacidade.
 

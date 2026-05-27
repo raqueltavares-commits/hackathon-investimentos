@@ -33,6 +33,12 @@ Matriz resumida:
 | 4         | não           | sim       |
 | 5         | sim           | sim       |
 
+Guia de previsão por metragem interna (sempre PREVISÃO, confirmar no layout):
+- até ~17 m² → **cap 2** (só a base).
+- ~18 m² → **cap 3** (cabe cama auxiliar).
+- **≥ ~19 m² → cap 4** (cabe sofá-cama).
+- ~23 m²+ (cabe os dois) → **cap 5**.
+
 ## Agrupamento em tipologias
 Unidades com o **mesmo layout/desenho** + Terraço + Tipo + Capacidade são a
 mesma tipologia, **mesmo que o m² difira por pouco** (tolerância ~1 m²).

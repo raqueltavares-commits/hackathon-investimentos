@@ -207,6 +207,21 @@ table.matriz { border-collapse: collapse; width: 100%; min-width: 560px; }
 .cmd-row { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
 .cmd-row code { background: var(--paper-2); color: var(--navy); padding: 10px 14px; border-radius: 10px; font-size: 13.5px; }
 
+/* selo de fonte */
+.selo { flex: none; align-self: flex-start; font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+.selo-analise { background: rgba(0,84,252,.12); color: var(--blue); }
+.selo-pdf { background: #FFF3CC; color: #8A6D00; }
+
+/* bloco precisão */
+.precisao-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.prec-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.prec-card .selo { margin-bottom: 12px; }
+.prec-card p { font-size: 14px; color: var(--ink-60); }
+.prec-card code { background: var(--paper-2); color: var(--navy); padding: 1px 6px; border-radius: 5px; font-size: 12.5px; }
+.prec-tip { margin-top: 16px; font-size: 14px; color: var(--navy); background: var(--paper-2); padding: 14px 18px; border-radius: 12px; }
+.prec-tip code { background: var(--white); padding: 1px 6px; border-radius: 5px; }
+.block-head .num { min-width: 28px; text-align: center; }
+
 /* ---------- Reveal ---------- */
 .reveal { opacity: 0; transform: translateY(14px); animation: rise .6s cubic-bezier(.2,.7,.2,1) forwards; }
 .reveal:nth-child(1) { animation-delay: .02s; }
