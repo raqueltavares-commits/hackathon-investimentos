@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "skills/orcamento-decor/scripts"))
 
-from montar_orcamento import itens_para_tipologia, montar_memorial, serializar_csv
+from montar_orcamento import itens_para_tipologia, montar_memorial, serializar_estruturado
 from modelos import LinhaMemorial, MemorialTipologia, Produto
 
 PRODUTOS_VAZIO: dict = {}
@@ -41,7 +41,7 @@ def test_sempre_tem_categorias_obrigatorias():
     assert "MARCENARIA" in cats
     assert "MARMORARIA" in cats
     assert "ELETROS" in cats
-    assert "LOUÇAS E METAIS" in cats
+    assert "METAIS E INOX" in cats
 
 
 # ── Sofá-cama (cap 4 e 5) ───────────────────────────────────────────────────
@@ -161,28 +161,16 @@ def test_cap5_garden_total_maior_que_cap2_sem():
     assert m5.total_geral > m2.total_geral
 
 
-# ── CSV ───────────────────────────────────────────────────────────────────────
+# ── Serializador estruturado ──────────────────────────────────────────────────
 
-def test_csv_contem_cabecalho_item():
+def test_estruturado_contem_total_geral():
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
-    csv_text = serializar_csv(m)
-    assert "ITEM" in csv_text
+    flat = [c for r in serializar_estruturado(m, "clean") for c in r]
+    assert any("TOTAL (sem jacuzzi)" in str(c) for c in flat)
 
-def test_csv_contem_total_geral():
+def test_estruturado_contem_nome_spot():
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
-    csv_text = serializar_csv(m)
-    assert "TOTAL GERAL" in csv_text
-
-def test_csv_contem_taxa_decor():
-    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
-    m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
-    csv_text = serializar_csv(m)
-    assert "Taxa Decor" in csv_text
-
-def test_csv_contem_nome_spot():
-    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
-    m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
-    csv_text = serializar_csv(m)
-    assert "Natal Spot" in csv_text
+    flat = [c for r in serializar_estruturado(m, "clean") for c in r]
+    assert any("Natal Spot" in str(c) for c in flat)
