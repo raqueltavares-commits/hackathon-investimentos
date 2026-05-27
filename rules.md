@@ -11,7 +11,7 @@ Preferencias especificas deste projeto (alem das do workspace e do global).
 - Capacidade sempre rotulada como **previsao**, com aviso de confirmar no layout final.
 
 ## Orcamento de decor (saida)
-- **Sheets SEPARADOS** (um por tipologia + Resumo) — via `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT`. Multi-aba via xlsx NAO funciona na pratica.
+- **UM arquivo XLSX com ABA por tipologia** (+ aba Resumo) — via openpyxl (`gerar_xlsx.py`), upload via Composio. Multi-aba via CSV NAO funciona (1 aba só). Desafio: xlsx local nao chega no sandbox Composio — workaround em lessons.md.
 - Vai na pasta **`03 - Memorial descritivo`** (dentro de `10 - Projeto de Interiores`), nao na `02 - Imagens`.
 - Pacote sempre **Plus**. Custo e **estimativa** (preco de referencia Plus 2026 ou catalogo db002) — a Raquel revisa e ajusta na pre-tabela.
 - Itens condicionais (jacuzzi em Garden, etc.) NAO sao universais: conferir a nota da tipologia (ex.: Bonito so a 113 tem jacuzzi) e tratar como excecao.
@@ -33,4 +33,4 @@ Preferencias especificas deste projeto (alem das do workspace e do global).
 - Confirmar owner do conector antes de criar em pasta do time.
 - **Conta do conector**: conectado como `raquel.tavares@seazone.com.br` (2026-05-27 noite). Drive e Sheets sao OAuth separados — autorizar ambos quando solicitado.
 - **Sem delete**: este MCP Composio NAO apaga arquivos. Se criar no lugar errado, avisar a Raquel pra mandar pra lixeira.
-- **Upload**: criar Sheets via `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT` (CSV->Sheet). Popular via `GOOGLESHEETS_UPDATE_VALUES_BATCH`. Xlsx multi-aba NAO funciona na pratica (Drive converte em 1 aba; base64 nao chega no sandbox) — usar Sheets SEPARADOS.
+- **Upload xlsx multi-aba**: xlsx local NAO chega no sandbox Composio via base64 (truncado em ~218 chars). Metodo confirmado: chunks de base64 via bash (`COMPOSIO_REMOTE_BASH_TOOL`) escrevendo em `/mnt/files/` (~3000 chars/chunk), concatenar no workbench (`COMPOSIO_REMOTE_WORKBENCH`), decodificar, usar `GOOGLEDRIVE_RESUMABLE_UPLOAD`. Alternativa: Sheets SEPARADOS via CSV (1 aba cada) se (1) falhar.
