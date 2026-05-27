@@ -9,6 +9,12 @@ window.TIPOLOGIAS = {
       spot: "Natal Spot", codigo: "6953", slug: "natal-spot",
       gerado_em: "2026-05-26", total_tipologias: 5, total_unidades: 96,
       drive_url: "https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit"
+    },
+    {
+      spot: "Bonito Spot", codigo: "5316", slug: "bonito-spot",
+      gerado_em: "2026-05-26", total_tipologias: 4, total_unidades: 53,
+      drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
+      rascunho: true
     }
   ],
   spots: {
@@ -29,6 +35,22 @@ window.TIPOLOGIAS = {
           area_util: "18,16", area_unidade: "27,41", unidades: ["408"] },
         { tipologia: "E", terraco: "Sacada", tipo: "Padrão", quantidade: 1, capacidade: 5,
           area_util: "23,46", area_unidade: "31,37", unidades: ["407"] }
+      ]
+    },
+    "bonito-spot": {
+      spot: "Bonito Spot", codigo: "5316",
+      drive_url: "https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit",
+      tipologias: [
+        { tipologia: "A", terraco: "Sem sacada", tipo: "Padrão", quantidade: 40, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+          unidades: ["201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","401","402","403","404","405","406","407","408"] },
+        { tipologia: "B", terraco: "Garden", tipo: "Padrão", quantidade: 10, capacidade: 2,
+          area_util: "14,86–15,37", area_unidade: "14,86–15,37",
+          unidades: ["101","102","103","107","108","109","110","111","112","113"] },
+        { tipologia: "C", terraco: "Garden", tipo: "PCD", quantidade: 2, capacidade: 4,
+          area_util: "22,91", area_unidade: "22,91", unidades: ["104","105"] },
+        { tipologia: "D", terraco: "Garden", tipo: "Padrão", quantidade: 1, capacidade: 4,
+          area_util: "19,20", area_unidade: "19,20", unidades: ["106"] }
       ]
     }
   }
