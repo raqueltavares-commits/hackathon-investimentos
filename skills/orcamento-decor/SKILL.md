@@ -62,49 +62,48 @@ python skills/orcamento-decor/scripts/montar_orcamento.py \
 ```
 (Se pulou o passo 3, omita `--produtos`.)
 
-### 6. Criar Sheets de orcamento no Drive
+O JSON traz, por tipologia: `rows` (matriz de 12 colunas no formato oficial — categoria/ambiente, 4 linhas por item com ficha tecnica, TOTAL por categoria, Taxa Decor/Adm, e os dois totais), `total_geral` (SEM jacuzzi, vai pro dashboard) e `total_com_jacuzzi`.
 
-Encontre a pasta `02 - Imagens` do Spot (mesmo caminho da skill tabela-tipologias:
-`Spot / 02 - Projetos / 05 - Projeto Arquitetonico / 10 - Projeto de Interiores / 02 - Imagens`).
-
-Para CADA memorial em `tmp/memoriais.json`:
-```
-GOOGLEDRIVE_CREATE_FILE_FROM_TEXT
-  title: "Orcamento Decor - SPOT_NAME - Tipologia LETRA (ESTILO Plus)"
-  text_content: <campo "csv" do memorial>
-  content_mime_type: text/csv
-  parent_id: <id da pasta 02 - Imagens>
-```
-O Drive converte o CSV em Sheet editavel. Guarde o link retornado.
-
-### 7. Criar Sheet tipologias + custo
-
-Baixe o CSV do Sheet de tipologias original via Drive (use `drive_url` do spot):
-```
-GOOGLEDRIVE_DOWNLOAD_FILE fileId: <id> exportMimeType: text/csv
+Gere o `.xlsx` multi-aba (uma aba por tipologia + Resumo):
+```bash
+python skills/orcamento-decor/scripts/gerar_xlsx.py \
+  --memoriais tmp/memoriais.json --spot "SPOT_NAME" --saida tmp/Orcamento_SPOT.xlsx
 ```
 
-Adicione coluna `CUSTO ESTIMADO DECOR (Plus ESTILO)` com o `total_geral` de cada tipologia.
-Crie novo Sheet:
-```
-GOOGLEDRIVE_CREATE_FILE_FROM_TEXT
-  title: "SPOT_NAME - Tipologias + Custo Plus ESTILO"
-  text_content: <CSV original com coluna extra>
-  content_mime_type: text/csv
-  parent_id: <id da pasta 02 - Imagens>
-```
+### 6. Subir o memorial no Drive (UM Sheet, abas por tipologia)
 
-### 8. Atualizar a vitrine do dashboard (orcamentos.js)
+Destino: pasta **`03 - Memorial descritivo`** do Spot
+(`Spot / 02 - Projetos / 05 - Projeto Arquitetonico / 10 - Projeto de Interiores / 03 - Memorial descritivo`),
+NAO a `02 - Imagens` (la fica so a tabela de tipologias).
 
-Durante os passos 6 e 7 voce coletou: o `consolidado_url` (Sheet "Tipologias + Custo") e um `memorial_url` por tipologia (cada Sheet criado no passo 6). Monte um JSON de URLs e rode o script -- ele faz upsert do Spot em `dashboard/data/orcamentos.js` sem tocar `tipologias.js`.
+Suba o `.xlsx` como **um unico arquivo**, convertido pra Google Sheet (preserva as abas):
+```
+GOOGLEDRIVE_CREATE_FILE  (base64 do .xlsx)
+  title: "Memorial Descritivo - SPOT_NAME (ESTILO Plus)"
+  base64Content: <base64 de tmp/Orcamento_SPOT.xlsx>
+  contentMimeType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  parentId: <id da pasta 03 - Memorial descritivo>
+```
+O Drive converte o `.xlsx` em Google Sheet com **uma aba por tipologia** (+ Resumo). Guarde o link.
+
+> Conta do conector: hoje o Drive (composio) autentica como `rachel.souto`. Pra o arquivo
+> sair como `raquel.tavares`, reconectar o conector antes. Este MCP nao tem delete.
+
+### 7. Atualizar a vitrine do dashboard (orcamentos.js)
+
+Agora o memorial e UM unico Sheet (aba Resumo + uma aba por tipologia). Entao:
+- `consolidado_url` = link do Sheet do passo 6 (a aba Resumo ja e o consolidado).
+- `memorial_url` de cada tipologia = o MESMO link (todas as tipologias estao nesse Sheet, em abas).
+
+Monte `tmp/memorial_urls.json` com todas as tipologias apontando pro mesmo link e rode o script (faz upsert do Spot em `dashboard/data/orcamentos.js`, sem tocar `tipologias.js`):
 
 ```bash
-# tmp/memorial_urls.json  ->  {"A": "https://.../edit", "B": "https://.../edit", ...}
+# tmp/memorial_urls.json -> {"A": "<link do Sheet>", "B": "<mesmo link>", ...}
 python skills/orcamento-decor/scripts/gerar_dashboard_js.py \
   --orcamentos-js dashboard/data/orcamentos.js \
   --spot "SPOT_NAME" --codigo CODIGO --slug SLUG \
   --estilo ESTILO_CAPITALIZADO \
-  --consolidado-url "URL_DO_CONSOLIDADO" \
+  --consolidado-url "<link do Sheet do passo 6>" \
   --memoriais tmp/memoriais.json \
   --memorial-urls tmp/memorial_urls.json \
   --gerado-em AAAA-MM-DD
