@@ -44,3 +44,4 @@ TUDO consolidado em `master` (branches feat/* ja mergeadas).
 - **Spots gerados**: Natal (fonte=analise, 5 tip/96 un) e Bonito (fonte=pdf RASCUNHO, 4 tip/53 un — falta a Raquel dividir a tipologia A por layout). Ambos na vitrine + Sheet no Drive.
 - **Checkpoint de aprendizados**: cron a cada 30 min (so nesta sessao) faz flush dos arquivos base.
 - **Pendente**: Fase 2 (Orcamento do decor); Raquel editar agrupamento por layout do Bonito; hospedar o dashboard num link; (opcional) conectar Google Sheets pra formatar planilha.
+- **Re-check Natal na planta (2026-05-26)**: A=74 inclui unidades espelhadas + as de esquina x01 (101,201,...) que tem 17,29m² (resto 16,84) — a tolerancia de 1m2 juntou. PERGUNTAS EM ABERTO (aguardando Raquel, viram regra geral): (1) espelhamento = tipologia diferente ou mesma? (2) unidades de esquina x01 (17,29) viram tipologia separada ou ficam no A? Obs: a tabela oficial do arquiteto pro Natal agrupou tudo como A=74.
