@@ -1,0 +1,7 @@
+codigo,nome,categoria,valor_unitario,unidade
+MRC0002,Gabinete inferior,MARCENARIA,3300.00,un
+MOB0001,Cama Box Queen,MOBILIÁRIO,3986.44,un
+ELE0006,Cooktop vitrocerâmico,ELETROS,899.00,un
+LEM0007,Torneira cozinha,LOUÇAS E METAIS,324.90,un
+SEM_PRECO,Produto sem preço,ELETROS,,un
+REAIS,Item em reais,MOBILIÁRIO,"R$ 1.234,56",un
