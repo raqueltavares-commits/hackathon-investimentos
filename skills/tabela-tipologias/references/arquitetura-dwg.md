@@ -35,3 +35,25 @@ ler_dwg(path)
 - Nome da unidade vem do texto mais proximo ao poligono (heuristica) — pode falhar se layer nao existir
 - Se todos os layers_existirem mas o texto nao for numerico, retorna string vazia
 - Se layer nao existir, retorna dict vazio
+
+## Validacao real (usuario faz depois)
+
+Para validar contra arquivo real (Bonito ou outro Spot):
+
+1. Baixar o DWG do Drive (pasta do anteprojeto LANCAMENTOS)
+2. Rodar:
+   ```bash
+   python skills/tabela-tipologias/scripts/unidades_dwg.py --dwg caminho/para/bonito.dwg
+   ```
+3. Verificar contagem:
+   - Totais batem com PDF?
+   - Unidades de esquina tem +1 esquadria?
+   - 5 tipologias (Natal) ou conforme esperado?
+
+### Verdade conhecida Natal
+- 5 tipologias / 96 unidades
+- A=74 (sem sacada, cap 2, ~14.33m²)
+- B=10 (sem sacada, cap 5, ~19.94m²)
+- C=10 (sem sacada, cap 3, ~15.18m²)
+- D=1 (sacada, cap 5)
+- E=1 (sacada, cap 3)
