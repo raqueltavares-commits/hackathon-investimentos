@@ -17,6 +17,14 @@ class LinhaMemorial:
     item: str
     quantidade: int
     valor_unitario: float
+    ambiente: str = ""
+    fornecedor: str = "Catálogo Decor"
+    referencia: str = ""
+    acabamento: str = "A confirmar"
+    largura: str = "A confirmar"
+    altura: str = "A confirmar"
+    profundidade: str = "A confirmar"
+    opcional: bool = False  # True = fora do total base (ex: jacuzzi)
 
     @property
     def valor_total(self) -> float:
@@ -25,16 +33,22 @@ class LinhaMemorial:
 
 @dataclass
 class MemorialTipologia:
-    tipologia: str   # ex: "A"
-    descricao: str   # ex: "Sem Sacada · Padrão · Cap. 4"
-    estilo: str      # ex: "Clean"
-    spot: str        # ex: "Natal Spot"
+    tipologia: str
+    descricao: str
+    estilo: str
+    spot: str
     linhas: list[LinhaMemorial] = field(default_factory=list)
     taxa_decor: float = 2500.0
 
     @property
     def valor_produtos(self) -> float:
-        return round(sum(l.valor_total for l in self.linhas), 2)
+        """Soma das linhas NÃO opcionais (base, sem jacuzzi)."""
+        return round(sum(l.valor_total for l in self.linhas if not l.opcional), 2)
+
+    @property
+    def valor_opcionais(self) -> float:
+        """Soma das linhas opcionais (ex: jacuzzi)."""
+        return round(sum(l.valor_total for l in self.linhas if l.opcional), 2)
 
     @property
     def taxa_adm(self) -> float:
@@ -42,6 +56,7 @@ class MemorialTipologia:
 
     @property
     def subtotais(self) -> dict[str, float]:
+        """Subtotal por categoria, incluindo opcionais (espelha o modelo da Raquel)."""
         result: dict[str, float] = {}
         for l in self.linhas:
             result[l.categoria] = round(result.get(l.categoria, 0.0) + l.valor_total, 2)
@@ -49,4 +64,9 @@ class MemorialTipologia:
 
     @property
     def total_geral(self) -> float:
+        """Total SEM jacuzzi (headline) = produtos base + taxa decor + taxa adm."""
         return round(self.valor_produtos + self.taxa_decor + self.taxa_adm, 2)
+
+    @property
+    def total_com_jacuzzi(self) -> float:
+        return round(self.total_geral + self.valor_opcionais, 2)
