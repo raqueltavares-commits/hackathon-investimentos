@@ -18,7 +18,7 @@ Eu anexo automaticamente quando voce decidir algo ("vamos com X").
 **Rodar os testes da skill:**
 ```
 cd C:\Users\Seazone\Claude\seazone\hackathon-investimentos
-python -m pytest tests/ -q        # esperado: 13 passed
+python -m pytest tests/ -q        # esperado: 22 passed
 ```
 
 **Rodar o helper da tabela (parte deterministica):**
@@ -39,11 +39,11 @@ ezdxf.options.set("odafc-addon","win_exec_path", r"C:\Program Files\ODA\ODAFileC
 doc = odafc.readfile("plano.dwg"); msp = doc.modelspace()   # esquadrias no layer A-GLAZ
 ```
 
-**ONDE PARAMOS / proximo passo:** decidir entre (a) **construir o caminho DWG+PDF na skill** (contar esquadria por unidade + associacao espacial janela<->unidade + agrupar; usar spec->plano antes de codar) — esse e o pulo de precisao; (b) **Fase 2 (orcamento do decor)**; (c) **hospedar o dashboard** num link pro time. Recomendacao: (a).
+**ONDE PARAMOS:** Tarefa #1 (DWG) COMPLETA — 22 testes passando, ler_dwg.py + unidades_dwg.py + integracao no montar_tabela.py funcionando. Pendente: validar com DWG real do Bonito (baixar do Drive). Depois: Fase 2 (orcamento decor) + hospedar dashboard.
 
 **Pendencias menores:** Raquel dividir o agrupamento por layout do Bonito (rascunho); conectar Google Sheets (hoje so Drive).
 
-**Atencao:** o cron de checkpoint (a cada 30 min) era SO desta sessao do Claude — morre ao fechar. Amanha, recriar se quiser (CronCreate, "7,37 * * * *").
+**Checkpoint de aprendizados (cron):** a cada 30 min (min 7 e 37) faz flush dos arquivos base — CRON E SESSION-ONLY, morre ao fechar. Amanha, recriar se quiser (CronCreate, "7,37 * * * *", durable: true).
 
 **Links das tabelas geradas:** Natal https://docs.google.com/spreadsheets/d/1Ffn359MFIgtERfKWiR-UfMFJVUOWDotSaSQLm8PxXQ8/edit · Bonito (rascunho) https://docs.google.com/spreadsheets/d/1iq7gvHOmMwSrw0HwK8iT6Ssa0MRFyKIeAobpdZ7txNM/edit
 
@@ -110,3 +110,23 @@ TUDO consolidado em `master` (branches feat/* ja mergeadas).
 A metragem é só pista; o que decide é desenho + nº de esquadrias, visto na planta.
 
 - **Natal (RESOLVIDO)**: a tabela da Raquel mantem A=74 (5 tipologias / 96 un) — as x01 (17,29m²) FICAM no A. Minha geracao do Natal estava CORRETA (A=74). Eu tinha inferido errado que a x01 maior = +1 esquadria; metragem maior sozinha NAO significa esquadria extra. Tabela da Raquel (Natal): https://docs.google.com/spreadsheets/d/1Fe4FYtQByBtQRF2zgdJvt7gOqLqo6dNv7jwgOcVmHHs/edit — bate com a gerada (so difere a ordem das letras B/C e D/E).
+
+### Leituras DWG implementadas (2026-05-27)
+Todas em `master`, 22 testes passando.
+
+- **`ler_dwg.py`** — extrai esquadrias por unidade via ezdxf+ODA+shapely. Layers: A-AREA-BNDY (poligonos), A-AREA-IDEN (textos=unidade), A-GLAZ-IDEN (janelas). Point-in-polygon associa janela a unidade. Commit: 613a042.
+- **`unidades_dwg.py`** — CLI: `python unidades_dwg.py --dwg caminho/arquivo.dwg` → JSON `{unidade: contagem}`. Commits: c83a73f, 203dd37.
+- **`montar_tabela.py`** — integrado: `--dwg` ativa leitura de esquadrias, `agrupar(esquadrias_por_unidade=...)` separa tipologias com contagem diferente. Commits: 8f84b71, 36f7335.
+- **`tests/fixtures/dxf_fixtures.py`** — DXF gerado na memoria (3 unidades, 2+2+3 esquadrias) pra testes sem arquivo real. Commit: 47f2b8e.
+- **`skills/tabela-tipologias/references/arquitetura-dwg.md`** — doc interno com fluxo, limitacoes, validacao real.
+
+**VALIDACAO REAL (Natal NAO tem DWG local — usar Bonito):**
+```bash
+python skills/tabela-tipologias/scripts/unidades_dwg.py --dwg caminho/bonito.dwg
+```
+Verificar: totais batem com PDF? unidades de esquina tem +1 esquadria?esperado: 4 tipologias (A=45, B=4, C=2, D=2) ou conforme configurado.
+
+**Pendencias:**
+- Validar com DWG real do Bonito (baixar do Drive)
+- Fase 2 (Orcamento do decor)
+- Hospedar dashboard num link
