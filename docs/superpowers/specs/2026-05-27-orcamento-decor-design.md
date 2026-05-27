@@ -21,6 +21,26 @@ Para qualquer Spot cujas tipologias já foram geradas (Natal, Bonito, Novo Campe
 1. **Sheet de orçamento no Drive do Spot** — uma aba por tipologia, cada aba com o memorial completo (categorias · itens · qtd · valor unitário · total · subtotais por categoria · Taxa Decor · Taxa Adm · Total Geral).
 2. **Coluna "Custo estimado decor"** adicionada ao Sheet de tipologias existente — custo total por tipologia em uma linha, fácil de ver junto com a tabela já usada pela Raquel.
 
+## Dimensões do orçamento
+
+| Dimensão | Valor | Como determinar |
+|---|---|---|
+| **Pacote** | Sempre **Plus** | Fixo — não perguntar |
+| **Estilo** | Clean · Biofílico · Industrial · Bruma | Perguntar na invocação (ou já registrado no spot) |
+| **Capacidade** | 2 · 3 · 4 · 5 | Vem da tabela de tipologias |
+| **Terraço** | Sem · Sacada · Garden · Terraço | Vem da tabela de tipologias |
+| **Tipo** | Padrão · PCD | Vem da tabela de tipologias |
+
+O estilo afeta:
+- Quais itens de mobiliário solto são usados (cada estilo tem uma paleta de peças diferente)
+- O acabamento/material da marcenaria (ex: Industrial = metal grafite; Biofílico = palhinha)
+- A referência de preço para cada item
+
+Fontes por estilo:
+- **Marcenaria por estilo+pacote**: Sheet `1VnEZ-2UscCx03cwEGEDVA9vbfaUw4Y04wiM_lh9YRYI` (aba por estilo/pacote)
+- **Mobiliário solto por estilo**: docs "PADRÃO ESTILO X" no Drive de cada estilo
+- **Preços base**: `db002_produtos` no catálogo principal
+
 ---
 
 ## Arquitetura
@@ -118,11 +138,15 @@ class MemorialTipologia:
 ```
 1. Usuário: "gera o orçamento do <Spot>"
 2. Claude acha o link do Sheet de tipologias em tipologias.js (dashboard/data/tipologias.js)
-3. Baixa db002_produtos via Drive → ler_catalogo.py
-4. Lê tipologias do Sheet de tipologias via Drive → lista de Tipologia
-5. montar_orcamento.py → lista de MemorialTipologia
-6. gerar_sheet.py → cria Sheet de orçamento no Drive + atualiza Sheet tipologias
-7. Devolve links dos dois Sheets criados/atualizados
+   → Se o spot já tiver campo `estilo` salvo, usa esse; senão pergunta:
+     "Qual o estilo? (1) Clean  (2) Biofílico  (3) Industrial  (4) Bruma"
+3. Baixa db002_produtos via Drive → ler_catalogo.py  (preços base)
+4. Baixa marcenaria do Sheet de marcenaria (filtrado por estilo + Plus) → dict de peças de marcenaria
+5. Lê tipologias do Sheet de tipologias via Drive → lista de Tipologia
+6. montar_orcamento.py(tipologias, produtos, marcenaria, estilo="Plus") → lista de MemorialTipologia
+7. gerar_sheet.py → cria Sheet de orçamento no Drive + cria Sheet tipologias+custo
+8. (opcional) atualiza campo `estilo` do spot em tipologias.js + commit
+9. Devolve links dos dois Sheets + resumo (total por tipologia)
 ```
 
 Gatilhos: "gera o orçamento do <Spot>", "memorial de decor do <Spot>", "orçamento preliminar", `/orcamento-decor`.
@@ -156,6 +180,24 @@ Gatilhos: "gera o orçamento do <Spot>", "memorial de decor do <Spot>", "orçame
 ## Validação de referência
 
 Novo Campeche II (12 tipologias, 49 unidades) — rodar o orçamento e verificar se o valor por tipologia é coerente com o range histórico de spots existentes no sistema de catálogo.
+
+---
+
+## IDs do Drive (referência pra implementação)
+
+| Recurso | ID |
+|---|---|
+| Catálogo principal (db002_produtos) | `1Q_AiMW7CICEMrpQR3jTchx6xknSEiCQxEZbpm97Yx_o` |
+| Marcenaria por estilo | `1VnEZ-2UscCx03cwEGEDVA9vbfaUw4Y04wiM_lh9YRYI` |
+| Pasta raiz dos estilos | `1uEBBTJlSUpOh2WxM1GRbx1e932xqI_dy` |
+| Pasta estilo CLEAN | `17Nh0A_EsLt1gvwdB-9kcMtTVKkJSsX5O` |
+| Pasta estilo BIOFÍLICO | `10HKb-ckaIp_x81LXBvEGevEwIAcmD46H` |
+| Pasta estilo INDUSTRIAL | `1XFt6ucRgmmq1PGn4vNxv3tiHuVfmT5Jd` |
+| Pasta estilo BRUMA | `19HSW3nsiNcpY5RZNZO4NRguHtXAGgq98` |
+| Moodboard CLEAN REV.02 | `1l5nn89FSNder2IFYC835e9aZvVPm6k6WWx9kltbIGjo` |
+| Moodboard BIOFÍLICO REV.02 | `1Ti480HgXwdH3piK3vEZ6qmSSCrS0lvP9NwdqvXtustU` |
+| Moodboard INDUSTRIAL REV.02 | `1l_S4Yyq5teNGXgxDMwGcwE2dq8g9IpRTGfZy3Fo0bsI` |
+| Moodboard BRUMA RV.02 | `1dEvH_cjlHUFMOzQaRgrh212D5WAW6Q1bfy8hPbTyeGU` |
 
 ---
 
