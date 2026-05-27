@@ -19,7 +19,8 @@ window.ORCAMENTOS = {
       "pacote": "Plus",
       "gerado_em": "2026-05-27",
       "total_tipologias": 6,
-      "consolidado_url": "https://docs.google.com/spreadsheets/d/159iaTLKkh6gmQJfshG6c4iE5zawHE7SyRfKIl10ExZE/edit"
+      "consolidado_url": "https://docs.google.com/spreadsheets/d/159iaTLKkh6gmQJfshG6c4iE5zawHE7SyRfKIl10ExZE/edit",
+      "em_construcao": true
     }
   ],
   "spots": {
@@ -66,6 +67,7 @@ window.ORCAMENTOS = {
       "estilo": "Biofílico",
       "pacote": "Plus",
       "consolidado_url": "https://docs.google.com/spreadsheets/d/159iaTLKkh6gmQJfshG6c4iE5zawHE7SyRfKIl10ExZE/edit",
+      "em_construcao": true,
       "tipologias": [
         {
           "tipologia": "A",
