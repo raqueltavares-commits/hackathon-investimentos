@@ -11,7 +11,7 @@ Preferencias especificas deste projeto (alem das do workspace e do global).
 - Capacidade sempre rotulada como **previsao**, com aviso de confirmar no layout final.
 
 ## Orcamento de decor (saida)
-- **UM unico Google Sheet** com uma **aba por tipologia** (+ aba Resumo) — nao varios arquivos.
+- **Sheets SEPARADOS** (um por tipologia + Resumo) — via `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT`. Multi-aba via xlsx NAO funciona na pratica.
 - Vai na pasta **`03 - Memorial descritivo`** (dentro de `10 - Projeto de Interiores`), nao na `02 - Imagens`.
 - Pacote sempre **Plus**. Custo e **estimativa** (preco de referencia Plus 2026 ou catalogo db002) — a Raquel revisa e ajusta na pre-tabela.
 - Itens condicionais (jacuzzi em Garden, etc.) NAO sao universais: conferir a nota da tipologia (ex.: Bonito so a 113 tem jacuzzi) e tratar como excecao.
@@ -28,8 +28,9 @@ Preferencias especificas deste projeto (alem das do workspace e do global).
 - Soma das quantidades TEM que fechar com o total de unidades; se nao fechar, avisar, nao entregar como certo.
 - Conferir contra verdade conhecida quando houver (Natal = 5 tip / 96 un · Bonito = 6 tip / 53 un · Novo Campeche II = 12 tip / 49 un).
 
-## Acoes no Drive (compartilhado)
+## Acoes no Drive (composio)
 - So CRIAR planilha nova; nunca sobrescrever arquivo existente.
-- Confirmar com a Raquel antes de escrever em pasta do time.
-- **Conta do conector**: o Drive (composio) esta autenticado como `rachel.souto`, NAO raquel.tavares — arquivos saem como owner rachel.souto. Avisar a Raquel; ela reconecta com a conta dela quando a propriedade importar. NAO da pra trocar a conta daqui.
-- **Sem delete**: este MCP nao apaga arquivos. Se criar no lugar errado, avisar a Raquel pra mandar pra lixeira.
+- Confirmar owner do conector antes de criar em pasta do time.
+- **Conta do conector**: conectado como `raquel.tavares@seazone.com.br` (2026-05-27 noite). Drive e Sheets sao OAuth separados — autorizar ambos quando solicitado.
+- **Sem delete**: este MCP Composio NAO apaga arquivos. Se criar no lugar errado, avisar a Raquel pra mandar pra lixeira.
+- **Upload**: criar Sheets via `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT` (CSV->Sheet). Popular via `GOOGLESHEETS_UPDATE_VALUES_BATCH`. Xlsx multi-aba NAO funciona na pratica (Drive converte em 1 aba; base64 nao chega no sandbox) — usar Sheets SEPARADOS.
