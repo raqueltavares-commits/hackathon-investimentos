@@ -1,30 +1,24 @@
-# Schema do db002_produtos
+# Fonte do catálogo de preços
 
-> **Preencher na primeira execucao real.** Inspecione as colunas do CSV
-> antes de rodar `ler_catalogo.py` em producao.
+A base de valores migrou do Sheet do Drive (`db002_produtos`) para o app interno
+**seazone-decor-interno** (Supabase `cjbsotszriddpadznhvk`, tabela `produto`).
 
-## ID do Sheet
-`1Q_AiMW7CICEMrpQR3jTchx6xknSEiCQxEZbpm97Yx_o` — aba db002_produtos (gid: 1263042396)
+## Como a skill lê
+`scripts/fetch_catalogo.py`:
+1. GET `https://seazone-decor-interno.seazone.properties/` → acha `assets/index-*.js`.
+2. GET do bundle → extrai a anon key (JWT) embutida.
+3. GET `…/rest/v1/produto?select=codigo,nome,valor,subcategoria_codigo&codigo=in.(...)`
+   com header `apikey` (RLS libera leitura anon).
+4. Mapeia `produto.codigo` → código-item via `depara-catalogo.json` e devolve
+   `{codigo-item: {nome, categoria, valor_unitario, unidade}}`.
 
-## Como inspecionar
-Baixe via Drive (exportMimeType: text/csv) e rode:
-```
-python ler_catalogo.py --csv db002.csv 2>&1
-```
-Se falhar, o erro lista as colunas disponíveis. Se passar, documente aqui.
+## De-para (`depara-catalogo.json`)
+Liga cada um dos 33 itens-template da skill a UM `produto.codigo` exato da base,
+escolhido pelo produto mais usado nos memoriais Plus reais (`produto_tipologia`).
+Regra de valor: SEMPRE seguir o que a base usa (fonte mais atualizada); sem override manual.
 
-## Colunas esperadas (a confirmar)
-- `codigo` (ou variante) — codigo do produto (ex: MRC0002, MOB0001)
-- `nome` (ou variante) — descricao do item
-- `categoria` (ou variante) — MARCENARIA | MOBILIARIO | ELETROS | etc.
-- `valor_unitario` (ou variante) — preco em reais (ex: 3300.00 ou "R$ 3.300,00")
-- `unidade` (opcional) — un, m2, kit
+## Encoding
+Campos texto vêm com double-encoding (UTF-8 lido como latin1). `normalizar()` corrige.
 
-## Mapeamento manual (se auto-deteccao falhar)
-```
-python ler_catalogo.py --csv db002.csv \
-  --col-codigo <nome_real_da_coluna> \
-  --col-nome <nome_real_da_coluna> \
-  --col-categoria <nome_real_da_coluna> \
-  --col-valor_unitario <nome_real_da_coluna>
-```
+## Fallback
+`ler_catalogo.py` (parse de CSV) permanece como fallback offline.

@@ -22,26 +22,18 @@ Leia `dashboard/data/tipologias.js`. Ache o spot pelo nome no `index`.
 
 Guarde tambem: `SPOT_NAME`, `SLUG`, `TIPOLOGIAS_DRIVE_URL` (campo `drive_url`).
 
-### 2. Baixar catalogo do Drive
+### 2. Ler o catálogo de preços (Supabase, ao vivo)
 
-```
-GOOGLEDRIVE_DOWNLOAD_FILE
-  fileId: 1Q_AiMW7CICEMrpQR3jTchx6xknSEiCQxEZbpm97Yx_o
-  exportMimeType: text/csv
-```
-Salve em `tmp/db002.csv`. Se falhar por timeout/permissao: pule o passo 3 (usara precos default).
-
-### 3. Parsear catalogo
+A base de valores agora é o app **seazone-decor-interno** (Supabase). Leia ao vivo:
 
 ```bash
-python skills/orcamento-decor/scripts/ler_catalogo.py --csv tmp/db002.csv > tmp/produtos.json
+python skills/orcamento-decor/scripts/fetch_catalogo.py > tmp/produtos.json
 ```
 
-Se o script falhar com "Colunas nao encontradas":
-- O erro mostra as colunas disponíveis
-- Consulte `skills/orcamento-decor/references/catalogo-schema.md`
-- Chame novamente com `--col-<campo> <nome_real>`
-- Documente o schema correto em `catalogo-schema.md` e faca commit
+O script resolve a anon key do bundle de produção, consulta os 33 produtos do
+de-para (`references/depara-catalogo.json`) e devolve `produtos.json` no formato
+que `montar_orcamento.py` consome. Se a rede/base falhar (sai com `{"erro": ...}`
+em stderr, código 1): pule e gere com os valores default (omita `--produtos` no passo 5).
 
 ### 4. Preparar tipologias.json
 
