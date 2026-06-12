@@ -85,3 +85,31 @@ def test_carregar_depara_le_arquivo_padrao():
     from fetch_catalogo import carregar_depara
     depara = carregar_depara(None)
     assert depara["MRC0002"] == 73
+
+
+def test_buscar_catalogo_orquestra_com_http_fake():
+    from fetch_catalogo import buscar_catalogo
+
+    def http_fake(url, headers=None):
+        if url.endswith("seazone-decor-interno.seazone.properties/"):
+            return '<script src="/assets/index-ABC123.js"></script>'
+        if url.endswith("assets/index-ABC123.js"):
+            return 'x="eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.sig-_12345678";'
+        if "/rest/v1/produto" in url:
+            assert headers and headers.get("apikey", "").startswith("eyJ")
+            return '[{"codigo": 73, "nome": "Gabinete inferior", "valor": 2700.0, "subcategoria_codigo": "2.1.1"}]'
+        raise AssertionError(f"URL inesperada: {url}")
+
+    produtos = buscar_catalogo({"MRC0002": 73}, http_get=http_fake)
+    assert produtos["MRC0002"]["valor_unitario"] == 2700.0
+
+
+def test_buscar_catalogo_sem_bundle_levanta_erro():
+    from fetch_catalogo import buscar_catalogo, CatalogoError
+
+    def http_fake(url, headers=None):
+        return "<html>sem bundle</html>"
+
+    import pytest
+    with pytest.raises(CatalogoError):
+        buscar_catalogo({"MRC0002": 73}, http_get=http_fake)

@@ -72,3 +72,48 @@ def parsear_resposta(json_text: str, depara: dict) -> dict:
                 "unidade": "un",
             }
     return produtos
+
+
+class CatalogoError(RuntimeError):
+    pass
+
+
+def _http_get(url: str, headers: dict | None = None) -> str:
+    req = urllib.request.Request(url, headers=headers or {})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return resp.read().decode("utf-8")
+
+
+def buscar_catalogo(depara: dict, http_get=_http_get) -> dict:
+    html = http_get(SITE_URL + "/")
+    bundle = extrair_bundle_path(html)
+    if not bundle:
+        raise CatalogoError("Bundle JS não encontrado no HTML de produção.")
+    js = http_get(f"{SITE_URL}/{bundle}")
+    key = extrair_anon_key(js)
+    if not key:
+        raise CatalogoError("Anon key não encontrada no bundle.")
+    codigos = ",".join(str(c) for c in sorted(set(depara.values())))
+    url = (f"{SUPABASE_URL}/rest/v1/produto"
+           f"?select=codigo,nome,valor,subcategoria_codigo&codigo=in.({codigos})")
+    corpo = http_get(url, headers={"apikey": key, "Authorization": f"Bearer {key}"})
+    return parsear_resposta(corpo, depara)
+
+
+def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    p = argparse.ArgumentParser(description="Lê o catálogo de preços do Supabase")
+    p.add_argument("--depara", help="Caminho do de-para (default: references/depara-catalogo.json)")
+    args = p.parse_args()
+    try:
+        depara = carregar_depara(args.depara)
+        produtos = buscar_catalogo(depara)
+        print(json.dumps(produtos, ensure_ascii=False, indent=2))
+    except (CatalogoError, OSError, ValueError) as e:
+        print(json.dumps({"erro": str(e)}, ensure_ascii=False), file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
