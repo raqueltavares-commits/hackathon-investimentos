@@ -78,8 +78,14 @@ class CatalogoError(RuntimeError):
     pass
 
 
+# WAF de produção bloqueia o User-Agent padrão do urllib (403); emula um browser.
+_USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+               "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+
+
 def _http_get(url: str, headers: dict | None = None) -> str:
-    req = urllib.request.Request(url, headers=headers or {})
+    cabecalhos = {"User-Agent": _USER_AGENT, **(headers or {})}
+    req = urllib.request.Request(url, headers=cabecalhos)
     with urllib.request.urlopen(req, timeout=30) as resp:
         return resp.read().decode("utf-8")
 
