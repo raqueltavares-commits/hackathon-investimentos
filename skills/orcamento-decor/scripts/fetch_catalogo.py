@@ -11,6 +11,7 @@ Uso:
   python fetch_catalogo.py --depara skills/orcamento-decor/references/depara-catalogo.json
 """
 import argparse
+import base64
 import json
 import re
 import sys
@@ -26,13 +27,37 @@ _RE_JWT = re.compile(r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{
 
 
 def extrair_bundle_path(html: str) -> str | None:
-    m = _RE_BUNDLE.search(html or "")
-    return m.group(0) if m else None
+    """Prefere o chunk de entrada do Vite (`index-*.js`); a anon key vive nele,
+    não nos chunks de vendor. Cai no primeiro `.js` se não houver `index-`."""
+    matches = _RE_BUNDLE.findall(html or "")
+    if not matches:
+        return None
+    for m in matches:
+        if "index-" in m:
+            return m
+    return matches[0]
+
+
+def _role_do_jwt(token: str) -> str | None:
+    """Lê o claim `role` do payload do JWT (sem validar assinatura)."""
+    try:
+        payload = token.split(".")[1]
+        payload += "=" * (-len(payload) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload)).get("role")
+    except Exception:
+        return None
 
 
 def extrair_anon_key(js: str) -> str | None:
-    m = _RE_JWT.search(js or "")
-    return m.group(0) if m else None
+    """Escolhe explicitamente o token com `role:anon` — o bundle pode conter
+    outros JWTs (ex: service_role), que NÃO devem ser usados."""
+    tokens = _RE_JWT.findall(js or "")
+    if not tokens:
+        return None
+    for t in tokens:
+        if _role_do_jwt(t) == "anon":
+            return t
+    return tokens[0]
 
 
 def normalizar(s):
@@ -67,6 +92,9 @@ def parsear_resposta(json_text: str, depara: dict) -> dict:
         for cod_item in reverso.get(cod_base, []):
             produtos[cod_item] = {
                 "nome": normalizar(row.get("nome", "")),
+                # `categoria` aqui é o código da subcategoria (ex: "2.1.1"), só
+                # informativo: montar_orcamento.py usa a categoria do próprio item
+                # (_ITENS_PLUS) pro agrupamento, não esta. Preço é por código.
                 "categoria": row.get("subcategoria_codigo", "") or "",
                 "valor_unitario": float(row.get("valor") or 0.0),
                 "unidade": "un",

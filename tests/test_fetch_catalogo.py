@@ -113,3 +113,32 @@ def test_buscar_catalogo_sem_bundle_levanta_erro():
     import pytest
     with pytest.raises(CatalogoError):
         buscar_catalogo({"MRC0002": 73}, http_get=http_fake)
+
+
+def test_buscar_catalogo_bundle_sem_jwt_levanta_erro():
+    from fetch_catalogo import buscar_catalogo, CatalogoError
+
+    def http_fake(url, headers=None):
+        if url.endswith("assets/index-ABC123.js"):
+            return "const x = 'sem token jwt aqui';"
+        return '<script src="/assets/index-ABC123.js"></script>'
+
+    import pytest
+    with pytest.raises(CatalogoError, match="[Aa]non key"):
+        buscar_catalogo({"MRC0002": 73}, http_get=http_fake)
+
+
+def test_extrai_anon_key_prefere_role_anon_sobre_service_role():
+    from fetch_catalogo import extrair_anon_key
+    # service_role primeiro (payload {"role":"service_role"}), anon depois.
+    service = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.sig-_service01"
+    anon = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.sig-_anon012345"
+    js = f'a="{service}";b="{anon}";'
+    assert extrair_anon_key(js) == anon
+
+
+def test_extrai_bundle_path_prefere_index_sobre_vendor():
+    from fetch_catalogo import extrair_bundle_path
+    html = ('<script src="/assets/vendor-XYZ.js"></script>'
+            '<script src="/assets/index-ABC123.js"></script>')
+    assert extrair_bundle_path(html) == "assets/index-ABC123.js"

@@ -33,9 +33,9 @@ python skills/orcamento-decor/scripts/fetch_catalogo.py > tmp/produtos.json
 O script resolve a anon key do bundle de produção, consulta os 33 produtos do
 de-para (`references/depara-catalogo.json`) e devolve `produtos.json` no formato
 que `montar_orcamento.py` consome. Se a rede/base falhar (sai com `{"erro": ...}`
-em stderr, código 1): pule e gere com os valores default (omita `--produtos` no passo 5).
+em stderr, código 1): pule e gere com os valores default (omita `--produtos` no passo 4).
 
-### 4. Preparar tipologias.json
+### 3. Preparar tipologias.json
 
 Extraia de `dashboard/data/tipologias.js` -> `spots["SLUG"].tipologias` e salve em `tmp/tipologias_spot.json`.
 Formato esperado:
@@ -43,7 +43,7 @@ Formato esperado:
 [{"tipologia":"A","terraco":"Sem","tipo":"Padrao","capacidade":2}, ...]
 ```
 
-### 5. Gerar memoriais
+### 4. Gerar memoriais
 
 ```bash
 python skills/orcamento-decor/scripts/montar_orcamento.py \
@@ -52,7 +52,7 @@ python skills/orcamento-decor/scripts/montar_orcamento.py \
   --estilo ESTILO \
   --spot "SPOT_NAME" > tmp/memoriais.json
 ```
-(Se pulou o passo 3, omita `--produtos`.)
+(Se a leitura do catálogo falhou no passo 2, omita `--produtos`.)
 
 O JSON traz, por tipologia: `rows` (matriz de 12 colunas no formato oficial — categoria/ambiente, 4 linhas por item com ficha tecnica, TOTAL por categoria, Taxa Decor/Adm, e os dois totais), `total_geral` (SEM jacuzzi, vai pro dashboard) e `total_com_jacuzzi`.
 
@@ -62,7 +62,7 @@ python skills/orcamento-decor/scripts/gerar_xlsx.py \
   --memoriais tmp/memoriais.json --spot "SPOT_NAME" --saida tmp/Orcamento_SPOT.xlsx
 ```
 
-### 6. Subir o memorial no Drive (UM Sheet, abas por tipologia)
+### 5. Subir o memorial no Drive (UM Sheet, abas por tipologia)
 
 Destino: pasta **`03 - Memorial descritivo`** do Spot
 (`Spot / 02 - Projetos / 05 - Projeto Arquitetonico / 10 - Projeto de Interiores / 03 - Memorial descritivo`),
@@ -81,10 +81,10 @@ O Drive converte o `.xlsx` em Google Sheet com **uma aba por tipologia** (+ Resu
 > Conta do conector: hoje o Drive (composio) autentica como `rachel.souto`. Pra o arquivo
 > sair como `raquel.tavares`, reconectar o conector antes. Este MCP nao tem delete.
 
-### 7. Atualizar a vitrine do dashboard (orcamentos.js)
+### 6. Atualizar a vitrine do dashboard (orcamentos.js)
 
 Agora o memorial e UM unico Sheet (aba Resumo + uma aba por tipologia). Entao:
-- `consolidado_url` = link do Sheet do passo 6 (a aba Resumo ja e o consolidado).
+- `consolidado_url` = link do Sheet do passo 5 (a aba Resumo ja e o consolidado).
 - `memorial_url` de cada tipologia = o MESMO link (todas as tipologias estao nesse Sheet, em abas).
 
 Monte `tmp/memorial_urls.json` com todas as tipologias apontando pro mesmo link e rode o script (faz upsert do Spot em `dashboard/data/orcamentos.js`, sem tocar `tipologias.js`):
@@ -95,7 +95,7 @@ python skills/orcamento-decor/scripts/gerar_dashboard_js.py \
   --orcamentos-js dashboard/data/orcamentos.js \
   --spot "SPOT_NAME" --codigo CODIGO --slug SLUG \
   --estilo ESTILO_CAPITALIZADO \
-  --consolidado-url "<link do Sheet do passo 6>" \
+  --consolidado-url "<link do Sheet do passo 5>" \
   --memoriais tmp/memoriais.json \
   --memorial-urls tmp/memorial_urls.json \
   --gerado-em AAAA-MM-DD
@@ -109,7 +109,7 @@ git commit -m "feat(orcamento): vitrine do SPOT_NAME no dashboard"
 
 **NUNCA edite `tipologias.js` (arquivo da skill tabela-tipologias).**
 
-### 9. Apresentar resultado
+### 7. Apresentar resultado
 
 Mostre:
 ```
