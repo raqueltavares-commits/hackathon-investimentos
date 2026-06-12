@@ -45,3 +45,30 @@ def normalizar(s):
         except (UnicodeDecodeError, UnicodeEncodeError):
             return s
     return s
+
+
+def carregar_depara(caminho) -> dict:
+    p = Path(caminho) if caminho else DEPARA_PADRAO
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def parsear_resposta(json_text: str, depara: dict) -> dict:
+    """Recebe linhas da API (list[dict]) + de-para (codigo-item -> produto.codigo)
+    e devolve {codigo-item: {nome, categoria, valor_unitario, unidade}}."""
+    linhas = json.loads(json_text)
+    # reverso: produto.codigo -> [codigos-item]
+    reverso: dict[int, list[str]] = {}
+    for cod_item, cod_base in depara.items():
+        reverso.setdefault(cod_base, []).append(cod_item)
+
+    produtos: dict[str, dict] = {}
+    for row in linhas:
+        cod_base = row.get("codigo")
+        for cod_item in reverso.get(cod_base, []):
+            produtos[cod_item] = {
+                "nome": normalizar(row.get("nome", "")),
+                "categoria": row.get("subcategoria_codigo", "") or "",
+                "valor_unitario": float(row.get("valor") or 0.0),
+                "unidade": "un",
+            }
+    return produtos
