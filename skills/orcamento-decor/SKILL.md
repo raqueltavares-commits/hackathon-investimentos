@@ -57,6 +57,13 @@ Formato esperado:
 [{"tipologia":"A","terraco":"Sem","tipo":"Padrao","capacidade":2}, ...]
 ```
 
+> **Unidades — Revit + imagens são obrigatórios (não opcionais).** A capacidade só diz QUAIS
+> TIPOS de item entram; NÃO escolhe o modelo (o catálogo tem várias opções de arara, cadeira,
+> etc.). Confirme o MODELO escolhido pelo Revit (blocos/famílias da tipologia) + renders. A
+> **capacidade** define CONFIGURAÇÃO e quantidades — ex. cama queen SEM cama auxiliar (cap.
+> menor) vs cama queen COM cama auxiliar (cap. maior), ambas do catálogo; nº de cadeiras; etc.
+> (O `_ITENS_PLUS` traz só um default por item — o modelo real vem do Revit+imagens.)
+
 ### 4. Gerar memoriais
 
 ```bash
