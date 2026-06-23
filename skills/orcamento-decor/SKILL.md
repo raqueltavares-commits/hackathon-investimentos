@@ -183,8 +183,11 @@ Saída: `linhas`, `nao_mapeados` (sem categoria reconhecida → revisar) e `a_pr
 (itens com valor 0, pra você precificar/confirmar no catálogo).
 
 ### A2b. Preço dos itens FORA do catálogo (regras Rosa Sul)
-- **Marcenaria sem catálogo** → área(m²) × R$ 2.000/m². No payload, use `{"marcenaria_m2": 9.76}`
-  (área das medidas do Revit Rooms — cat OST_Rooms -2000160: área/perímetro/pé-direito).
+- **Marcenaria:** PRIMEIRO procure a peça no catálogo (usa o preço do catálogo, como qualquer
+  item). **Só** se a peça NÃO estiver no catálogo, precifique por área(m²) × R$ 2.000/m² —
+  no payload use `{"marcenaria_m2": 9.76}` (área das medidas do Revit Rooms — cat OST_Rooms
+  -2000160: área/perímetro/pé-direito). Ex. Rosa Sul: balcão/prateleiras = catálogo;
+  painel e fechamento mini market = R$ 2.000/m².
 - **Pintura** → valor do CATÁLOGO (serviço normal), NÃO taxa por m².
 - **Loja** (sofá, quadros, capacho, mesas externas) → preço pesquisado + fornecedor + link.
   **Plantas/vasos = ARTIFICIAIS do Mercado Livre.** **Marmoraria** = orçamento externo (à vista −6%).
