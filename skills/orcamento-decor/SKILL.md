@@ -153,6 +153,43 @@ Sheets criados:
 Precos de referencia (Plus 2026). Confirmar com catalogo atualizado.
 ```
 
+## Fluxo ÁREA COMUM (Revit + renders)
+
+Quando o pedido é a área comum (Recepção/Rooftop/Sinalização/Serviços), os ITENS e
+QUANTIDADES vêm do **Revit aberto** (MCP) e a COR/ACABAMENTO dos **renders** da pasta
+do Spot. Exige Revit aberto + conector Nonica ativo + link dos renders.
+
+### A1. Coletar blocos do Revit (por ambiente)
+- `get_active_view_in_revit` → confirma o modelo/vista.
+- Para cada ambiente (vista), `get_elements_by_category(cat, viewId)` nas categorias de
+  mobiliário (Furniture -2000080, Casework -2001000, LightingFixtures -2001120,
+  PlumbingFixtures -2001160, Planting -2001360, SpecialityEquipment -2001350) →
+  `get_element_types_for_elementids` → monte `{"ambiente": "...", "blocos": [{"type_name","qtd"}]}`.
+
+### A2. Revit → linhas
+```bash
+python skills/orcamento-decor/scripts/revit_para_linhas.py \
+  --blocos tmp/blocos_<amb>.json --produtos tmp/produtos.json --ambiente "<amb>" > tmp/linhas_<amb>.json
+```
+Casa cada bloco com `references/depara-revit.json`. Tipos não reconhecidos viram
+linha "A REVISAR" + lista `nao_mapeados` (resolver puxando o nome da FAMÍLIA no Revit).
+
+### A3. Cor/acabamento dos renders
+Baixe os renders (Drive `download_file_content` → base64 salvo em arquivo → decode pra .png →
+`Read`) e preencha `cor_acabamento` de cada linha (a cor do render VENCE a do Revit).
+
+### A4. Montar área comum + xlsx
+Monte `tmp/area_comum.json` = `{spot, tem_decor, budget, ambientes:[{nome,linhas}],
+sinalizacao:[{ambiente,qtd}], servicos:[...]}`. Sinalização = "Nome Spot (logo iluminado)"
+R$2.500/ambiente (fixo). **Budget**: valor que a Raquel informa por Spot (varia).
+```bash
+python skills/orcamento-decor/scripts/montar_area_comum.py --payload tmp/area_comum.json \
+  --budget 150000 --saida tmp/Orcamento_SPOT_AreaComum.xlsx \
+  --endereco "ENDERECO" --cep "CEP"
+```
+Gera abas Recepção/Rooftop/Sinalização/Serviços + **Resumo Área Comum**
+(SUBTOTAL + Taxa Adm 13% + Taxa Decor 6% + Budget alvo + Saldo). Suba como no passo 5.
+
 ## IDs do Drive
 
 | Recurso | ID |

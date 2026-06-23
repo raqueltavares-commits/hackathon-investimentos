@@ -143,9 +143,12 @@ def _linha_total(label: str, valor: float) -> list:
     return r
 
 
-def serializar_estruturado(memorial: MemorialTipologia, estilo: str) -> list[list]:
+def serializar_estruturado(memorial: MemorialTipologia, estilo: str,
+                           fechamento: bool = True) -> list[list]:
     """Matriz de 11 colunas no formato do novo template (uma linha por item,
-    com Cor de acabamento, Frete e Total+Frete; TOTAL por categoria; taxas e totais)."""
+    com Cor de acabamento, Frete e Total+Frete; TOTAL por categoria; taxas e totais).
+    `fechamento=False` omite o bloco de Valor Produtos/Taxas/TOTAL (usado nas abas
+    de área comum, onde as taxas ficam só no Resumo Área Comum)."""
     rows: list[list] = []
     titulo = [""] * N_COLS
     titulo[0] = f"MEMORIAL DESCRITIVO — {memorial.spot}"
@@ -177,6 +180,9 @@ def serializar_estruturado(memorial: MemorialTipologia, estilo: str) -> list[lis
     rows.append([""] * N_COLS)
     for cat in vistas:
         rows.append(_linha_total(f"TOTAL {cat}", memorial.subtotais[cat]))
+
+    if not fechamento:
+        return rows
 
     tem_opcionais = memorial.valor_opcionais > 0
     rows.append([""] * N_COLS)
