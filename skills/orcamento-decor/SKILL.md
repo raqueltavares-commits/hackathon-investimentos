@@ -196,9 +196,14 @@ Baixe os renders (Drive `download_file_content` → base64 salvo em arquivo → 
 `Read`) e preencha `cor_acabamento` de cada linha (a cor do render VENCE a do Revit).
 
 ### A4. Montar área comum + xlsx
-Monte `tmp/area_comum.json` = `{spot, tem_decor, budget, ambientes:[{nome,linhas}],
-sinalizacao:[{ambiente,qtd}], servicos:[...]}`. Sinalização = "Nome Spot (logo iluminado)"
-R$2.500/ambiente (fixo). **Budget**: valor que a Raquel informa por Spot (varia).
+Monte `tmp/area_comum.json` = `{spot, tem_decor, budget, total_unidades, total_pavimentos,
+ambientes:[{nome,linhas}], sinalizacao:[{ambiente,qtd}], servicos:[...], sinalizacao_extras:[...]}`.
+**Sinalização (auto):** "Nome Spot (logo iluminado)" R$2.500/ambiente + **Números de porta**
+(1/unidade × R$150, `total_unidades` do Nekt `total_units`) + **Quadros do marketing**
+(4/pavimento × R$150, `total_pavimentos`). Piso tátil/segurança = `sinalizacao_extras` (variam).
+**total_unidades** vem do Nekt (`sup_bd_szi_szi_spot_buildings_details.total_units`, join por
+`spot_building_id`); **total_pavimentos** do Revit (Levels) ou das tipologias (`total_floors`
+do Nekt costuma estar vazio). **Budget**: valor que a Raquel informa por Spot (varia).
 ```bash
 python skills/orcamento-decor/scripts/montar_area_comum.py --payload tmp/area_comum.json \
   --budget 150000 --saida tmp/Orcamento_SPOT_AreaComum.xlsx \

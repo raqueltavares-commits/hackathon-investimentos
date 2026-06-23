@@ -5,7 +5,43 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "skills/orcamento-decor/sc
 
 from montar_area_comum import (
     resumo_area_comum, linha_sinalizacao, montar_area_comum, VALOR_LOGO_ILUMINADO,
+    linha_numero_porta, linha_quadros_marketing,
+    VALOR_NUMERO_PORTA, VALOR_QUADRO_MARKETING, QUADROS_POR_PAVIMENTO,
 )
+
+
+def test_numero_porta_por_unidades():
+    l = linha_numero_porta(44)
+    assert l.categoria == "SINALIZAÇÃO"
+    assert l.quantidade == 44
+    assert l.valor_unitario == VALOR_NUMERO_PORTA == 150.0
+    assert l.total_linha == 6600.0
+
+
+def test_quadros_marketing_por_pavimento():
+    # 4 quadros por pavimento × R$150
+    l = linha_quadros_marketing(11)
+    assert l.quantidade == 11 * QUADROS_POR_PAVIMENTO == 44
+    assert l.valor_unitario == VALOR_QUADRO_MARKETING == 150.0
+    assert l.total_linha == 6600.0
+
+
+def test_montar_area_comum_sinalizacao_auto_unidades_e_pavimentos():
+    payload = {
+        "spot": "X", "tem_decor": False,
+        "total_unidades": 44, "total_pavimentos": 11,
+        "ambientes": [{"nome": "Recepção", "linhas": [
+            {"categoria": "MOBILIÁRIO", "item": "Sofá", "quantidade": 1, "valor_unitario": 1000.0}]}],
+        "sinalizacao": [{"ambiente": "Recepção", "qtd": 1}],
+    }
+    res = montar_area_comum(payload)
+    sin = next(a for a in res["abas"] if a["nome"] == "Sinalização")
+    flat = [c for r in sin["rows"] for c in r]
+    assert any("Números" in str(c) or "porta" in str(c).lower() for c in flat)
+    assert any("marketing" in str(c).lower() or "quadro" in str(c).lower() for c in flat)
+    # subtotal sinalização = logo 2500 + portas 44×150 (6600) + quadros 44×150 (6600) = 15700
+    sub = next(a["subtotal"] for a in res["resumo"]["abas"] if a["nome"] == "Sinalização")
+    assert sub == 2500.0 + 6600.0 + 6600.0
 
 
 def test_resumo_soma_subtotais_adm_e_decor():

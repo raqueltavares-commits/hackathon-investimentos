@@ -23,6 +23,9 @@ from montar_orcamento import serializar_estruturado, _linha_total, _brl, N_COLS
 from precos_fora_catalogo import marcenaria_por_m2
 
 VALOR_LOGO_ILUMINADO = 2500.0
+VALOR_NUMERO_PORTA = 150.0       # número de identificação por porta (1 por unidade)
+VALOR_QUADRO_MARKETING = 150.0   # quadro do marketing
+QUADROS_POR_PAVIMENTO = 4        # cada pavimento recebe 4 quadros
 
 
 def linha_sinalizacao(ambiente: str, qtd: int = 1,
@@ -31,6 +34,26 @@ def linha_sinalizacao(ambiente: str, qtd: int = 1,
         categoria="SINALIZAÇÃO", ambiente=ambiente,
         item=f"Nome Spot (logo iluminado) — {ambiente}",
         quantidade=qtd, valor_unitario=valor, cor_acabamento="A definir (ver render)",
+    )
+
+
+def linha_numero_porta(qtd_unidades: int, valor: float = VALOR_NUMERO_PORTA) -> LinhaMemorial:
+    """1 número de identificação por unidade (qtd = nº de unidades, do Nekt)."""
+    return LinhaMemorial(
+        categoria="SINALIZAÇÃO", ambiente="Spot",
+        item="Números de identificação (porta)", quantidade=int(qtd_unidades),
+        valor_unitario=valor, cor_acabamento="A definir",
+        referencia="1 por unidade (Nekt total_units)",
+    )
+
+
+def linha_quadros_marketing(qtd_pavimentos: int, valor: float = VALOR_QUADRO_MARKETING) -> LinhaMemorial:
+    """4 quadros do marketing por pavimento (qtd = pavimentos × 4)."""
+    return LinhaMemorial(
+        categoria="SINALIZAÇÃO", ambiente="Spot",
+        item="Quadros do marketing", quantidade=int(qtd_pavimentos) * QUADROS_POR_PAVIMENTO,
+        valor_unitario=valor, cor_acabamento="—",
+        referencia=f"{QUADROS_POR_PAVIMENTO} por pavimento × {int(qtd_pavimentos)} pav.",
     )
 
 
@@ -117,12 +140,20 @@ def montar_area_comum(payload: dict) -> dict:
         abas.append({"nome": nome, "rows": _aba_rows(nome, spot, linhas)})
         abas_subtotais.append((nome, _subtotal(linhas)))
 
-    # 2) Sinalização (logo iluminado por ambiente)
+    # 2) Sinalização: logo iluminado por ambiente + números de porta (1/unidade, Nekt)
+    #    + quadros do marketing (4/pavimento) + extras informados.
     sinal = payload.get("sinalizacao", [])
-    if sinal:
-        linhas = [linha_sinalizacao(s["ambiente"], int(s.get("qtd", 1) or 1)) for s in sinal]
-        abas.append({"nome": "Sinalização", "rows": _aba_rows("Sinalização", spot, linhas)})
-        abas_subtotais.append(("Sinalização", _subtotal(linhas)))
+    linhas_sin = [linha_sinalizacao(s["ambiente"], int(s.get("qtd", 1) or 1)) for s in sinal]
+    if payload.get("total_unidades"):
+        linhas_sin.append(linha_numero_porta(int(payload["total_unidades"])))
+    if payload.get("total_pavimentos"):
+        linhas_sin.append(linha_quadros_marketing(int(payload["total_pavimentos"])))
+    linhas_sin += [_linha_de_dict({**d, "categoria": d.get("categoria", "SINALIZAÇÃO")},
+                                  ambiente=d.get("ambiente", "Spot"))
+                   for d in payload.get("sinalizacao_extras", [])]
+    if linhas_sin:
+        abas.append({"nome": "Sinalização", "rows": _aba_rows("Sinalização", spot, linhas_sin)})
+        abas_subtotais.append(("Sinalização", _subtotal(linhas_sin)))
 
     # 3) Serviços e Instalações
     servs = payload.get("servicos", [])
