@@ -58,6 +58,25 @@ um pavimento do agrupamento.
 Sem DWG (ou pra confirmar), **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi ~170) — a
 planilha sozinha NÃO dá o layout: metragem parecida pode ser tipologia diferente.
 
+### 2c. Validação via Revit (OPCIONAL — complemento, não fonte)
+Se o **Revit do Spot estiver aberto** (MCP Nonica ativo), use-o como 2ª/3ª opinião. NUNCA
+substitui o anteprojeto LANÇAMENTOS (a fonte da tabela); **só sinaliza divergências** pra
+Raquel decidir. Sem Revit, pule este passo.
+
+1. `get_active_view_in_revit` → confirme o modelo do Spot.
+2. Por nível de unidades, colete **Rooms** (OST_Rooms `-2000160`): `get_elements_by_category`
+   → `get_parameters_from_elementid` (Number/Name + Área). Monte
+   `tmp/revit.json` = `{"unidades": [{"unidade":"101","area_revit":16.84}, ...]}`.
+3. Rode a validação (depois de ter a classificação do passo 3 em `unidades.json`):
+   ```bash
+   python <SKILL_DIR>/scripts/validar_revit.py --unidades unidades.json --revit tmp/revit.json --tol 0.5
+   ```
+   Devolve `validacoes` (área/capacidade por unidade), `contagem`, `sem_match_*` e
+   `divergencias`. **Tolerância de área = 0,5 m²** (Δ acima vira alerta). A capacidade pela
+   área do Revit é comparada com a classificada — se cair em outro nível da Matriz, sinaliza.
+4. **Toda divergência vai pro resumo executivo (passo 5.4)** — a Raquel decide; a tabela sai
+   pelo anteprojeto. (Esquadrias por unidade — janelas/portas via NEAREST-ROOM — é Fase 2.)
+
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:
 `terraco`, `tipo`, `capacidade` (PREVISÃO), `area_util`, `area_unidade`.
@@ -103,9 +122,12 @@ planilha; em qualquer caso o agrupamento por layout depende da leitura da planta
    `window.TIPOLOGIAS.index` (spot, codigo, slug, gerado_em, total_tipologias,
    total_unidades, drive_url, **`fontes`**). `fontes` = objeto `{ pdf, analise, dwg }` com
    `true/false` indicando quais fontes alimentaram a tabela (vira as tags verde/vermelho na
-   vitrine). Ex.: usou PDF + DWG, sem planilha → `{ pdf: true, analise: false, dwg: true }`.
+   vitrine). Inclua **`revit`** quando o passo 2c rodou. Ex.: PDF + DWG + Revit, sem planilha →
+   `{ pdf: true, analise: false, dwg: true, revit: true }`.
 4. Escreva um **resumo executivo** (chat): total de tipologias/unidades, resultado da
    validação, `avisos` de baixa confiança/fronteira de área, premissas da previsão de capacidade.
+   **Se rodou o passo 2c, liste as `divergencias` do Revit** (área/capacidade/contagem) em
+   destaque — a Raquel decide caso a caso; a tabela continua pelo anteprojeto.
 
 ## Validação de referência
 Natal Spot deve dar **5 tipologias / 96 unidades** (A=74/cap2, B=10/cap5, C=10/cap3,
