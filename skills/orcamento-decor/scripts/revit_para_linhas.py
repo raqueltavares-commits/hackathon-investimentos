@@ -16,6 +16,7 @@ Uso:
 """
 import argparse
 import json
+import re
 import sys
 import unicodedata
 from pathlib import Path
@@ -25,12 +26,41 @@ from modelos import LinhaMemorial
 
 REGRAS_PADRAO_PATH = Path(__file__).parent.parent / "references/depara-revit.json"
 
+# Categoria do Revit -> categoria do orçamento. ISTO generaliza entre projetos
+# (independe dos nomes dos blocos, que mudam a cada Spot). Aceita o nome OST
+# (OST_Furniture) ou o rótulo simples (Furniture / Mobiliário).
+MAP_CATEGORIA_REVIT = {
+    "furniture": "MOBILIÁRIO", "ost_furniture": "MOBILIÁRIO", "mobiliário": "MOBILIÁRIO",
+    "furnituresystems": "MOBILIÁRIO", "ost_furnituresystems": "MOBILIÁRIO",
+    "casework": "MARCENARIA", "ost_casework": "MARCENARIA", "marcenaria": "MARCENARIA",
+    "lightingfixtures": "ILUMINAÇÃO", "ost_lightingfixtures": "ILUMINAÇÃO", "iluminação": "ILUMINAÇÃO",
+    "plumbingfixtures": "METAIS E INOX", "ost_plumbingfixtures": "METAIS E INOX",
+    "planting": "PAISAGISMO", "ost_planting": "PAISAGISMO", "paisagismo": "PAISAGISMO",
+    "entourage": "PAISAGISMO", "ost_entourage": "PAISAGISMO",
+    "specialityequipment": "ELETROS", "ost_specialityequipment": "ELETROS",
+    "electricalfixtures": "ELETROS", "ost_electricalfixtures": "ELETROS",
+    "signage": "SINALIZAÇÃO", "ost_signage": "SINALIZAÇÃO",
+}
+
 
 def _norm(s: str) -> str:
     """minúsculas + sem acento, pra casar substring de forma robusta."""
     s = unicodedata.normalize("NFKD", s or "")
     s = "".join(c for c in s if not unicodedata.combining(c))
     return s.lower().strip()
+
+
+def limpar_nome(type_name: str) -> str:
+    """Tira o ruído de TypeName do Revit. Ex.:
+    'Único:3432869 : Bancada 06:Único:3432869' -> 'Bancada 06'.
+    Sem ':' (a maioria dos nomes legíveis), devolve o texto inteiro."""
+    s = type_name.strip()
+    if ":" not in s:
+        return s
+    partes = [p.strip() for p in s.split(":")]
+    bons = [p for p in partes
+            if p and _norm(p) != "unico" and not re.fullmatch(r"[\d\s.]+", p)]
+    return max(bons, key=len) if bons else s
 
 
 def _carregar_regras(caminho=None) -> list[dict]:
@@ -61,8 +91,14 @@ def _preco_cor_link(codigo: str, produtos: dict) -> tuple[float, str, str]:
 
 def blocos_para_linhas(blocos: list[dict], produtos: dict,
                        ambiente: str = "", regras: list[dict] | None = None) -> dict:
-    """Consolida blocos por (categoria, item), somando quantidade. Devolve
-    {"linhas": [LinhaMemorial], "nao_mapeados": [type_name, ...]}."""
+    """Consolida blocos por (categoria, item), somando quantidade.
+
+    Project-agnostic: a categoria vem da CATEGORIA DO REVIT (`categoria_revit`),
+    não dos nomes de bloco (que mudam a cada Spot). O `depara-revit.json` é só uma
+    camada opcional de apelidos/preço. Devolve:
+      {"linhas": [...], "nao_mapeados": [...], "a_precificar": [...]}
+    - nao_mapeados: blocos sem categoria reconhecida (Revit nem de-para) -> "A REVISAR".
+    - a_precificar: itens que saíram com valor 0 (precisam de preço/confirmação)."""
     regras = regras if regras is not None else REGRAS_PADRAO
     acc: dict[tuple, LinhaMemorial] = {}
     ordem: list[tuple] = []
@@ -72,15 +108,22 @@ def blocos_para_linhas(blocos: list[dict], produtos: dict,
         type_name = b.get("type_name", "")
         family = b.get("family", "")
         qtd = int(b.get("qtd", 0) or 0)
+        cat_revit = MAP_CATEGORIA_REVIT.get(_norm(b.get("categoria_revit", "")))
+
         regra = casar_regra(type_name, regras, family)
-        if regra:
+        if regra:  # apelido conhecido: usa item/categoria/código do de-para
             categoria, item, codigo = regra["categoria"], regra["item"], regra.get("codigo", "")
-        else:
-            # mostra família junto quando o type_name é só a cor (ajuda a revisão)
-            rotulo = f"{type_name} ({family})" if family and family not in type_name else type_name
-            categoria, item, codigo = "A REVISAR", rotulo, ""
-            if rotulo not in nao_mapeados:
-                nao_mapeados.append(rotulo)
+        else:      # generaliza: categoria do Revit + nome do próprio bloco
+            item = limpar_nome(type_name)
+            if family and _norm(family) not in _norm(type_name):
+                item = f"{item} ({family})"
+            codigo = ""
+            if cat_revit:
+                categoria = cat_revit
+            else:
+                categoria = "A REVISAR"
+                if item not in nao_mapeados:
+                    nao_mapeados.append(item)
 
         chave = (categoria, item)
         if chave in acc:
@@ -94,7 +137,9 @@ def blocos_para_linhas(blocos: list[dict], produtos: dict,
             )
             ordem.append(chave)
 
-    return {"linhas": [acc[k] for k in ordem], "nao_mapeados": nao_mapeados}
+    linhas = [acc[k] for k in ordem]
+    a_precificar = [l.item for l in linhas if l.valor_unitario == 0.0]
+    return {"linhas": linhas, "nao_mapeados": nao_mapeados, "a_precificar": a_precificar}
 
 
 def main() -> None:
@@ -123,6 +168,7 @@ def main() -> None:
             for l in res["linhas"]
         ],
         "nao_mapeados": res["nao_mapeados"],
+        "a_precificar": res["a_precificar"],
     }
     print(json.dumps(out, ensure_ascii=False, indent=2))
 

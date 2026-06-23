@@ -164,18 +164,23 @@ do Spot. Exige Revit aberto + conector Nonica ativo + link dos renders.
 - Para cada ambiente (vista), `get_elements_by_category(cat, viewId)` nas categorias de
   mobiliário (Furniture -2000080, Casework -2001000, LightingFixtures -2001120,
   PlumbingFixtures -2001160, Planting -2001360, SpecialityEquipment -2001350) →
-  `get_element_types_for_elementids` → monte `{"ambiente": "...", "blocos": [{"type_name","qtd"}]}`.
-- Quando o `type_name` for só a cor (`Cinza`, `Marfim`, `Preto`…), puxe a FAMÍLIA com
-  `get_parameters_from_elementid` (1 elemento do tipo) e inclua `"family"` no bloco — o
-  leitor casa por type_name OU family.
+  `get_element_types_for_elementids` → monte os blocos. **Marque a categoria do Revit em
+  cada bloco** (`categoria_revit`): é ela que define a categoria do orçamento — generaliza
+  pra qualquer projeto (os nomes dos blocos mudam a cada Spot; a categoria não).
+  `{"ambiente":"...", "blocos":[{"type_name":"...","qtd":N,"categoria_revit":"Furniture"}]}`.
+- Quando o `type_name` for só a cor (`Cinza`, `Marfim`…), puxe a FAMÍLIA com
+  `get_parameters_from_elementid` (1 elemento do tipo) e inclua `"family"` — vira o nome do item.
 
 ### A2. Revit → linhas
 ```bash
 python skills/orcamento-decor/scripts/revit_para_linhas.py \
   --blocos tmp/blocos_<amb>.json --produtos tmp/produtos.json --ambiente "<amb>" > tmp/linhas_<amb>.json
 ```
-Casa cada bloco com `references/depara-revit.json`. Tipos não reconhecidos viram
-linha "A REVISAR" + lista `nao_mapeados` (resolver puxando o nome da FAMÍLIA no Revit).
+**Lógica project-agnostic:** categoria vem da `categoria_revit`; item = nome do próprio bloco
+(limpo); preço = catálogo quando casar (senão 0). `references/depara-revit.json` é só uma
+camada OPCIONAL de apelidos/preço (NÃO o mapa principal — não chumbe blocos de um Spot lá).
+Saída: `linhas`, `nao_mapeados` (sem categoria reconhecida → revisar) e `a_precificar`
+(itens com valor 0, pra você precificar/confirmar no catálogo).
 
 ### A3. Cor/acabamento dos renders
 Baixe os renders (Drive `download_file_content` → base64 salvo em arquivo → decode pra .png →

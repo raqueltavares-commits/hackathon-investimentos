@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "skills/orcamento-decor/scripts"))
 
-from revit_para_linhas import blocos_para_linhas, casar_regra, REGRAS_PADRAO
+from revit_para_linhas import blocos_para_linhas, casar_regra, REGRAS_PADRAO, limpar_nome
 
 # Subconjunto real do Ático do Rosa Sul (Revit MCP).
 BLOCOS_ATICO = [
@@ -67,6 +67,40 @@ def test_tipo_nao_mapeado_nao_some_e_e_sinalizado():
     linha = next(l for l in res["linhas"] if l.item == "Marfim")
     assert linha.categoria == "A REVISAR"
     assert linha.valor_unitario == 0.0
+
+
+def test_limpar_nome_tira_ruido_do_revit():
+    assert limpar_nome("Único:3432869 : Bancada 06:Único:3432869") == "Bancada 06"
+    assert limpar_nome("freijó") == "freijó"
+    assert limpar_nome("CADEIRA ALLEGRA -  PRETO") == "CADEIRA ALLEGRA -  PRETO"
+
+
+def test_bloco_desconhecido_usa_categoria_do_revit_nao_some():
+    # bloco que NÃO está no de-para (outro projeto), mas tem categoria do Revit
+    blocos = [{"type_name": "Estante Custom XPTO", "qtd": 1, "categoria_revit": "Furniture"}]
+    res = blocos_para_linhas(blocos, {})
+    linha = res["linhas"][0]
+    assert linha.categoria == "MOBILIÁRIO"     # veio da categoria do Revit
+    assert linha.item == "Estante Custom XPTO"
+    assert res["nao_mapeados"] == []           # não é "A REVISAR"
+    assert "Estante Custom XPTO" in res["a_precificar"]  # só falta preço
+
+
+def test_categoria_revit_mapeia_planting_e_lighting():
+    blocos = [
+        {"type_name": "Planta X", "qtd": 2, "categoria_revit": "OST_Planting"},
+        {"type_name": "Pendente Y", "qtd": 3, "categoria_revit": "LightingFixtures"},
+    ]
+    res = blocos_para_linhas(blocos, {})
+    cats = {l.item: l.categoria for l in res["linhas"]}
+    assert cats["Planta X"] == "PAISAGISMO"
+    assert cats["Pendente Y"] == "ILUMINAÇÃO"
+
+
+def test_sem_categoria_revit_e_sem_depara_vira_revisar():
+    res = blocos_para_linhas([{"type_name": "CoisaEstranha", "qtd": 1}], {})
+    assert res["linhas"][0].categoria == "A REVISAR"
+    assert "CoisaEstranha" in res["nao_mapeados"]
 
 
 def test_atico_consolidado_bate_com_template():
