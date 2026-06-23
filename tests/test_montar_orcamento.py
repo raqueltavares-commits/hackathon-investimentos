@@ -138,6 +138,33 @@ def test_catalogo_preenche_cor_e_referencia_link():
     assert gab.referencia == "https://x.com/73"
 
 
+def test_cama_queen_sem_auxiliar_cap2():
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
+    cama = next(l for l in linhas if "queen" in l.item.lower())
+    assert "sem cama auxiliar" in cama.item.lower()
+
+def test_cama_queen_com_auxiliar_cap3():
+    linhas = itens_para_tipologia(3, "Sem", "Padrão", PRODUTOS_VAZIO)
+    cama = next(l for l in linhas if "queen" in l.item.lower())
+    assert "com cama auxiliar" in cama.item.lower()
+
+def test_cama_queen_com_auxiliar_cap5():
+    linhas = itens_para_tipologia(5, "Sem", "Padrão", PRODUTOS_VAZIO)
+    cama = next(l for l in linhas if "queen" in l.item.lower())
+    assert "com cama auxiliar" in cama.item.lower()
+
+
+def test_override_do_revit_troca_modelo_e_preco():
+    # modelo confirmado no Revit+imagens sobrescreve o default da regra
+    overrides = {"cadeira_jantar": {"item": "Cadeira Allegra", "valor_unitario": 106.99,
+                                    "cor_acabamento": "Cinza", "referencia": "198"}}
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO, overrides=overrides)
+    cad = next(l for l in linhas if l.item == "Cadeira Allegra")
+    assert cad.valor_unitario == 106.99
+    assert cad.cor_acabamento == "Cinza"
+    assert cad.referencia == "198"
+
+
 def test_servico_puxa_preco_do_catalogo():
     # SRV0007 = Instalação de ar condicionado
     produtos = {"SRV0007": Produto("SRV0007", "Instalação ar", "SERVIÇOS", 815.0)}

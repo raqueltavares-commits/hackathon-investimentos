@@ -59,10 +59,12 @@ Formato esperado:
 
 > **Unidades — Revit + imagens são obrigatórios (não opcionais).** A capacidade só diz QUAIS
 > TIPOS de item entram; NÃO escolhe o modelo (o catálogo tem várias opções de arara, cadeira,
-> etc.). Confirme o MODELO escolhido pelo Revit (blocos/famílias da tipologia) + renders. A
-> **capacidade** define CONFIGURAÇÃO e quantidades — ex. cama queen SEM cama auxiliar (cap.
-> menor) vs cama queen COM cama auxiliar (cap. maior), ambas do catálogo; nº de cadeiras; etc.
-> (O `_ITENS_PLUS` traz só um default por item — o modelo real vem do Revit+imagens.)
+> etc.). Confirme o MODELO escolhido pelo Revit (blocos/famílias da tipologia) + renders e passe
+> em `--overrides` (JSON `{tipologia: {role: {item, valor_unitario, cor_acabamento, referencia}}}`)
+> — sobrescreve o default da regra por item. A **capacidade** define CONFIGURAÇÃO e quantidades:
+> cama queen SEM cama auxiliar (cap. 2) vs COM cama auxiliar (cap. ≥3) é automático; nº de
+> cadeiras por capacidade; sofá-cama em cap. 4/5. Roles do `_ITENS_PLUS`: `gabinete_inferior`,
+> `cabeceira`, `arara_roupas`, `cama_queen`, `cadeira_jantar`, `cooktop`, etc.
 
 ### 4. Gerar memoriais
 
@@ -72,7 +74,8 @@ python skills/orcamento-decor/scripts/montar_orcamento.py \
   --produtos tmp/produtos.json \
   --estilo ESTILO \
   --spot "SPOT_NAME" > tmp/memoriais.json
-# acrescente --sem-decor SE TEM_DECOR = nao (zera a Taxa Decor)
+# --sem-decor SE TEM_DECOR = nao (zera a Taxa Decor)
+# --overrides tmp/overrides.json com os modelos confirmados no Revit+imagens por tipologia
 ```
 (Se a leitura do catálogo falhou no passo 2, omita `--produtos`.)
 

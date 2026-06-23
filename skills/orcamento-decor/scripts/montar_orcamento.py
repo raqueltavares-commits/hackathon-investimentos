@@ -72,13 +72,25 @@ def _cor_link(p) -> tuple[str, str]:
     return (p.get("cor_acabamento", "") or "", p.get("link", "") or "")
 
 
+def _cama_queen_descricao(capacidade: int) -> str:
+    """Capacidade define a configuração da cama (ambas do catálogo):
+    cap. 2 = queen sem cama auxiliar; cap. >= 3 = queen com cama auxiliar."""
+    return ("Cama box Queen size (sem cama auxiliar)" if capacidade <= 2
+            else "Cama box Queen size (com cama auxiliar)")
+
+
 def itens_para_tipologia(
     capacidade: int,
     terraco: str,
     tipo: str,
     produtos: dict,
     estilo: str = "biofilico",
+    overrides: dict | None = None,
 ) -> list[LinhaMemorial]:
+    """`overrides`: role -> {item?, valor_unitario?, cor_acabamento?, referencia?}.
+    É o modelo CONFIRMADO no Revit+imagens da tipologia (o catálogo tem várias opções
+    de cada item; a regra abaixo só diz QUAIS TIPOS entram — o modelo real vem daqui)."""
+    overrides = overrides or {}
     t = terraco.strip().lower()
     eh_garden  = t in _TERRACO_GARDEN
     eh_varanda = t in _TERRACO_VARANDA
@@ -89,6 +101,9 @@ def itens_para_tipologia(
         if role == "sofa_cama"    and capacidade not in (4, 5): continue
         if role == "jacuzzi"      and not eh_garden:            continue
         if role == "mesa_externa" and not eh_varanda:           continue
+
+        if role == "cama_queen":
+            descricao = _cama_queen_descricao(capacidade)
 
         qty = _CADEIRAS_POR_CAP.get(capacidade, 2) if role == "cadeira_jantar" else 1
 
@@ -103,11 +118,21 @@ def itens_para_tipologia(
         ) else descricao
 
         cor, link = _cor_link(produtos.get(codigo))
+        ref = link or codigo
+        cor = cor or "A definir"
+
+        # modelo confirmado no Revit+imagens sobrescreve o default da regra
+        ov = overrides.get(role, {})
+        nome = ov.get("item", nome)
+        valor = ov.get("valor_unitario", valor)
+        cor = ov.get("cor_acabamento", cor)
+        ref = ov.get("referencia", ref)
+
         linhas.append(LinhaMemorial(
             categoria=categoria, item=nome, quantidade=qty, valor_unitario=valor,
             ambiente=META_ITEM.get(role, {}).get("ambiente", ""),
-            referencia=link or codigo, acabamento=acabamento_de(estilo, role),
-            cor_acabamento=cor or "A definir",
+            referencia=ref, acabamento=acabamento_de(estilo, role),
+            cor_acabamento=cor,
             opcional=(role == "jacuzzi"),
         ))
 
@@ -210,10 +235,14 @@ def main() -> None:
     p.add_argument("--spot", required=True)
     p.add_argument("--sem-decor", action="store_true",
                    help="Zera a Taxa Decor (6%) — usar quando o orçamento não tiver Decor")
+    p.add_argument("--overrides", type=Path,
+                   help="JSON {tipologia: {role: {item?,valor_unitario?,cor_acabamento?,referencia?}}} "
+                        "— modelo confirmado no Revit+imagens por tipologia")
     args = p.parse_args()
     tem_decor = not args.sem_decor
 
     tipologias = json.loads(args.tipologias.read_text(encoding="utf-8"))
+    overrides_por_tip = json.loads(args.overrides.read_text(encoding="utf-8")) if args.overrides else {}
     produtos: dict = {}
     if args.produtos:
         raw = json.loads(args.produtos.read_text(encoding="utf-8"))
@@ -228,7 +257,8 @@ def main() -> None:
         terraco_label = "Sem terraço" if t["terraco"].strip().lower() == "sem" else t["terraco"]
         descr = f"{terraco_label} · {t['tipo']} · Cap. {t['capacidade']}"
         linhas = itens_para_tipologia(t["capacidade"], t["terraco"], t["tipo"], produtos,
-                                      estilo=args.estilo)
+                                      estilo=args.estilo,
+                                      overrides=overrides_por_tip.get(letra, {}))
         # Unidades NÃO levam Taxa Adm (só área comum). Decor é variável (--sem-decor).
         m = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas,
                             tem_decor=tem_decor, incluir_adm=False)
