@@ -14,6 +14,7 @@ Uso:
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 TOL_AREA_PADRAO = 0.5  # m² — Δ acima disso vira alerta (confirmado pela Raquel)
@@ -45,7 +46,7 @@ def validar(unidades: list[dict], revit_unidades: list[dict],
     if not revit_unidades:
         return {"pulado": True, "ok": True, "validacoes": [], "divergencias": [],
                 "contagem": {"classificadas": len(unidades), "revit": 0, "ok": None},
-                "sem_match_revit": [], "sem_match_classificacao": []}
+                "sem_match_revit": [], "sem_match_classificacao": [], "esquadrias_por_grupo": []}
 
     rev_por_num = {_num(r["unidade"]): r for r in revit_unidades}
     classif_nums = {_num(u["unidade"]) for u in unidades}
@@ -84,6 +85,35 @@ def validar(unidades: list[dict], revit_unidades: list[dict],
                 f"{num}: capacidade pela área do Revit = {cap_revit} (classificada {cap_classif}) "
                 f"→ revisar.")
 
+    # Fase 2 — esquadrias por grupo (janela = sinal principal; porta = apoio).
+    # Agrupa pelo mesmo critério do montar_tabela (terraço+tipo+capacidade+área); dentro de
+    # cada grupo, nº de janelas diferente sinaliza possível tipologia separada (ex.: esquina).
+    grupos: dict[tuple, list] = {}
+    for u in unidades:
+        rev = rev_por_num.get(_num(u["unidade"]))
+        if not rev or rev.get("janelas") is None:
+            continue
+        key = (str(u.get("terraco", "")).strip().lower(), str(u.get("tipo", "")).strip().lower(),
+               int(u.get("capacidade") or 0), round(float(u.get("area_util") or 0.0), 2))
+        grupos.setdefault(key, []).append((_num(u["unidade"]), int(rev["janelas"])))
+
+    esquadrias_por_grupo: list[dict] = []
+    for (terraco, tipo, cap, area), membros in grupos.items():
+        counts = [j for _n, j in membros]
+        distintos = sorted(set(counts))
+        consistente = len(distintos) <= 1
+        label = f"{terraco or 'sem'}·{tipo}·cap{cap}·{area:g}m²"
+        esquadrias_por_grupo.append({
+            "grupo": label, "janelas": distintos, "consistente": consistente,
+            "unidades": {n: j for n, j in membros},
+        })
+        if not consistente:
+            modo = Counter(counts).most_common(1)[0][0]
+            odd = [n for n, j in membros if j != modo]
+            divergencias.append(
+                f"Grupo {label}: nº de janelas varia {distintos} — {', '.join(odd)} "
+                f"difere(m) → possível tipologia separada.")
+
     sem_match_classificacao = sorted(set(rev_por_num) - classif_nums)
     contagem = {"classificadas": len(unidades), "revit": len(revit_unidades),
                 "ok": len(unidades) == len(revit_unidades)
@@ -93,7 +123,8 @@ def validar(unidades: list[dict], revit_unidades: list[dict],
     return {"pulado": False, "ok": ok, "validacoes": validacoes,
             "divergencias": divergencias, "contagem": contagem,
             "sem_match_revit": sem_match_revit,
-            "sem_match_classificacao": sem_match_classificacao}
+            "sem_match_classificacao": sem_match_classificacao,
+            "esquadrias_por_grupo": esquadrias_por_grupo}
 
 
 def main() -> None:

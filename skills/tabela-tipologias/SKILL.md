@@ -65,17 +65,22 @@ Raquel decidir. Sem Revit, pule este passo.
 
 1. `get_active_view_in_revit` → confirme o modelo do Spot.
 2. Por nível de unidades, colete **Rooms** (OST_Rooms `-2000160`): `get_elements_by_category`
-   → `get_parameters_from_elementid` (Number/Name + Área). Monte
-   `tmp/revit.json` = `{"unidades": [{"unidade":"101","area_revit":16.84}, ...]}`.
+   → `get_parameters_from_elementid` (Number/Name + Área). **Esquadrias:** conte **janelas**
+   (OST_Windows `-2000014`) e portas (OST_Doors `-2000023`) por unidade, associando à Room
+   (porta = from/to room; janela = host wall que limita a Room — NEAREST-ROOM). Monte
+   `tmp/revit.json` = `{"unidades":[{"unidade":"101","area_revit":16.84,"janelas":2,"portas":1}]}`.
+   (Janela é o sinal principal; porta é apoio. Se não der pra contar janela com confiança, omita.)
 3. Rode a validação (depois de ter a classificação do passo 3 em `unidades.json`):
    ```bash
    python <SKILL_DIR>/scripts/validar_revit.py --unidades unidades.json --revit tmp/revit.json --tol 0.5
    ```
-   Devolve `validacoes` (área/capacidade por unidade), `contagem`, `sem_match_*` e
-   `divergencias`. **Tolerância de área = 0,5 m²** (Δ acima vira alerta). A capacidade pela
-   área do Revit é comparada com a classificada — se cair em outro nível da Matriz, sinaliza.
+   Devolve `validacoes` (área/capacidade por unidade), `contagem`, `sem_match_*`,
+   `esquadrias_por_grupo` e `divergencias`. **Tolerância de área = 0,5 m²**. A capacidade pela
+   área do Revit é comparada com a classificada. **Esquadrias:** dentro de cada grupo
+   (terraço+tipo+capacidade+área) o nº de janelas diferente sinaliza **possível tipologia
+   separada** (ex.: esquina) — reforça o A-GLAZ do DWG.
 4. **Toda divergência vai pro resumo executivo (passo 5.4)** — a Raquel decide; a tabela sai
-   pelo anteprojeto. (Esquadrias por unidade — janelas/portas via NEAREST-ROOM — é Fase 2.)
+   pelo anteprojeto.
 
 ### 3. Classificar cada unidade
 Leia `references/classificacao-spot.md`. Para cada unidade derive:

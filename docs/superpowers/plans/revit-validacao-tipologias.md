@@ -52,10 +52,12 @@ Regras:
 - Sem `revit.json` → passo é pulado, tabela sai como hoje (Revit é opcional).
 
 ## Faseamento (TDD)
-- **Fase 1 (sólida):** validação por **Rooms** (área + contagem + capacidade). Casamento por
-  número de unidade. Testável offline com fixture do Rosa Sul/Natal.
-- **Fase 2 (heurística):** **esquadrias por unidade** (janelas/portas via NEAREST-ROOM).
-  Validar a associação no modelo real (Rosa Sul aberto) antes de confiar.
+- **Fase 1 (sólida) — FEITO:** validação por **Rooms** (área + contagem + capacidade).
+  Casamento por número de unidade. `validar_revit.py`.
+- **Fase 2 (heurística) — FEITO:** **esquadrias por grupo** (nº de janelas por unidade;
+  divergência dentro do grupo terraço+tipo+capacidade+área → possível tipologia separada).
+  Pendente apenas validar a ASSOCIAÇÃO esquadria→unidade (NEAREST-ROOM) no modelo real
+  antes de confiar 100% — a lógica de consistência já está testada.
 
 ## Decisões a confirmar com a Raquel
 1. **Tolerância de área** pra alerta: 0,5 m²? (fronteiras da Matriz de capacidade são sensíveis).
