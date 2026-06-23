@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from modelos import LinhaMemorial, MemorialTipologia, TAXA_ADM_PCT, TAXA_DECOR_PCT
 from montar_orcamento import serializar_estruturado, _linha_total, _brl, N_COLS
+from precos_fora_catalogo import marcenaria_por_m2
 
 VALOR_LOGO_ILUMINADO = 2500.0
 
@@ -34,13 +35,20 @@ def linha_sinalizacao(ambiente: str, qtd: int = 1,
 
 
 def _linha_de_dict(d: dict, ambiente: str = "") -> LinhaMemorial:
+    # Marcenaria sem catálogo: área (m²) × R$2.000/m² (qtd=1). Ex: {"marcenaria_m2": 9.76}.
+    if d.get("marcenaria_m2"):
+        area = float(d["marcenaria_m2"])
+        valor = marcenaria_por_m2(area)
+        qtd, ref = 1, d.get("referencia") or f"est. {area:g} m² × R$2.000/m²"
+    else:
+        valor = float(d.get("valor_unitario", 0.0) or 0.0)
+        qtd, ref = int(d.get("quantidade", 1) or 1), d.get("referencia", "")
     return LinhaMemorial(
         categoria=d.get("categoria", ""), item=d.get("item", ""),
-        quantidade=int(d.get("quantidade", 1) or 1),
-        valor_unitario=float(d.get("valor_unitario", 0.0) or 0.0),
+        quantidade=qtd, valor_unitario=valor,
+        referencia=ref,
         ambiente=d.get("ambiente", ambiente),
         fornecedor=d.get("fornecedor", "Catálogo Decor"),
-        referencia=d.get("referencia", ""),
         cor_acabamento=d.get("cor_acabamento", "A definir"),
         frete=float(d.get("frete", 0.0) or 0.0),
     )

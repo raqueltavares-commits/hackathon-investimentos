@@ -42,6 +42,17 @@ def test_linha_sinalizacao_logo_iluminado():
     assert "logo iluminado" in l.item.lower()
 
 
+def test_marcenaria_m2_precifica_por_area():
+    payload = {
+        "spot": "X", "tem_decor": False,
+        "ambientes": [{"nome": "Recepção", "linhas": [
+            {"categoria": "MARCENARIA", "item": "Painel MDF", "marcenaria_m2": 9.76}]}],
+    }
+    res = montar_area_comum(payload)
+    # subtotal Recepção = 9,76 × 2000 = 19520
+    assert res["resumo"]["abas"][0]["subtotal"] == 19520.0
+
+
 def test_montar_area_comum_estrutura():
     payload = {
         "spot": "Rosa Sul Spot", "tem_decor": True, "budget": 150000.0,

@@ -182,6 +182,15 @@ camada OPCIONAL de apelidos/preço (NÃO o mapa principal — não chumbe blocos
 Saída: `linhas`, `nao_mapeados` (sem categoria reconhecida → revisar) e `a_precificar`
 (itens com valor 0, pra você precificar/confirmar no catálogo).
 
+### A2b. Preço dos itens FORA do catálogo (regras Rosa Sul)
+- **Marcenaria sem catálogo** → área(m²) × R$ 2.000/m². No payload, use `{"marcenaria_m2": 9.76}`
+  (área das medidas do Revit Rooms — cat OST_Rooms -2000160: área/perímetro/pé-direito).
+- **Pintura** → valor do CATÁLOGO (serviço normal), NÃO taxa por m².
+- **Loja** (sofá, quadros, capacho, mesas externas) → preço pesquisado + fornecedor + link.
+  **Plantas/vasos = ARTIFICIAIS do Mercado Livre.** **Marmoraria** = orçamento externo (à vista −6%).
+- Item do catálogo caro demais → substituir por equivalente do catálogo e anotar.
+- Marcenaria/vasos/plantas/tapetes NÃO são modelados no Revit → vêm dos renders + manual.
+
 ### A3. Cor/acabamento dos renders
 Baixe os renders (Drive `download_file_content` → base64 salvo em arquivo → decode pra .png →
 `Read`) e preencha `cor_acabamento` de cada linha (a cor do render VENCE a do Revit).
