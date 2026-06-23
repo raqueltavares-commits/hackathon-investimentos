@@ -57,8 +57,19 @@ _CADEIRAS_POR_CAP: dict[int, int] = {2: 2, 3: 3, 4: 3, 5: 4}
 _TERRACO_GARDEN  = {"garden", "terraço", "terraco"}
 _TERRACO_VARANDA = {"varanda", "sacada"}
 
-_COLUNAS = ["", "ITEM/TIPO", "AMBIENTE", "IMAGEM", "ITEM", "FICHA TÉCNICA", "",
-            "FORNECEDOR", "QUANT.", "REFERÊNCIA", "VALOR UNITÁRIO", "VALOR TOTAL"]
+_COLUNAS = ["AMBIENTE", "CATEGORIA", "ITEM", "COR DE ACABAMENTO", "FORNECEDOR",
+            "QTD", "REFERÊNCIA", "VALOR UNIT. (R$)", "VALOR TOTAL (R$)",
+            "FRETE (R$)", "TOTAL + FRETE (R$)"]
+N_COLS = len(_COLUNAS)  # 11
+
+
+def _cor_link(p) -> tuple[str, str]:
+    """Extrai (cor_acabamento, link) de um produto do catálogo (Produto ou dict)."""
+    if p is None:
+        return "", ""
+    if isinstance(p, Produto):
+        return (p.cor_acabamento or "", p.link or "")
+    return (p.get("cor_acabamento", "") or "", p.get("link", "") or "")
 
 
 def itens_para_tipologia(
@@ -91,78 +102,95 @@ def itens_para_tipologia(
             eh_pcd and "banheiro" in descricao.lower() and "bancada" not in descricao.lower()
         ) else descricao
 
+        cor, link = _cor_link(produtos.get(codigo))
         linhas.append(LinhaMemorial(
             categoria=categoria, item=nome, quantidade=qty, valor_unitario=valor,
             ambiente=META_ITEM.get(role, {}).get("ambiente", ""),
-            referencia=codigo, acabamento=acabamento_de(estilo, role),
+            referencia=link or codigo, acabamento=acabamento_de(estilo, role),
+            cor_acabamento=cor or "A definir",
             opcional=(role == "jacuzzi"),
         ))
 
     for (role, nome, ambiente, codigo, valor_default) in SERVICOS:
+        if codigo in produtos:
+            p = produtos[codigo]
+            valor = p.valor_unitario if isinstance(p, Produto) else p.get("valor_unitario", valor_default)
+        else:
+            valor = valor_default
         linhas.append(LinhaMemorial(
-            categoria="INSUMOS", item=nome, quantidade=1, valor_unitario=valor_default,
-            ambiente=ambiente, referencia=codigo, acabamento="N/A",
+            categoria="SERVIÇOS", item=nome, quantidade=1, valor_unitario=valor,
+            ambiente=ambiente, referencia=codigo, acabamento="N/A", cor_acabamento="—",
         ))
     return linhas
 
 
-def montar_memorial(tipologia, descricao, estilo, spot, linhas) -> MemorialTipologia:
+def montar_memorial(tipologia, descricao, estilo, spot, linhas,
+                    tem_decor: bool = True, incluir_adm: bool = False) -> MemorialTipologia:
     return MemorialTipologia(tipologia=tipologia, descricao=descricao,
-                             estilo=estilo, spot=spot, linhas=linhas)
+                             estilo=estilo, spot=spot, linhas=linhas,
+                             tem_decor=tem_decor, incluir_adm=incluir_adm)
 
 
 def _brl(valor: float) -> str:
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def _linha_total(label: str, valor: float) -> list:
+    """Linha de fechamento: label na coluna CATEGORIA, valor na última coluna."""
+    r = [""] * N_COLS
+    r[1] = label
+    r[N_COLS - 1] = _brl(valor)
+    return r
+
+
 def serializar_estruturado(memorial: MemorialTipologia, estilo: str) -> list[list]:
-    """Matriz de 11 colunas no formato oficial (categoria/ambiente 'mescladas',
-    4 linhas por item, TOTAL por categoria, taxas e dois totais)."""
+    """Matriz de 11 colunas no formato do novo template (uma linha por item,
+    com Cor de acabamento, Frete e Total+Frete; TOTAL por categoria; taxas e totais)."""
     rows: list[list] = []
-    rows.append(["", "MEMORIAL DESCRITIVO", memorial.spot, "", "",
-                 f"{memorial.tipologia} — {memorial.descricao}", "", "",
-                 f"Estilo: {memorial.estilo}", "Pacote: Plus", "", ""])
+    titulo = [""] * N_COLS
+    titulo[0] = f"MEMORIAL DESCRITIVO — {memorial.spot}"
+    titulo[2] = f"{memorial.tipologia} — {memorial.descricao}"
+    titulo[7] = f"Estilo: {memorial.estilo}"
+    titulo[8] = "Pacote: Plus"
+    rows.append(titulo)
     rows.append(list(_COLUNAS))
 
     cat_atual = None
     amb_atual = None
     for l in memorial.linhas:
-        cat_cell = ""
         amb_cell = ""
-        if l.categoria != cat_atual:
-            cat_atual = l.categoria
-            amb_atual = None
-            cat_cell = l.categoria
+        cat_cell = ""
         if l.ambiente != amb_atual:
             amb_atual = l.ambiente
             amb_cell = l.ambiente
-        rows.append(["", cat_cell, amb_cell, "", l.item, "Largura", l.largura,
-                     l.fornecedor, l.quantidade, l.referencia,
-                     _brl(l.valor_unitario), _brl(l.valor_total)])
-        rows.append(["", "", "", "", "", "Altura", l.altura, "", "", "", "", ""])
-        rows.append(["", "", "", "", "", "Profundidade", l.profundidade, "", "", "", "", ""])
-        rows.append(["", "", "", "", "", "Acabamento", l.acabamento, "", "", "", "", ""])
+        if l.categoria != cat_atual:
+            cat_atual = l.categoria
+            cat_cell = l.categoria
+        rows.append([amb_cell, cat_cell, l.item, l.cor_acabamento, l.fornecedor,
+                     l.quantidade, l.referencia, _brl(l.valor_unitario),
+                     _brl(l.valor_total), _brl(l.frete), _brl(l.total_linha)])
 
     vistas: list[str] = []
     for l in memorial.linhas:
         if l.categoria not in vistas:
             vistas.append(l.categoria)
-    rows.append([""] * 12)
+    rows.append([""] * N_COLS)
     for cat in vistas:
-        rows.append(["", f"TOTAL {cat}", "", "", "", "", "", "", "", "",
-                     _brl(memorial.subtotais[cat]), ""])
+        rows.append(_linha_total(f"TOTAL {cat}", memorial.subtotais[cat]))
 
     tem_opcionais = memorial.valor_opcionais > 0
-    rows.append([""] * 12)
-    rows.append(["", "Valor Produtos" + (" (sem jacuzzi)" if tem_opcionais else ""),
-                 "", "", "", "", "", "", "", "", _brl(memorial.valor_produtos), ""])
-    rows.append(["", "Taxa Decor", "", "", "", "", "", "", "", "", _brl(memorial.taxa_decor), ""])
-    rows.append(["", "Taxa Adm (13%)", "", "", "", "", "", "", "", "", _brl(memorial.taxa_adm), ""])
-    rows.append(["", "TOTAL (sem jacuzzi)" if tem_opcionais else "TOTAL GERAL",
-                 "", "", "", "", "", "", "", "", _brl(memorial.total_geral), ""])
+    rows.append([""] * N_COLS)
+    rows.append(_linha_total(
+        "Valor Produtos" + (" (sem jacuzzi)" if tem_opcionais else ""),
+        memorial.valor_produtos))
+    rows.append(_linha_total("Taxa Decor (6%)", memorial.taxa_decor))
+    if memorial.incluir_adm:
+        rows.append(_linha_total("Taxa Adm (13%)", memorial.taxa_adm))
+    rows.append(_linha_total(
+        "TOTAL (sem jacuzzi)" if tem_opcionais else "TOTAL GERAL",
+        memorial.total_geral))
     if tem_opcionais:
-        rows.append(["", "TOTAL (com jacuzzi)", "", "", "", "", "", "", "", "",
-                     _brl(memorial.total_com_jacuzzi), ""])
+        rows.append(_linha_total("TOTAL (com jacuzzi)", memorial.total_com_jacuzzi))
     return rows
 
 
@@ -174,13 +202,18 @@ def main() -> None:
     p.add_argument("--produtos", type=Path)
     p.add_argument("--estilo", required=True, choices=["clean", "biofilico", "industrial", "bruma"])
     p.add_argument("--spot", required=True)
+    p.add_argument("--sem-decor", action="store_true",
+                   help="Zera a Taxa Decor (6%) — usar quando o orçamento não tiver Decor")
     args = p.parse_args()
+    tem_decor = not args.sem_decor
 
     tipologias = json.loads(args.tipologias.read_text(encoding="utf-8"))
     produtos: dict = {}
     if args.produtos:
         raw = json.loads(args.produtos.read_text(encoding="utf-8"))
-        produtos = {k: Produto(k, v["nome"], v["categoria"], v["valor_unitario"], v.get("unidade", "un"))
+        produtos = {k: Produto(k, v["nome"], v["categoria"], v["valor_unitario"],
+                               v.get("unidade", "un"), v.get("cor_acabamento", ""),
+                               v.get("link", ""))
                     for k, v in raw.items()}
 
     memoriais = []
@@ -190,7 +223,9 @@ def main() -> None:
         descr = f"{terraco_label} · {t['tipo']} · Cap. {t['capacidade']}"
         linhas = itens_para_tipologia(t["capacidade"], t["terraco"], t["tipo"], produtos,
                                       estilo=args.estilo)
-        m = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas)
+        # Unidades NÃO levam Taxa Adm (só área comum). Decor é variável (--sem-decor).
+        m = montar_memorial(letra, descr, args.estilo.capitalize(), args.spot, linhas,
+                            tem_decor=tem_decor, incluir_adm=False)
         memoriais.append({
             "tipologia": letra, "descricao": descr,
             "total_geral": m.total_geral, "total_com_jacuzzi": m.total_com_jacuzzi,
@@ -199,7 +234,8 @@ def main() -> None:
             "linhas": [
                 {"categoria": l.categoria, "ambiente": l.ambiente, "item": l.item,
                  "quantidade": l.quantidade, "valor_unitario": l.valor_unitario,
-                 "valor_total": l.valor_total, "referencia": l.referencia,
+                 "valor_total": l.valor_total, "frete": l.frete, "total_linha": l.total_linha,
+                 "referencia": l.referencia, "cor_acabamento": l.cor_acabamento,
                  "acabamento": l.acabamento, "fornecedor": l.fornecedor, "opcional": l.opcional}
                 for l in m.linhas
             ],

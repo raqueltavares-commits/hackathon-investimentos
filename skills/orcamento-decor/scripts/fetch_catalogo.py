@@ -98,6 +98,8 @@ def parsear_resposta(json_text: str, depara: dict) -> dict:
                 "categoria": row.get("subcategoria_codigo", "") or "",
                 "valor_unitario": float(row.get("valor") or 0.0),
                 "unidade": "un",
+                "cor_acabamento": normalizar(row.get("cor_acabamento", "") or ""),
+                "link": row.get("link", "") or "",
             }
     return produtos
 
@@ -129,7 +131,8 @@ def buscar_catalogo(depara: dict, http_get=_http_get) -> dict:
         raise CatalogoError("Anon key não encontrada no bundle.")
     codigos = ",".join(str(c) for c in sorted(set(depara.values())))
     url = (f"{SUPABASE_URL}/rest/v1/produto"
-           f"?select=codigo,nome,valor,subcategoria_codigo&codigo=in.({codigos})")
+           f"?select=codigo,nome,valor,subcategoria_codigo,cor_acabamento,link"
+           f"&codigo=in.({codigos})")
     corpo = http_get(url, headers={"apikey": key, "Authorization": f"Bearer {key}"})
     return parsear_resposta(corpo, depara)
 

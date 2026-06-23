@@ -74,6 +74,33 @@ def test_parsear_resposta_normaliza_nome():
     assert produtos["MOB0003"]["nome"] == "Sofá-cama | Belize Aveia"
 
 
+def test_parsear_resposta_inclui_cor_e_link():
+    from fetch_catalogo import parsear_resposta
+    texto = ('[{"codigo": 73, "nome": "Gabinete", "valor": 2700.0, '
+             '"subcategoria_codigo": "2.1.1", "cor_acabamento": "Freijó", '
+             '"link": "https://x.com/p/73"}]')
+    produtos = parsear_resposta(texto, {"MRC0002": 73})
+    assert produtos["MRC0002"]["cor_acabamento"] == "Freijó"
+    assert produtos["MRC0002"]["link"] == "https://x.com/p/73"
+
+
+def test_parsear_resposta_cor_link_ausentes_viram_vazio():
+    from fetch_catalogo import parsear_resposta
+    texto = '[{"codigo": 73, "nome": "X", "valor": 10.0, "subcategoria_codigo": "2.1.1"}]'
+    produtos = parsear_resposta(texto, {"MRC0002": 73})
+    assert produtos["MRC0002"]["cor_acabamento"] == ""
+    assert produtos["MRC0002"]["link"] == ""
+
+
+def test_depara_cobre_servicos():
+    depara = json.loads((REFS / "depara-catalogo.json").read_text(encoding="utf-8"))
+    from servicos import SERVICOS
+    codigos_srv = {codigo for (_r, _n, _a, codigo, _v) in SERVICOS}
+    assert codigos_srv.issubset(depara.keys()), (
+        f"Faltam serviços no de-para: {codigos_srv - depara.keys()}"
+    )
+
+
 def test_parsear_resposta_ignora_codigo_fora_do_depara():
     from fetch_catalogo import parsear_resposta
     texto = '[{"codigo": 999, "nome": "X", "valor": 10.0, "subcategoria_codigo": "2.1.1"}]'

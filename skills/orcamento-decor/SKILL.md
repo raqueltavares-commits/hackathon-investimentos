@@ -22,6 +22,18 @@ Leia `dashboard/data/tipologias.js`. Ache o spot pelo nome no `index`.
 
 Guarde tambem: `SPOT_NAME`, `SLUG`, `TIPOLOGIAS_DRIVE_URL` (campo `drive_url`).
 
+Pergunte tambem (ou use campo do entry, se existir): **tem Taxa Decor (6%)?** — guarde `TEM_DECOR` (sim/nao).
+
+#### 1b. Endereço/CEP do empreendimento (Nekt) — pro cabeçalho e frete
+
+Via MCP Nekt (`execute_sql`), busque endereço e CEP por `short_name`:
+```sql
+SELECT street_name, address_number, address_complement, neighborhood, city, state, postal_code
+FROM nekt_operacional_bronze.sup_bd_szi_szi_spot_buildings
+WHERE short_name = 'SPOT_NAME'  -- ex: 'Natal Spot'
+```
+Monte `ENDERECO` ("Rua, nº — Bairro, Cidade - UF") e `CEP` (formate 99999-999). Passa pro xlsx (passo 4). Se não achar, deixe em branco.
+
 ### 2. Ler o catálogo de preços (Supabase, ao vivo)
 
 A base de valores agora é o app **seazone-decor-interno** (Supabase). Leia ao vivo:
@@ -30,10 +42,12 @@ A base de valores agora é o app **seazone-decor-interno** (Supabase). Leia ao v
 python skills/orcamento-decor/scripts/fetch_catalogo.py > tmp/produtos.json
 ```
 
-O script resolve a anon key do bundle de produção, consulta os 33 produtos do
-de-para (`references/depara-catalogo.json`) e devolve `produtos.json` no formato
-que `montar_orcamento.py` consome. Se a rede/base falhar (sai com `{"erro": ...}`
-em stderr, código 1): pule e gere com os valores default (omita `--produtos` no passo 4).
+O script resolve a anon key do bundle de produção, consulta os produtos + serviços do
+de-para (`references/depara-catalogo.json`, ~40 códigos: produtos `*` + serviços `SRV*`)
+e devolve `produtos.json` com `valor_unitario`, `cor_acabamento` e `link` (= referência).
+Se a rede/base falhar (sai com `{"erro": ...}` em stderr, código 1): pule e gere com os
+valores default (omita `--produtos` no passo 4). Os serviços (elétrica/hidráulica/ar/
+gerais/pintura/feltro/limpeza) vêm da categoria **Serviços** da base — preço pela base.
 
 ### 3. Preparar tipologias.json
 
@@ -51,15 +65,25 @@ python skills/orcamento-decor/scripts/montar_orcamento.py \
   --produtos tmp/produtos.json \
   --estilo ESTILO \
   --spot "SPOT_NAME" > tmp/memoriais.json
+# acrescente --sem-decor SE TEM_DECOR = nao (zera a Taxa Decor)
 ```
 (Se a leitura do catálogo falhou no passo 2, omita `--produtos`.)
 
-O JSON traz, por tipologia: `rows` (matriz de 12 colunas no formato oficial — categoria/ambiente, 4 linhas por item com ficha tecnica, TOTAL por categoria, Taxa Decor/Adm, e os dois totais), `total_geral` (SEM jacuzzi, vai pro dashboard) e `total_com_jacuzzi`.
+O JSON traz, por tipologia: `rows` (matriz de **11 colunas** no formato do novo template —
+`AMBIENTE · CATEGORIA · ITEM · COR DE ACABAMENTO · FORNECEDOR · QTD · REFERÊNCIA · VALOR UNIT. ·
+VALOR TOTAL · FRETE · TOTAL + FRETE`, uma linha por item, TOTAL por categoria, Taxa Decor 6% e
+TOTAL GERAL), `total_geral` (SEM jacuzzi, vai pro dashboard) e `total_com_jacuzzi`.
 
-Gere o `.xlsx` multi-aba (uma aba por tipologia + Resumo):
+> **Taxas:** unidades NÃO levam Taxa Adm (só área comum). Taxa Decor 6% incide nas duas; quando
+> não tem, use `--sem-decor` (a linha fica zerada). **Frete:** coluna por item (default 0,
+> preenchimento manual); `TOTAL + FRETE` = valor total + frete. **Serviços e instalações** entram
+> embutidos dentro de cada tipologia (categoria SERVIÇOS), não em aba separada.
+
+Gere o `.xlsx` multi-aba (uma aba por tipologia + Resumo Unidades), com cabeçalho Endereço/CEP:
 ```bash
 python skills/orcamento-decor/scripts/gerar_xlsx.py \
-  --memoriais tmp/memoriais.json --spot "SPOT_NAME" --saida tmp/Orcamento_SPOT.xlsx
+  --memoriais tmp/memoriais.json --spot "SPOT_NAME" --saida tmp/Orcamento_SPOT.xlsx \
+  --endereco "ENDERECO" --cep "CEP"
 ```
 
 ### 5. Subir o memorial no Drive (UM Sheet, abas por tipologia)

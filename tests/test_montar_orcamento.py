@@ -129,6 +129,44 @@ def test_catalogo_sobrescreve_preco_default():
     assert gab.valor_unitario == 9999.0
 
 
+def test_catalogo_preenche_cor_e_referencia_link():
+    produtos = {"MRC0002": Produto("MRC0002", "Gabinete", "MARCENARIA", 100.0,
+                                   cor_acabamento="Freijó", link="https://x.com/73")}
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", produtos)
+    gab = next(l for l in linhas if "gabinete inferior" in l.item.lower())
+    assert gab.cor_acabamento == "Freijó"
+    assert gab.referencia == "https://x.com/73"
+
+
+def test_servico_puxa_preco_do_catalogo():
+    # SRV0007 = Instalação de ar condicionado
+    produtos = {"SRV0007": Produto("SRV0007", "Instalação ar", "SERVIÇOS", 815.0)}
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", produtos)
+    ar = next(l for l in linhas if l.categoria == "SERVIÇOS" and "ar condicionado" in l.item.lower())
+    assert ar.valor_unitario == 815.0
+
+
+# ── Frete / Total + Frete ─────────────────────────────────────────────────────
+
+def test_total_linha_soma_frete():
+    from modelos import LinhaMemorial
+    l = LinhaMemorial(categoria="MOBILIÁRIO", item="Sofá", quantidade=2,
+                      valor_unitario=1000.0, frete=150.0)
+    assert l.valor_total == 2000.0
+    assert l.total_linha == 2150.0
+
+def test_frete_default_zero_total_linha_igual_valor_total():
+    from modelos import LinhaMemorial
+    l = LinhaMemorial(categoria="X", item="Y", quantidade=1, valor_unitario=500.0)
+    assert l.total_linha == l.valor_total == 500.0
+
+def test_valor_produtos_inclui_frete():
+    from modelos import LinhaMemorial
+    linhas = [LinhaMemorial(categoria="A", item="i", quantidade=1, valor_unitario=100.0, frete=20.0)]
+    m = montar_memorial("A", "x", "Clean", "X", linhas)
+    assert m.valor_produtos == 120.0
+
+
 # ── Cálculos ─────────────────────────────────────────────────────────────────
 
 def test_subtotais_batem_com_soma_das_linhas():
@@ -138,9 +176,15 @@ def test_subtotais_batem_com_soma_das_linhas():
         esperado = round(sum(l.valor_total for l in m.linhas if l.categoria == cat), 2)
         assert subtotal == esperado, f"Subtotal {cat}: {subtotal} != {esperado}"
 
-def test_taxa_adm_e_13_porcento():
+def test_unidade_nao_tem_taxa_adm():
+    # Unidades NÃO levam Taxa Adm (só área comum).
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
+    assert m.taxa_adm == 0.0
+
+def test_area_comum_tem_taxa_adm_13():
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
+    m = montar_memorial("A", "x", "Clean", "Natal Spot", linhas, incluir_adm=True)
     assert m.taxa_adm == round(m.valor_produtos * 0.13, 2)
 
 def test_total_geral_soma_correta():
@@ -148,10 +192,15 @@ def test_total_geral_soma_correta():
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
     assert m.total_geral == round(m.valor_produtos + m.taxa_decor + m.taxa_adm, 2)
 
-def test_taxa_decor_fixo_2500():
+def test_taxa_decor_6_porcento():
     linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Clean", "Natal Spot", linhas)
-    assert m.taxa_decor == 2500.0
+    assert m.taxa_decor == round(m.valor_produtos * 0.06, 2)
+
+def test_sem_decor_zera_taxa_decor():
+    linhas = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)
+    m = montar_memorial("A", "x", "Clean", "Natal Spot", linhas, tem_decor=False)
+    assert m.taxa_decor == 0.0
 
 def test_cap5_garden_total_maior_que_cap2_sem():
     l2 = itens_para_tipologia(2, "Sem", "Padrão", PRODUTOS_VAZIO)

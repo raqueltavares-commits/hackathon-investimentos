@@ -31,7 +31,7 @@ def test_acabamento_varia_por_estilo():
 
 def test_servicos_presentes():
     linhas = _linhas(2, "Sem")
-    assert any(l.categoria == "INSUMOS" for l in linhas)
+    assert any(l.categoria == "SERVIÇOS" for l in linhas)
     assert any("pintura" in l.item.lower() for l in linhas)
 
 
@@ -53,18 +53,22 @@ def test_serializar_estruturado_cabecalho():
     m = montar_memorial("A", "Sem · Padrão · Cap. 2", "Biofílico", "Bonito Spot", _linhas(2, "Sem"))
     rows = serializar_estruturado(m, "biofilico")
     header = next(r for r in rows if "AMBIENTE" in r)
-    assert "FICHA TÉCNICA" in header
-    assert "VALOR UNITÁRIO" in header
-    assert "VALOR TOTAL" in header
+    assert "CATEGORIA" in header
+    assert "COR DE ACABAMENTO" in header
+    assert "FRETE (R$)" in header
+    assert "TOTAL + FRETE (R$)" in header
 
 
-def test_serializar_estruturado_quatro_linhas_por_item():
-    m = montar_memorial("A", "Sem", "Biofílico", "X", _linhas(2, "Sem"))
+def test_serializar_uma_linha_por_item():
+    linhas = _linhas(2, "Sem")
+    m = montar_memorial("A", "Sem", "Biofílico", "X", linhas)
     rows = serializar_estruturado(m, "biofilico")
-    labels = [r[5] for r in rows if len(r) > 5 and r[5] in
-              ("Largura", "Altura", "Profundidade", "Acabamento")]
-    assert labels.count("Largura") == labels.count("Acabamento")
-    assert labels.count("Largura") >= 10
+    # 1 linha por item: a coluna ITEM (índice 2) preenchida == nº de itens
+    nomes_itens = {l.item for l in linhas}
+    item_rows = [r for r in rows if r[2] in nomes_itens]
+    assert len(item_rows) == len(linhas)
+    # todas as linhas têm 11 colunas
+    assert all(len(r) == 11 for r in rows)
 
 
 def test_serializar_estruturado_totais():
@@ -72,6 +76,6 @@ def test_serializar_estruturado_totais():
     rows = serializar_estruturado(m, "biofilico")
     flat = [c for r in rows for c in r]
     assert any("TOTAL MARCENARIA" in str(c) for c in flat)
-    assert any("Taxa Decor" in str(c) for c in flat)
+    assert any("Taxa Decor (6%)" in str(c) for c in flat)
     assert any("sem jacuzzi" in str(c) for c in flat)
     assert any("com jacuzzi" in str(c) for c in flat)

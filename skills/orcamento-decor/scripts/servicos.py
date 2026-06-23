@@ -1,12 +1,17 @@
-"""Serviços (categoria INSUMOS) com preços de referência. Entram como itens no memorial."""
+"""Serviços e instalações. Entram como itens (categoria SERVIÇOS) no memorial.
 
-# (role, nome, ambiente, codigo, valor_default)
+Valores default = espelho da base Supabase (categoria Serviços, subcategoria 2.2.x).
+O código liga ao produto real via depara-catalogo.json; quando o catálogo está
+disponível, o preço vem dele (fonte de verdade). Default é só fallback offline.
+"""
+
+# (role, nome, ambiente, codigo, valor_default)  — codigo casa com depara-catalogo.json
 SERVICOS = [
-    ("inst_eletrica",   "Serviços de elétrica e iluminação", "Serviços", "SRV0005", 350.0),
-    ("inst_hidraulica", "Serviços hidráulicos",              "Serviços", "SRV0006", 300.0),
-    ("inst_ar",         "Instalação de ar-condicionado",     "Serviços", "SRV0007", 800.0),
-    ("inst_geral",      "Insumos e instalações gerais",      "Serviços", "SRV0008", 250.0),
-    ("pintura",         "Pintura lisa",                      "Serviços", "SRV0001", 560.0),
-    ("feltro",          "Feltro em todos os mobiliários",    "Serviços", "SRV0003", 200.0),
-    ("limpeza",         "Limpeza pesada",                    "Serviços", "SRV0010", 250.0),
+    ("inst_eletrica",   "Instalações elétricas",          "Serviços", "SRV0005", 700.0),  # produto 33
+    ("inst_hidraulica", "Instalações hidráulicas",        "Serviços", "SRV0006", 550.0),  # produto 32
+    ("inst_ar",         "Instalação de ar condicionado",  "Serviços", "SRV0007", 800.0),  # produto 31
+    ("inst_geral",      "Instalações gerais",             "Serviços", "SRV0008", 250.0),  # produto 30
+    ("pintura",         "Pintura efeito",                 "Serviços", "SRV0001", 100.0),  # produto 35
+    ("feltro",          "Aplicação de feltro nos mobiliários", "Serviços", "SRV0003", 250.0),  # produto 34
+    ("limpeza",         "Limpeza e arrumação",            "Serviços", "SRV0010", 450.0),  # produto 29
 ]
