@@ -41,9 +41,10 @@ def _carregar_regras(caminho=None) -> list[dict]:
 REGRAS_PADRAO = _carregar_regras()
 
 
-def casar_regra(type_name: str, regras: list[dict]) -> dict | None:
-    """Primeira regra cujo `match` (normalizado) é substring do type_name. None se nenhuma."""
-    alvo = _norm(type_name)
+def casar_regra(type_name: str, regras: list[dict], family: str = "") -> dict | None:
+    """Primeira regra cujo `match` (normalizado) é substring do type_name OU da família.
+    A família ajuda quando o type_name é só a cor (ex: 'Cinza', 'Marfim'). None se nenhuma."""
+    alvo = f"{_norm(type_name)} || {_norm(family)}"
     for r in regras:
         if _norm(r["match"]) in alvo:
             return r
@@ -69,14 +70,17 @@ def blocos_para_linhas(blocos: list[dict], produtos: dict,
 
     for b in blocos:
         type_name = b.get("type_name", "")
+        family = b.get("family", "")
         qtd = int(b.get("qtd", 0) or 0)
-        regra = casar_regra(type_name, regras)
+        regra = casar_regra(type_name, regras, family)
         if regra:
             categoria, item, codigo = regra["categoria"], regra["item"], regra.get("codigo", "")
         else:
-            categoria, item, codigo = "A REVISAR", type_name, ""
-            if type_name not in nao_mapeados:
-                nao_mapeados.append(type_name)
+            # mostra família junto quando o type_name é só a cor (ajuda a revisão)
+            rotulo = f"{type_name} ({family})" if family and family not in type_name else type_name
+            categoria, item, codigo = "A REVISAR", rotulo, ""
+            if rotulo not in nao_mapeados:
+                nao_mapeados.append(rotulo)
 
         chave = (categoria, item)
         if chave in acc:

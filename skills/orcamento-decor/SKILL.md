@@ -165,6 +165,9 @@ do Spot. Exige Revit aberto + conector Nonica ativo + link dos renders.
   mobiliário (Furniture -2000080, Casework -2001000, LightingFixtures -2001120,
   PlumbingFixtures -2001160, Planting -2001360, SpecialityEquipment -2001350) →
   `get_element_types_for_elementids` → monte `{"ambiente": "...", "blocos": [{"type_name","qtd"}]}`.
+- Quando o `type_name` for só a cor (`Cinza`, `Marfim`, `Preto`…), puxe a FAMÍLIA com
+  `get_parameters_from_elementid` (1 elemento do tipo) e inclua `"family"` no bloco — o
+  leitor casa por type_name OU family.
 
 ### A2. Revit → linhas
 ```bash

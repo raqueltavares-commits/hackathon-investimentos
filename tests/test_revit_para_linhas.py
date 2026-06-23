@@ -25,6 +25,17 @@ def test_casar_regra_por_substring_case_insensitive():
     assert r["categoria"] == "MOBILIÁRIO"
 
 
+def test_casar_regra_pela_familia_quando_tipo_e_so_a_cor():
+    # type_name ambíguo ("Cinza"), mas a família identifica o item (Nuta)
+    r = casar_regra("Cinza", REGRAS_PADRAO, family="Cadeira Nuta Capri")
+    assert r is not None and r["item"] == "Cadeira Nuta"
+
+
+def test_nao_mapeado_mostra_familia_no_rotulo():
+    res = blocos_para_linhas([{"type_name": "Cinza", "qtd": 2, "family": "Familia Desconhecida"}], {})
+    assert any("Familia Desconhecida" in nm for nm in res["nao_mapeados"])
+
+
 def test_tipo_conhecido_vira_linha_com_quantidade():
     res = blocos_para_linhas([{"type_name": "freijó", "qtd": 2}], {})
     linha = res["linhas"][0]
