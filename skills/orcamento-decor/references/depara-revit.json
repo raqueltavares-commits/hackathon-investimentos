@@ -1,0 +1,46 @@
+[
+  {"match": "freijó",          "categoria": "MOBILIÁRIO", "item": "Mesa de Jantar Cone Freijó"},
+  {"match": "allegra",         "categoria": "MOBILIÁRIO", "item": "Cadeira Allegra", "codigo": "MOB0005"},
+  {"match": "clarice",         "categoria": "MOBILIÁRIO", "item": "Banqueta Clarice Alta"},
+  {"match": "acapulco",        "categoria": "MOBILIÁRIO", "item": "Poltrona jardim Acapulco"},
+  {"match": "nuta",            "categoria": "MOBILIÁRIO", "item": "Cadeira Nuta"},
+  {"match": "banco",           "categoria": "MOBILIÁRIO", "item": "Banco Paradise"},
+  {"match": "espregui",        "categoria": "MOBILIÁRIO", "item": "Espreguiçadeira"},
+  {"match": "ombrelone",       "categoria": "MOBILIÁRIO", "item": "Ombrelone"},
+  {"match": "togo",            "categoria": "MOBILIÁRIO", "item": "Poltrona Togo (puff outdoor)"},
+  {"match": "sofá",            "categoria": "MOBILIÁRIO", "item": "Sofá"},
+  {"match": "sofa",            "categoria": "MOBILIÁRIO", "item": "Sofá"},
+  {"match": "teresa",          "categoria": "MOBILIÁRIO", "item": "Poltrona Teresa"},
+  {"match": "mesa de centro",  "categoria": "MOBILIÁRIO", "item": "Mesa de centro"},
+  {"match": "mesa lateral",    "categoria": "MOBILIÁRIO", "item": "Mesa lateral"},
+  {"match": "colombe",         "categoria": "MOBILIÁRIO", "item": "Mesa Colombe"},
+
+  {"match": "bancada 06",      "categoria": "MARMORARIA", "item": "Bancada (copa)"},
+  {"match": "bancada",         "categoria": "MARMORARIA", "item": "Bancada"},
+
+  {"match": "autoatendimento", "categoria": "MARCENARIA", "item": "Mini market (autoatendimento)"},
+  {"match": "prateleira",      "categoria": "MARCENARIA", "item": "Prateleira"},
+  {"match": "balcão",          "categoria": "MARCENARIA", "item": "Balcão"},
+  {"match": "painel",          "categoria": "MARCENARIA", "item": "Painel ripado de madeira"},
+
+  {"match": "frigobar",        "categoria": "ELETROS",    "item": "Frigobar"},
+  {"match": "microondas",      "categoria": "ELETROS",    "item": "Microondas"},
+  {"match": "gelo",            "categoria": "ELETROS",    "item": "Máquina de gelo"},
+  {"match": "split",           "categoria": "ELETROS",    "item": "Ar-condicionado split"},
+
+  {"match": "belvedere",       "categoria": "DECORAÇÃO",  "item": "Garrafa decorativa (bar)"},
+  {"match": "veuve",           "categoria": "DECORAÇÃO",  "item": "Garrafa decorativa (bar)"},
+  {"match": "almofada",        "categoria": "DECORAÇÃO",  "item": "Almofada"},
+  {"match": "quadro",          "categoria": "DECORAÇÃO",  "item": "Quadro"},
+  {"match": "espelho",         "categoria": "DECORAÇÃO",  "item": "Espelho"},
+  {"match": "tapete",          "categoria": "DECORAÇÃO",  "item": "Tapete"},
+  {"match": "capacho",         "categoria": "DECORAÇÃO",  "item": "Capacho"},
+
+  {"match": "arandela",        "categoria": "ILUMINAÇÃO", "item": "Arandela"},
+
+  {"match": "figueira",        "categoria": "PAISAGISMO", "item": "Figueira-lira artificial"},
+  {"match": "bananeira",       "categoria": "PAISAGISMO", "item": "Bananeira artificial"},
+  {"match": "coqueiro",        "categoria": "PAISAGISMO", "item": "Coqueiro artificial"},
+  {"match": "monstera",        "categoria": "PAISAGISMO", "item": "Costela-de-adão artificial"},
+  {"match": "vaso",            "categoria": "PAISAGISMO", "item": "Vaso com folhagem"}
+]
