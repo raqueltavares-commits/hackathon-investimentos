@@ -1,7 +1,7 @@
 """Transforma blocos do Revit (type_name + quantidade) em LinhaMemorial.
 
-A skill (agente) coleta os blocos via Revit MCP — `get_elements_by_category(cat, view)`
-+ `get_element_types_for_elementids` — e monta um JSON:
+A skill (agente) coleta os blocos via MCP Revit-SZI — `ai_element_filter(category="OST_...",
+visible_in_view=True)` (+ `get_element_properties` p/ família) — e monta um JSON:
 
   {"ambiente": "Rooftop", "blocos": [{"type_name": "freijó", "qtd": 2}, ...]}
 

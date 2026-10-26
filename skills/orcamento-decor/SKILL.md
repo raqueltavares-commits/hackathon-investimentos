@@ -13,6 +13,13 @@ Gera memorial descritivo de decor por tipologia (pacote Plus fixo, estilo a esco
 
 ## Procedimento
 
+> **Onde rodar (Claude Code):** `SKILL_DIR = C:\Users\Seazone\Claude\.claude\skills\orcamento-decor`.
+> `dashboard/` e `tmp/` são do repo `C:\Users\Seazone\Claude\seazone\hackathon-investimentos` —
+> rode os comandos com esse repo como pasta atual e antes defina no Bash:
+> `SKILL_DIR="C:/Users/Seazone/Claude/.claude/skills/orcamento-decor"` (os scripts rodam da skill global;
+> a cópia em `hackathon-investimentos/skills/` é espelho).
+> A cópia em `projetos\interiores-lancamentos\skills\orcamento-decor` é ANTIGA e diverge: não use.
+
 ### 1. Identificar Spot e estilo
 
 Leia `dashboard/data/tipologias.js`. Ache o spot pelo nome no `index`.
@@ -26,7 +33,7 @@ Pergunte tambem (ou use campo do entry, se existir): **tem Taxa Decor (6%)?** �
 
 #### 1b. Endereço/CEP do empreendimento (Nekt) — pro cabeçalho e frete
 
-Via MCP Nekt (`execute_sql`), busque endereço e CEP por `short_name`:
+Via `mcp__seazone-hub__nekt-execute_sql`, busque endereço e CEP por `short_name`:
 ```sql
 SELECT street_name, address_number, address_complement, neighborhood, city, state, postal_code
 FROM nekt_operacional_bronze.sup_bd_szi_szi_spot_buildings
@@ -39,7 +46,7 @@ Monte `ENDERECO` ("Rua, nº — Bairro, Cidade - UF") e `CEP` (formate 99999-999
 A base de valores agora é o app **seazone-decor-interno** (Supabase). Leia ao vivo:
 
 ```bash
-python skills/orcamento-decor/scripts/fetch_catalogo.py > tmp/produtos.json
+py -3 "$SKILL_DIR"/scripts/fetch_catalogo.py > tmp/produtos.json
 ```
 
 O script resolve a anon key do bundle de produção, consulta os produtos + serviços do
@@ -69,7 +76,7 @@ Formato esperado:
 ### 4. Gerar memoriais
 
 ```bash
-python skills/orcamento-decor/scripts/montar_orcamento.py \
+py -3 "$SKILL_DIR"/scripts/montar_orcamento.py \
   --tipologias tmp/tipologias_spot.json \
   --produtos tmp/produtos.json \
   --estilo ESTILO \
@@ -91,7 +98,7 @@ TOTAL GERAL), `total_geral` (SEM jacuzzi, vai pro dashboard) e `total_com_jacuzz
 
 Gere o `.xlsx` multi-aba (uma aba por tipologia + Resumo Unidades), com cabeçalho Endereço/CEP:
 ```bash
-python skills/orcamento-decor/scripts/gerar_xlsx.py \
+py -3 "$SKILL_DIR"/scripts/gerar_xlsx.py \
   --memoriais tmp/memoriais.json --spot "SPOT_NAME" --saida tmp/Orcamento_SPOT.xlsx \
   --endereco "ENDERECO" --cep "CEP"
 ```
@@ -102,18 +109,20 @@ Destino: pasta **`03 - Memorial descritivo`** do Spot
 (`Spot / 02 - Projetos / 05 - Projeto Arquitetonico / 10 - Projeto de Interiores / 03 - Memorial descritivo`),
 NAO a `02 - Imagens` (la fica so a tabela de tipologias).
 
-Suba o `.xlsx` como **um unico arquivo**, convertido pra Google Sheet (preserva as abas):
+Suba o `.xlsx` como **um unico arquivo**, convertido pra Google Sheet (preserva as abas).
+As tools do `mcp__drive-raquel__` NÃO aceitam arquivo local nem base64 (só `s3key`), então use o script
+(testado 26/10/2026; chave lida de `COMPOSIO_API_KEY`, arquivo sai no nome da Raquel):
 ```
-GOOGLEDRIVE_CREATE_FILE  (base64 do .xlsx)
-  title: "Memorial Descritivo - SPOT_NAME (ESTILO Plus)"
-  base64Content: <base64 de tmp/Orcamento_SPOT.xlsx>
-  contentMimeType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-  parentId: <id da pasta 03 - Memorial descritivo>
+py -3 "$SKILL_DIR/scripts/subir_xlsx.py" --arquivo "Memorial Descritivo - SPOT_NAME (ESTILO Plus).xlsx" \
+   --pasta <id da pasta 03 - Memorial descritivo> --sheets
 ```
+Ele sobe o `.xlsx` (≤5 MB) e cria a cópia em Google Sheet, imprimindo `{"xlsx_id","sheet_id","sheet_url"}`.
+Nomeie o `.xlsx` com o nome final antes de subir (o Sheet herda o nome sem a extensão).
+Confira depois com `mcp__drive-raquel__GOOGLEDRIVE_FIND_FILE` (`q: "'<id da pasta>' in parents and trashed=false"`).
 O Drive converte o `.xlsx` em Google Sheet com **uma aba por tipologia** (+ Resumo). Guarde o link.
 
-> Conta do conector: hoje o Drive (composio) autentica como `rachel.souto`. Pra o arquivo
-> sair como `raquel.tavares`, reconectar o conector antes. Este MCP nao tem delete.
+> Conta do conector: `mcp__drive-raquel__` autentica como `raquel.tavares` (o arquivo sai no nome dela).
+> Nao apague nada pelo MCP; arquivo errado vai pra lixeira do Drive a mao.
 
 ### 6. Atualizar a vitrine do dashboard (orcamentos.js)
 
@@ -125,7 +134,7 @@ Monte `tmp/memorial_urls.json` com todas as tipologias apontando pro mesmo link 
 
 ```bash
 # tmp/memorial_urls.json -> {"A": "<link do Sheet>", "B": "<mesmo link>", ...}
-python skills/orcamento-decor/scripts/gerar_dashboard_js.py \
+py -3 "$SKILL_DIR"/scripts/gerar_dashboard_js.py \
   --orcamentos-js dashboard/data/orcamentos.js \
   --spot "SPOT_NAME" --codigo CODIGO --slug SLUG \
   --estilo ESTILO_CAPITALIZADO \
@@ -135,10 +144,14 @@ python skills/orcamento-decor/scripts/gerar_dashboard_js.py \
   --gerado-em AAAA-MM-DD
 ```
 
-Faca commit:
+Faca commit em BRANCH (nunca direto na `main`) e abra PR pra `staging`/`dev`:
 ```bash
+cd C:/Users/Seazone/Claude/seazone/hackathon-investimentos
+git checkout -b feat/orcamento-<slug>
 git add dashboard/data/orcamentos.js
-git commit -m "feat(orcamento): vitrine do SPOT_NAME no dashboard"
+git commit -m "feat(orcamento): vitrine do SPOT_NAME no dashboard"   # + linha Co-Authored-By
+git push -u origin feat/orcamento-<slug>
+gh pr create --base staging   # (ou dev) — nunca --base main sem pedido literal da Raquel
 ```
 
 **NUNCA edite `tipologias.js` (arquivo da skill tabela-tipologias).**
@@ -167,23 +180,29 @@ Precos de referencia (Plus 2026). Confirmar com catalogo atualizado.
 
 Quando o pedido é a área comum (Recepção/Rooftop/Sinalização/Serviços), os ITENS e
 QUANTIDADES vêm do **Revit aberto** (MCP) e a COR/ACABAMENTO dos **renders** da pasta
-do Spot. Exige Revit aberto + conector Nonica ativo + link dos renders.
+do Spot. Exige Revit aberto + MCP **Revit-SZI** ativo (`mcp__Revit-SZI__get_revit_status`) + link dos renders.
+Se as tools não aparecerem, carregue com ToolSearch `"+Revit-SZI"`.
 
 ### A1. Coletar blocos do Revit (por ambiente)
-- `get_active_view_in_revit` → confirma o modelo/vista.
-- Para cada ambiente (vista), `get_elements_by_category(cat, viewId)` nas categorias de
-  mobiliário (Furniture -2000080, Casework -2001000, LightingFixtures -2001120,
-  PlumbingFixtures -2001160, Planting -2001360, SpecialityEquipment -2001350) →
-  `get_element_types_for_elementids` → monte os blocos. **Marque a categoria do Revit em
+- `mcp__Revit-SZI__get_current_view_info` → confirma o modelo/vista (`mcp__Revit-SZI__list_revit_views` lista as vistas).
+- Para cada ambiente: `mcp__Revit-SZI__set_active_view(view_name)` e depois
+  `mcp__Revit-SZI__ai_element_filter(category=<OST_...>, visible_in_view=true, max_elements=500)`
+  em cada categoria de mobiliário: `OST_Furniture`, `OST_Casework`, `OST_LightingFixtures`,
+  `OST_PlumbingFixtures`, `OST_Planting`, `OST_SpecialityEquipment` (o parâmetro é o nome do
+  BuiltInCategory, não o id numérico). Cada elemento volta com `id`, `category`, `type` (nome do tipo)
+  e `level` → agrupe por `type` e conte = blocos. Alternativa: `mcp__Revit-SZI__get_current_view_elements`
+  (tudo da vista, agrupado por categoria) e filtre as categorias acima. **Marque a categoria do Revit em
   cada bloco** (`categoria_revit`): é ela que define a categoria do orçamento — generaliza
   pra qualquer projeto (os nomes dos blocos mudam a cada Spot; a categoria não).
-  `{"ambiente":"...", "blocos":[{"type_name":"...","qtd":N,"categoria_revit":"Furniture"}]}`.
+  `{"ambiente":"...", "blocos":[{"type_name":"...","qtd":N,"categoria_revit":"OST_Furniture"}]}`
+  (o script aceita `OST_Furniture` ou `Furniture`).
 - Quando o `type_name` for só a cor (`Cinza`, `Marfim`…), puxe a FAMÍLIA com
-  `get_parameters_from_elementid` (1 elemento do tipo) e inclua `"family"` — vira o nome do item.
+  `mcp__Revit-SZI__get_element_properties(element_id=<id de 1 elemento do tipo>, include_type_params=true)`
+  (devolve categoria, família, tipo e parâmetros de instância + tipo) e inclua `"family"` — vira o nome do item.
 
 ### A2. Revit → linhas
 ```bash
-python skills/orcamento-decor/scripts/revit_para_linhas.py \
+py -3 "$SKILL_DIR"/scripts/revit_para_linhas.py \
   --blocos tmp/blocos_<amb>.json --produtos tmp/produtos.json --ambiente "<amb>" > tmp/linhas_<amb>.json
 ```
 **Lógica project-agnostic:** categoria vem da `categoria_revit`; item = nome do próprio bloco
@@ -195,8 +214,8 @@ Saída: `linhas`, `nao_mapeados` (sem categoria reconhecida → revisar) e `a_pr
 ### A2b. Preço dos itens FORA do catálogo (regras Rosa Sul)
 - **Marcenaria:** PRIMEIRO procure a peça no catálogo (usa o preço do catálogo, como qualquer
   item). **Só** se a peça NÃO estiver no catálogo, precifique por área(m²) × R$ 2.000/m² —
-  no payload use `{"marcenaria_m2": 9.76}` (área das medidas do Revit Rooms — cat OST_Rooms
-  -2000160: área/perímetro/pé-direito). Ex. Rosa Sul: balcão/prateleiras = catálogo;
+  no payload use `{"marcenaria_m2": 9.76}` (área das medidas dos Rooms do Revit —
+  `mcp__Revit-SZI__export_room_data`: number/name/level/area_sqm/perimeter_mm; níveis em `mcp__Revit-SZI__list_levels`). Ex. Rosa Sul: balcão/prateleiras = catálogo;
   painel e fechamento mini market = R$ 2.000/m².
 - **Pintura** → valor do CATÁLOGO (serviço normal), NÃO taxa por m².
 - **Loja** (sofá, quadros, capacho, mesas externas) → preço pesquisado + fornecedor + link.
@@ -205,7 +224,8 @@ Saída: `linhas`, `nao_mapeados` (sem categoria reconhecida → revisar) e `a_pr
 - Marcenaria/vasos/plantas/tapetes NÃO são modelados no Revit → vêm dos renders + manual.
 
 ### A3. Cor/acabamento dos renders
-Baixe os renders (Drive `download_file_content` → base64 salvo em arquivo → decode pra .png →
+Baixe os renders (`mcp__drive-raquel__GOOGLEDRIVE_FIND_FILE` com `q: "'<id da pasta>' in parents"` →
+`mcp__drive-raquel__GOOGLEDRIVE_DOWNLOAD_FILE(fileId)` → devolve URL temporária → `curl -s -o <scratchpad>/render.png "<url>"` →
 `Read`) e preencha `cor_acabamento` de cada linha (a cor do render VENCE a do Revit).
 
 ### A4. Montar área comum + xlsx
@@ -218,7 +238,7 @@ ambientes:[{nome,linhas}], sinalizacao:[{ambiente,qtd}], servicos:[...], sinaliz
 `spot_building_id`); **total_pavimentos** do Revit (Levels) ou das tipologias (`total_floors`
 do Nekt costuma estar vazio). **Budget**: valor que a Raquel informa por Spot (varia).
 ```bash
-python skills/orcamento-decor/scripts/montar_area_comum.py --payload tmp/area_comum.json \
+py -3 "$SKILL_DIR"/scripts/montar_area_comum.py --payload tmp/area_comum.json \
   --budget 150000 --saida tmp/Orcamento_SPOT_AreaComum.xlsx \
   --endereco "ENDERECO" --cep "CEP"
 ```

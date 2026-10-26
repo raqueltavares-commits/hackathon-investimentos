@@ -14,7 +14,7 @@ Pedidos como "monta a tabela de tipologias do Natal Spot", "tipologias do <Spot>
 
 ### 1. Localizar o anteprojeto
 Leia `references/drive-navegacao.md`. A partir do nome do Spot:
-1. `GOOGLEDRIVE_FIND_FILE` na raiz `1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF` → ache a pasta do Spot.
+1. `mcp__drive-raquel__GOOGLEDRIVE_FIND_FILE` na raiz `1D9y8aKfkGGE13WbGMlw07G8Euu0Pg7fF` → ache a pasta do Spot.
 2. Desça `02 - Projetos` → `05 - Projeto Arquitetônico` → `03 - Anteprojeto`.
 3. Escolha a última versão **LANÇAMENTOS** (NUNCA COMPATIBILIZADO INTERIORES).
 4. Pegue o `ANÁLISE_..._V0X.xlsx` (preferência) e/ou o `LANÇAMENTO_AP_..._V0X.pdf`.
@@ -31,19 +31,20 @@ terraço e o total de unidades. Sempre validar o total de unidades entre as font
 
 **Leitura DWG (automática) — quando houver DWG no Drive:**
 Na pasta do anteprojeto LANÇAMENTOS costuma haver uma subpasta `DWG` (uma planta por
-pavimento). Baixe o(s) DWG dos pavimentos de unidades do Drive (`search_files` por
-`parentId` → `download_file_content`; o base64 vem grande, é salvo num .txt em tool-results
-→ decodifique com `base64`). Então, **para cada pavimento**:
+pavimento). Baixe o(s) DWG dos pavimentos de unidades do Drive:
+`mcp__drive-raquel__GOOGLEDRIVE_FIND_FILE` (`q: "'<id da pasta DWG>' in parents and trashed=false"`) →
+`mcp__drive-raquel__GOOGLEDRIVE_DOWNLOAD_FILE(fileId)` (devolve URL temporária) →
+`curl -s -o <scratchpad>/pavimento.dwg "<url>"`. Então, **para cada pavimento**:
 
 1. **Inspecione os layers primeiro** (os nomes VARIAM de projeto pra projeto — desenhistas
    diferentes nomeiam diferente; os defaults seguem AIA/Revit mas não são universais):
    ```bash
-   python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg --listar-layers
+   py -3 <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg --listar-layers
    ```
    Identifique o layer dos **números de unidade** e o(s) de **esquadria**.
 2. **Conte as janelas por unidade** (passe os layers do projeto se diferirem dos defaults):
    ```bash
-   python <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg \
+   py -3 <SKILL_DIR>/scripts/unidades_dwg.py --dwg caminho/pavimento.dwg \
      --label-layer A-AREA-IDEN --janela-layers A-GLAZ,A-GLAZ-IDEN
    ```
    Retorna `{unidade: nº de janelas}` (normalizado). Unidades com nº diferente = tipologias
@@ -59,20 +60,24 @@ Sem DWG (ou pra confirmar), **renderize e olhe as PLANTAS do PDF** (`fitz`, dpi 
 planilha sozinha NÃO dá o layout: metragem parecida pode ser tipologia diferente.
 
 ### 2c. Validação via Revit (OPCIONAL — complemento, não fonte)
-Se o **Revit do Spot estiver aberto** (MCP Nonica ativo), use-o como 2ª/3ª opinião. NUNCA
+Se o **Revit do Spot estiver aberto** (MCP **Revit-SZI** ativo — `mcp__Revit-SZI__get_revit_status`;
+se as tools não aparecerem, ToolSearch `"+Revit-SZI"`), use-o como 2ª/3ª opinião. NUNCA
 substitui o anteprojeto LANÇAMENTOS (a fonte da tabela); **só sinaliza divergências** pra
 Raquel decidir. Sem Revit, pule este passo.
 
-1. `get_active_view_in_revit` → confirme o modelo do Spot.
-2. Por nível de unidades, colete **Rooms** (OST_Rooms `-2000160`): `get_elements_by_category`
-   → `get_parameters_from_elementid` (Number/Name + Área). **Esquadrias:** conte **janelas**
-   (OST_Windows `-2000014`) e portas (OST_Doors `-2000023`) por unidade, associando à Room
+1. `mcp__Revit-SZI__get_current_view_info` → confirme o modelo do Spot; níveis em `mcp__Revit-SZI__list_levels`.
+2. **Rooms:** `mcp__Revit-SZI__export_room_data` (devolve number/name/level/area_sqm de todas as Rooms;
+   filtre pelos níveis de unidades). **Esquadrias:** conte **janelas** e portas por unidade com
+   `mcp__Revit-SZI__ai_element_filter(category="OST_Windows"|"OST_Doors", max_elements=2000)` (parâmetro =
+   nome do BuiltInCategory) e, por elemento, `mcp__Revit-SZI__get_element_properties(element_id)` para
+   host/FromRoom/ToRoom. Se a Room não vier nos parâmetros, use `mcp__Revit-SZI__execute_revit_code`
+   (IronPython, SÓ LEITURA, sem Transaction) lendo `inst.FromRoom`/`inst.ToRoom`/`inst.Room` da fase final
    (porta = from/to room; janela = host wall que limita a Room — NEAREST-ROOM). Monte
    `tmp/revit.json` = `{"unidades":[{"unidade":"101","area_revit":16.84,"janelas":2,"portas":1}]}`.
    (Janela é o sinal principal; porta é apoio. Se não der pra contar janela com confiança, omita.)
 3. Rode a validação (depois de ter a classificação do passo 3 em `unidades.json`):
    ```bash
-   python <SKILL_DIR>/scripts/validar_revit.py --unidades unidades.json --revit tmp/revit.json --tol 0.5
+   py -3 <SKILL_DIR>/scripts/validar_revit.py --unidades unidades.json --revit tmp/revit.json --tol 0.5
    ```
    Devolve `validacoes` (área/capacidade por unidade), `contagem`, `sem_match_*`,
    `esquadrias_por_grupo` e `divergencias`. **Tolerância de área = 0,5 m²**. A capacidade pela
@@ -98,9 +103,9 @@ Monte uma lista JSON no contrato do helper:
 ### 4. Agrupar, validar e gerar CSV
 Rode o helper (salve a lista em `unidades.json`). `<SKILL_DIR>` = a pasta deste SKILL.md:
 ```bash
-python <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> < unidades.json
+py -3 <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> < unidades.json
 # com leitura DWG integrada (separa esquinas automaticamente):
-python <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> --dwg caminho/pavimento.dwg < unidades.json
+py -3 <SKILL_DIR>/scripts/montar_tabela.py --total <TOTAL_DECLARADO> --dwg caminho/pavimento.dwg < unidades.json
 ```
 Ele retorna `tipologias`, `validacao` (soma vs total), `avisos` e `csv`. O `--dwg` separa
 unidades de mesma área com nº de janelas diferente (labels pareados tipo "201-301" são
@@ -115,12 +120,14 @@ planilha; em qualquer caso o agrupamento por layout depende da leitura da planta
 
 ### 5. Entregar
 1. Salve o CSV em `docs/tipologias_<spot>.csv` (snapshot versionável, encoding UTF-8).
+   `docs/` e `dashboard/` são do repo `C:\Users\Seazone\Claude\seazone\hackathon-investimentos`;
+   qualquer alteração lá vai em **branch `feat/tipologias-<slug>` + PR pra `staging`/`dev`** (nunca direto na `main`).
 2. Crie um **novo** Google Sheet no Drive **dentro de `05 - Projeto Arquitetônico /
    10 - Projeto de Interiores / 02 - Imagens`** do próprio Spot (ver `references/drive-navegacao.md`).
-   O toolkit Google Sheets NÃO está conectado — use `GOOGLEDRIVE_CREATE_FILE_FROM_TEXT`
-   com `mime_type=application/vnd.google-apps.spreadsheet` e o CSV (+ uma linha de aviso
-   de capacidade) como `text_content`. Valide exportando de volta (`GOOGLEDRIVE_DOWNLOAD_FILE
-   mime_type=text/csv`). NÃO sobrescreva nada. Devolva o link.
+   Use `mcp__drive-raquel__GOOGLEDRIVE_CREATE_FILE_FROM_TEXT` (`file_name`, `parent_id`,
+   `mime_type=application/vnd.google-apps.spreadsheet`) com o CSV (+ uma linha de aviso
+   de capacidade) como `text_content`. Valide exportando de volta (`mcp__drive-raquel__GOOGLEDRIVE_DOWNLOAD_FILE`
+   com `mime_type=text/csv` → URL temporária → `curl`). Conta: `raquel.tavares`. NÃO sobrescreva nada. Devolva o link.
 3. **Alimente a vitrine do dashboard** (SÓ no projeto `hackathon-investimentos`, se a pasta
    `dashboard/` existir): edite `dashboard/data/tipologias.js` — adicione/atualize o Spot em
    `window.TIPOLOGIAS.spots[<slug>]` (com `tipologias`, `drive_url`) e a entrada em
